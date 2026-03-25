@@ -9,16 +9,19 @@ import { PutObjectCommand } from '@aws-sdk/client-s3';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest, { params }: { params: { endpoint: string[] } }) {
-    return handleRequest(req, params.endpoint, 'GET');
+export async function GET(req: NextRequest, { params }: { params: Promise<{ endpoint: string[] }> }) {
+    const { endpoint } = await params;
+    return handleRequest(req, endpoint, 'GET');
 }
 
-export async function POST(req: NextRequest, { params }: { params: { endpoint: string[] } }) {
-    return handleRequest(req, params.endpoint, 'POST');
+export async function POST(req: NextRequest, { params }: { params: Promise<{ endpoint: string[] }> }) {
+    const { endpoint } = await params;
+    return handleRequest(req, endpoint, 'POST');
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { endpoint: string[] } }) {
-    return handleRequest(req, params.endpoint, 'DELETE');
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ endpoint: string[] }> }) {
+    const { endpoint } = await params;
+    return handleRequest(req, endpoint, 'DELETE');
 }
 
 async function handleRequest(req: NextRequest, endpointParts: string[], method: string) {
