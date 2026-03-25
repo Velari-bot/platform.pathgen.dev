@@ -7,7 +7,7 @@
     "start": "node server.mjs",
     "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
     "dev:api": "PORT=3001 nodemon server.mjs",
-    "dev:web": "next dev",
+    "dev:web": "next dev --no-turbo",
     "build": "next build",
     "start:web": "next start"
   },
