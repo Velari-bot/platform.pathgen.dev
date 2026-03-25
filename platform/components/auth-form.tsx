@@ -145,7 +145,7 @@ export function AuthForm({ type }: AuthFormProps) {
               <>Already have an account? <Link href="/login" className="text-primary hover:underline font-medium">Log in</Link></>
             )}
           </div>
-          <Link href="/reset-password"环="sm" className="hover:text-foreground transition-colors">Forgot password?</Link>
+          <Link href="/reset-password" className="hover:text-foreground transition-colors">Forgot password?</Link>
         </CardFooter>
       </Card>
     </motion.div>

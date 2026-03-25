@@ -77,8 +77,8 @@ export default function QuickstartPage() {
                      <p className="text-xs text-muted-foreground leading-relaxed">{s.detail}</p>
                   </CardContent>
                   <div className="p-8 pt-0 mt-4">
-                     <Button size="sm" variant="ghost" className="text-[10px] uppercase font-bold text-primary group-hover:gap-3 transition-all p-0 h-auto" asChild>
-                        <Link href={s.link}>Get Started <ChevronRight className="h-3 w-3" /></Link>
+                     <Button size="sm" variant="ghost" className="text-[10px] uppercase font-bold text-primary group-hover:gap-3 transition-all p-0 h-auto" render={<Link href={s.link} />}>
+                        Get Started <ChevronRight className="h-3 w-3" />
                      </Button>
                   </div>
                </Card>

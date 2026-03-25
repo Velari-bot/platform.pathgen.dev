@@ -39,15 +39,11 @@ export default function LandingPage() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="rounded-full px-8 h-12 text-base bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20" asChild>
-              <Link href="/signup">
-                Get Started for Free <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
+            <Button size="lg" className="rounded-full px-8 h-12 text-base bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20" render={<Link href="/signup" />}>
+              Get Started for Free <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-            <Button size="lg" variant="outline" className="rounded-full px-8 h-12 text-base glass hover:bg-glass-border" asChild>
-              <Link href="/docs">
-                View Documentation
-              </Link>
+            <Button size="lg" variant="outline" className="rounded-full px-8 h-12 text-base glass hover:bg-glass-border" render={<Link href="/docs" />}>
+              View Documentation
             </Button>
           </div>
         </motion.div>
@@ -160,8 +156,8 @@ export default function LandingPage() {
                     </li>
                   ))}
                 </ul>
-                <Button className={`w-full rounded-xl ${p.recommended ? 'bg-primary' : 'variant-outline bg-white/5 hover:bg-white/10'}`} asChild>
-                   <Link href="/signup">Purchase Pack</Link>
+                <Button className={`w-full rounded-xl ${p.recommended ? 'bg-primary' : 'variant-outline bg-white/5 hover:bg-white/10'}`} render={<Link href="/signup" />}>
+                   Purchase Pack
                 </Button>
               </CardContent>
             </Card>
@@ -173,8 +169,8 @@ export default function LandingPage() {
       <section className="py-24 px-6 text-center relative">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
         <h2 className="text-3xl font-bold mb-6">Ready to start building?</h2>
-        <Button size="lg" className="rounded-full px-12 h-14 text-lg bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/40" asChild>
-          <Link href="/signup">Join PathGen Platform</Link>
+        <Button size="lg" className="rounded-full px-12 h-14 text-lg bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/40" render={<Link href="/signup" />}>
+          Join PathGen Platform
         </Button>
         <div className="mt-12 text-sm text-muted-foreground opacity-50">
            © 2026 PathGen.dev • Built for the Fortnite Developer Community

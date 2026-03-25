@@ -52,10 +52,8 @@ export function CreateKeyModal() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="rounded-xl px-6 bg-primary font-bold shadow-lg shadow-primary/20">
-          <Plus className="mr-2 h-4 w-4" /> Create API Key
-        </Button>
+      <DialogTrigger render={<Button className="rounded-xl px-6 bg-primary font-bold shadow-lg shadow-primary/20" />}>
+        <Plus className="mr-2 h-4 w-4" /> Create API Key
       </DialogTrigger>
       <DialogContent className="glass shadow-2xl border-white/5 sm:max-w-md bg-background/80 backdrop-blur-2xl">
         <DialogHeader>

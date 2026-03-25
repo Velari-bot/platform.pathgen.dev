@@ -98,9 +98,9 @@ export default function PricingPage() {
                    </ul>
                 </CardContent>
                 <CardFooter className="p-8 pt-0">
-                   <Button className={`w-full h-12 rounded-xl font-bold shadow-lg transition-all ${p.popular ? 'bg-primary shadow-primary/20' : 'bg-white/5 variant-outline hover:bg-white/10'}`} asChild>
-                      <Link href="/signup">Purchase {p.name} Pack</Link>
-                   </Button>
+                    <Button className={`w-full h-12 rounded-xl font-bold shadow-lg transition-all ${p.popular ? 'bg-primary shadow-primary/20' : 'bg-white/5 variant-outline hover:bg-white/10'}`} render={<Link href="/signup" />}>
+                       Purchase {p.name} Pack
+                    </Button>
                 </CardFooter>
              </Card>
           </motion.div>
