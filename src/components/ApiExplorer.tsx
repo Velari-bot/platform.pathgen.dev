@@ -8,6 +8,7 @@ export default function ApiExplorer() {
   const [selectedEndpoint, setSelectedEndpoint] = useState<Endpoint>(ENDPOINTS_DATA[0].endpoints[0]);
   const [activeTab, setActiveTab] = useState<'params' | 'headers' | 'body'>('params');
   const [response, setResponse] = useState<string | null>(null);
+  const [status, setStatus] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [apiKey, setApiKey] = useState('rs_vgyqz2jwi203htfpug');
   const [params, setParams] = useState<{name: string, value: string}[]>([]);
@@ -24,6 +25,7 @@ export default function ApiExplorer() {
   const handleSend = async () => {
     setIsLoading(true);
     setResponse(null);
+    setStatus(null);
     try {
       // Construct query string
       const queryParams = new URLSearchParams();
@@ -47,9 +49,11 @@ export default function ApiExplorer() {
       }
 
       const res = await fetch(url, options);
+      setStatus(res.status);
       const data = await res.json();
       setResponse(JSON.stringify(data, null, 2));
     } catch (err) {
+      setStatus(500);
       setResponse(JSON.stringify({ error: true, message: (err as Error).message }, null, 2));
     } finally {
       setIsLoading(false);
@@ -269,7 +273,23 @@ export default function ApiExplorer() {
                   </div>
                   <CopyButton text={response || selectedEndpoint.response || ''} size={14} />
                </div>
-               {response && <div style={{fontSize: '0.8rem', color: '#059669', display: 'flex', alignItems: 'center', gap: '6px'}}><div style={{width: '6px', height: '6px', background: '#059669', borderRadius: '50%'}}></div>200 OK</div>}
+               {status && (
+                 <div style={{
+                    fontSize: '0.8rem', 
+                    color: status >= 200 && status < 300 ? '#059669' : '#DC2626', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '6px'
+                 }}>
+                   <div style={{
+                      width: '6px', 
+                      height: '6px', 
+                      background: status >= 200 && status < 300 ? '#059669' : '#DC2626', 
+                      borderRadius: '50%'
+                   }}></div>
+                   {status} {status === 200 ? 'OK' : status === 404 ? 'Not Found' : status === 401 ? 'Unauthorized' : status === 500 ? 'Error' : ''}
+                 </div>
+               )}
             </div>
             <div style={{flex: 1, overflowY: 'auto', padding: '24px 32px'}}>
                <pre style={{margin: 0, padding: 0, background: 'transparent', color: response ? '#111827' : '#6B7280', fontSize: '0.85rem', opacity: response ? 1 : 0.8}}>
