@@ -41,6 +41,12 @@ export default function Docs() {
         { id: 'credits', title: 'Credits & Billing', icon: <CreditCard size={18} /> }
       ]
     },
+    {
+      section: "GUIDES",
+      items: [
+        { id: 'map-integration', title: 'Map Integration', icon: <Box size={18} /> }
+      ]
+    },
     { 
       section: "API REFERENCE", 
       items: [
@@ -169,10 +175,217 @@ export default function Docs() {
                         <td style={{padding: '16px 24px'}}>Full Analysis & Exclusive Data</td>
                         <td style={{padding: '16px 24px', fontWeight: 700}}>20-50 Credits</td>
                      </tr>
+                      <tr style={{borderTop: '1px solid #F3F4F6', background: '#F9FAFB'}}>
+                         <td style={{padding: '16px 24px', fontWeight: 600}}>24h Map Pass (Unlimited Tiles)</td>
+                         <td style={{padding: '16px 24px', fontWeight: 700, color: '#2563EB'}}>30 Credits</td>
+                      </tr>
                   </tbody>
                </table>
             </div>
          </section>
+          <section id="map-integration" style={{paddingTop: '80px', marginBottom: '120px', borderTop: '1px solid #F3F4F6', scrollMarginTop: '48px'}}>
+            <h2 style={{fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '24px'}}>Map Integration (Leaflet)</h2>
+            <p style={{fontSize: '1.25rem', color: '#4B5563', lineHeight: 1.6, marginBottom: '32px'}}>
+               Our high-fidelity tile engine is built for seamless integration with Leaflet. A full interactive replay map can be implemented in just a few lines of code.
+            </p>
+
+            {/* Step Summary */}
+            <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '48px'}}>
+               {[
+                 { step: "1", title: "GET /v1/map", desc: "Get tile URL and world bounds" },
+                 { step: "2", title: "POST /v1/movement", desc: "Get player positions" },
+                 { step: "3", title: "Init Leaflet", desc: "Map renders automatically" },
+                 { step: "4", title: "Plot Tracks", desc: "Convert coords and render" }
+               ].map((s, i) => (
+                 <div key={i} style={{padding: '24px', background: '#F9FAFB', borderRadius: '20px', border: '1px solid #E5E7EB'}}>
+                    <div style={{fontSize: '0.75rem', fontWeight: 800, color: '#9CA3AF', marginBottom: '12px'}}>STEP {s.step}</div>
+                    <div style={{fontSize: '1.1rem', fontWeight: 700, marginBottom: '8px'}}>{s.title}</div>
+                    <div style={{fontSize: '0.85rem', color: '#6B7280', lineHeight: 1.4}}>{s.desc}</div>
+                 </div>
+               ))}
+            </div>
+
+            <div style={{marginBottom: '48px'}}>
+              <h3 style={{fontSize: '1.25rem', fontWeight: 700, marginBottom: '16px'}}>Production Implementation</h3>
+              <p style={{fontSize: '1rem', color: '#6B7280', marginBottom: '24px', lineHeight: 1.6}}>
+                The following is a complete, standalone implementation that fetches map metadata, initializes the high-res engine, and plots replay telemetry.
+              </p>
+              
+              <div style={{position: 'relative'}}>
+                <div style={{background: '#000', borderRadius: '24px', border: '1px solid #1f1f1f', overflow: 'hidden'}}>
+                  <div style={{background: '#111', padding: '12px 24px', borderBottom: '1px solid #1f1f1f', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <div style={{fontSize: '0.7rem', fontWeight: 800, color: '#4B5563', textTransform: 'uppercase', letterSpacing: '0.1em'}}>index.html</div>
+                    <CopyButton text={`<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <style>
+    #map { width: 100%; height: 600px; background: #0a0a1a; border-radius: 20px; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+  // Step 1: get map config from Pathgen API
+  const config = await fetch('https://api.pathgen.dev/v1/map').then(r => r.json());
+
+  // Step 2: init Leaflet
+  const MAX_ZOOM = config.max_zoom;
+  const MAP_PX   = 256 * Math.pow(2, MAX_ZOOM);
+
+  const map = L.map('map', {
+    crs: L.CRS.Simple,
+    minZoom: config.min_zoom,
+    maxZoom: MAX_ZOOM,
+    zoom: 1
+  });
+
+  // Step 3: add tile layer using Pathgen tiles
+  L.tileLayer(config.tile_url, {
+    tileSize: config.tile_size,
+    maxZoom: MAX_ZOOM,
+    noWrap: true,
+    keepBuffer: 4
+  }).addTo(map);
+
+  // Step 4: center map
+  map.setView(
+    L.CRS.Simple.pointToLatLng(L.point(MAP_PX/2, MAP_PX/2), MAX_ZOOM), 
+    1
+  );
+
+  // Helper to plot world coordinates
+  function worldToLatLng(x, y) {
+    const WORLD_MIN  = config.world_bounds.min_x;
+    const WORLD_SIZE = config.world_bounds.max_x - WORLD_MIN;
+    const px = ((x - WORLD_MIN) / WORLD_SIZE) * MAP_PX;
+    const py = ((y - WORLD_MIN) / WORLD_SIZE) * MAP_PX;
+    return L.CRS.Simple.pointToLatLng(L.point(px, py), MAX_ZOOM);
+  }
+
+  // Plot POI labels
+  config.pois.forEach(poi => {
+    L.marker(worldToLatLng(poi.x, poi.y))
+      .bindTooltip(poi.name, { permanent: true, direction: 'top' })
+      .addTo(map);
+  });
+
+  // Example Replay Data (from POST /v1/replay/movement)
+  const replayData = {
+    drop_location:  { x: 7104,  y: 1216  },
+    death_location: { x: 12416, y: -9600 },
+    player_track: [
+      { x: 7104,  y: 1216  },
+      { x: 8192,  y: 2048  },
+      { x: 12416, y: -9600 }
+    ]
+  };
+
+  // Drop / Death markers
+  L.circleMarker(worldToLatLng(replayData.drop_location.x, replayData.drop_location.y), { radius: 8, color: '#00ff88', fillColor: '#00ff88', fillOpacity: 1 }).addTo(map);
+  L.circleMarker(worldToLatLng(replayData.death_location.x, replayData.death_location.y), { radius: 8, color: '#ff4444', fillColor: '#ff4444', fillOpacity: 1 }).addTo(map);
+
+  // Player Track Line
+  const trackPoints = replayData.player_track.map(p => worldToLatLng(p.x, p.y));
+  L.polyline(trackPoints, { color: '#00d4ff', weight: 2, opacity: 0.8 }).addTo(map);
+</script>
+</body>
+</html>`} color="#6B7280" />
+                  </div>
+                  <div style={{maxHeight: '400px', overflowY: 'auto', padding: '24px'}}>
+                    <pre style={{margin: 0, fontSize: '0.85rem', color: '#fff', whiteSpace: 'pre-wrap', fontFamily: 'JetBrains Mono', background: 'transparent', padding: 0, opacity: 0.9}}>
+                      {`<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <style>
+    #map { width: 100%; height: 600px; background: #0a0a1a; border-radius: 20px; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+  // Step 1: get map config from Pathgen API
+  const config = await fetch('https://api.pathgen.dev/v1/map').then(r => r.json());
+
+  // Step 2: init Leaflet
+  const MAX_ZOOM = config.max_zoom;
+  const MAP_PX   = 256 * Math.pow(2, MAX_ZOOM);
+
+  const map = L.map('map', {
+    crs: L.CRS.Simple,
+    minZoom: config.min_zoom,
+    maxZoom: MAX_ZOOM,
+    zoom: 1
+  });
+
+  // Step 3: add tile layer using Pathgen tiles
+  L.tileLayer(config.tile_url, {
+    tileSize: config.tile_size,
+    maxZoom: MAX_ZOOM,
+    noWrap: true,
+    keepBuffer: 4
+  }).addTo(map);
+
+  // Step 4: center map
+  map.setView(
+    L.CRS.Simple.pointToLatLng(L.point(MAP_PX/2, MAP_PX/2), MAX_ZOOM), 
+    1
+  );
+
+  // Helper to plot world coordinates
+  function worldToLatLng(x, y) {
+    const WORLD_MIN  = config.world_bounds.min_x;
+    const WORLD_SIZE = config.world_bounds.max_x - WORLD_MIN;
+    const px = ((x - WORLD_MIN) / WORLD_SIZE) * MAP_PX;
+    const py = ((y - WORLD_MIN) / WORLD_SIZE) * MAP_PX;
+    return L.CRS.Simple.pointToLatLng(L.point(px, py), MAX_ZOOM);
+  }
+
+  // Plot POI labels
+  config.pois.forEach(poi => {
+    L.marker(worldToLatLng(poi.x, poi.y))
+      .bindTooltip(poi.name, { permanent: true, direction: 'top' })
+      .addTo(map);
+  });
+
+  // Example Replay Data (from POST /v1/replay/movement)
+  const replayData = {
+    drop_location:  { x: 7104,  y: 1216  },
+    death_location: { x: 12416, y: -9600 },
+    player_track: [
+      { x: 7104,  y: 1216  },
+      { x: 8192,  y: 2048  },
+      { x: 12416, y: -9600 }
+    ]
+  };
+
+  // Drop / Death markers
+  L.circleMarker(worldToLatLng(replayData.drop_location.x, replayData.drop_location.y), { radius: 8, color: '#00ff88', fillColor: '#00ff88', fillOpacity: 1 }).addTo(map);
+  L.circleMarker(worldToLatLng(replayData.death_location.x, replayData.death_location.y), { radius: 8, color: '#ff4444', fillColor: '#ff4444', fillOpacity: 1 }).addTo(map);
+
+  // Player Track Line
+  const trackPoints = replayData.player_track.map(p => worldToLatLng(p.x, p.y));
+  L.polyline(trackPoints, { color: '#00d4ff', weight: 2, opacity: 0.8 }).addTo(map);
+</script>
+</body>
+</html>`}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="card" style={{background: '#F3F4F6', border: 'none', padding: '32px'}}>
+              <h3 style={{fontSize: '1.1rem', fontWeight: 700, marginBottom: '12px'}}>Hyper-Map Fidelity</h3>
+              <p style={{fontSize: '0.95rem', color: '#6B7280', lineHeight: 1.6}}>
+                Our tiling system uses Lanczos3 kernels for resampling, resulting in significantly crisper text and edges than standard bilinear scaling. 
+                This ensures a premium "pro" feel for your map tools.
+              </p>
+            </div>
+          </section>
 
          <section id="reference" style={{paddingTop: '80px', marginBottom: '120px', borderTop: '1px solid #F3F4F6', scrollMarginTop: '48px'}}>
             <h2 style={{fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '24px'}}>Full API Reference</h2>

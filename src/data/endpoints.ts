@@ -63,26 +63,51 @@ export const ENDPOINTS_DATA: Section[] = [
     ]
   },
   {
-    title: "2. Free Game Data",
+    title: "2. Game World Data",
     endpoints: [
       {
         method: 'GET',
-        path: '/v1/account/lookup',
+        path: '/v1/game/lookup',
         description: 'Find an Epic ID and basic stats using a display name.',
         parameters: [{ name: 'name', required: true, description: 'Epic display name' }],
         response: `{
   "account_id": "3f88ac4d331b43e5a85b30b696e9fc54",
-  "display_name": "blackgirlslikeme",
+  "display_name": "Ninja",
   "platform": "PC",
-  "level": 316,
-  "wins": 13,
-  "kills": 538,
-  "kd": 0.55
+  "level": 316
 }`
       },
       {
         method: 'GET',
-        path: '/v1/account/ranked',
+        path: '/v1/map',
+        description: 'Returns the complete map configuration, including high-fidelity tile URLs, world bounds, and POI coordinates.',
+        response: `{
+  "season": "ch7s2",
+  "tile_url": "https://api.pathgen.dev/v1/map/tiles/{z}/{x}/{y}.png?key={your_api_key}",
+  "max_zoom": 5,
+  "min_zoom": 0,
+  "world_bounds": { "min_x": -131072, "max_x": 131072 },
+  "pois": [
+    { "name": "Tiptop Terrace", "x": -80000, "y": -90000 }
+  ]
+}`
+      },
+      {
+        method: 'GET',
+        path: '/v1/map/tiles/{z}/{x}/{y}.png',
+        credits: 3,
+        description: 'Returns a high-resolution, Lanczos3-resampled PNG image tile. Supports ?key= authentication.',
+        parameters: [
+          { name: 'z', required: true, description: 'Zoom level (0-5)' },
+          { name: 'x', required: true, description: 'Horizontal tile coordinate' },
+          { name: 'y', required: true, description: 'Vertical tile coordinate' },
+          { name: 'key', required: false, description: 'API Key (optional if using Bearer)' }
+        ],
+        response: `// Binary PNG Image`
+      },
+      {
+        method: 'GET',
+        path: '/v1/game/ranked',
         description: "Get current rank (Elite, Champion, etc.) and % progress.",
         parameters: [{ name: 'accountId', required: true, description: 'Epic account ID' }],
         response: `{
@@ -99,7 +124,7 @@ export const ENDPOINTS_DATA: Section[] = [
       },
       {
         method: 'GET',
-        path: '/v1/account/stats',
+        path: '/v1/game/stats',
         description: "Detailed lifetime or season stats by mode and input type.",
         parameters: [{ name: 'accountId', required: true, description: 'Epic account ID' }],
         response: `{
@@ -120,18 +145,7 @@ export const ENDPOINTS_DATA: Section[] = [
         method: 'GET',
         path: '/v1/game/cosmetics',
         description: "Search skins, emotes, etc. with rarity and type filters.",
-        response: `{
-  "total": 342,
-  "items": [
-    {
-      "id": "CID_001_Athena_Commando_F",
-      "name": "Ramirez",
-      "type": "outfit",
-      "rarity": "common",
-      "image_url": "https://cdn.pathgen.dev/..."
-    }
-  ]
-}`
+        response: `{ "total": 342, "items": [...] }`
       },
       {
         method: 'GET',
@@ -336,24 +350,4 @@ export const ENDPOINTS_DATA: Section[] = [
       }
     ]
   },
-  {
-    title: "5. Maps & High-Fidelity Tiling",
-    endpoints: [
-      {
-        method: 'GET',
-        path: '/v1/game/tiles/{z}/{x}/{y}',
-        credits: 3,
-        description: 'Returns a high-resolution, Lanczos3-resampled PNG image tile for use with Leaflet.',
-        parameters: [
-          { name: 'z', required: true, description: 'Zoom level (0-5)' },
-          { name: 'x', required: true, description: 'Horizontal tile coordinate' },
-          { name: 'y', required: true, description: 'Vertical tile coordinate' }
-        ],
-        response: `{
-  "status": 202,
-  "error": "Tiles are being generated. Please wait."
-}`
-      }
-    ]
-  }
 ];

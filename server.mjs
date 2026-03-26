@@ -46,7 +46,7 @@ app.use('/v1/session', rateLimitMiddleware, sessionRoutes);
 app.use('/v1/auth', authRoutes);
 app.use('/v1/account', accountRoutes);
 app.use('/v1/billing', billingRoutes);
-app.use('/v1/game', gameRoutes);
+app.use('/v1', gameRoutes);
 
 // Assets (Redirect to Cloudflare R2 for performance)
 app.use('/tiles', (req, res) => {
