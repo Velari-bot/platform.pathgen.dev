@@ -2,16 +2,19 @@
 import { useState, useEffect, useRef } from 'react';
 import { User, Shield, Bell, Trash2, Camera, Loader2 } from 'lucide-react';
 import Image from 'next/image';
-import { firestore } from '@/lib/firebase/config';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { auth, firestore } from '@/lib/firebase/config';
+import { doc, getDoc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { sendPasswordResetEmail, deleteUser } from 'firebase/auth';
 import { useAuth } from '@/lib/firebase/auth-context';
 import { useOrg } from '@/lib/context/OrgContext';
+import { useRouter } from 'next/navigation';
 
 export default function Settings() {
   const { user } = useAuth();
   const { currentOrg } = useOrg();
   const userEmail = user?.email || "";
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   const [activeTab, setActiveTab] = useState('profile');
   const [isLoading, setIsLoading] = useState(true);
@@ -127,6 +130,39 @@ export default function Settings() {
         alert("Profile saved successfully!");
     } catch (error) {
         console.error("Error saving profile:", error);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    if (!userEmail) return;
+    try {
+      await sendPasswordResetEmail(auth, userEmail);
+      alert("Password reset email sent! Check your inbox.");
+    } catch (err: any) {
+      alert("Failed to send reset email: " + err.message);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user || !userEmail) return;
+    const confirm = window.confirm("Are you ABSOLUTELY sure? This will delete all your credits, keys, and organizational data. This cannot be undone.");
+    if (!confirm) return;
+
+    try {
+      // 1. Delete Firestore Data
+      await deleteDoc(doc(firestore, "users", userEmail));
+      
+      // 2. Delete Auth User
+      await deleteUser(user);
+      
+      alert("Account deleted. Redirecting...");
+      router.push("/");
+    } catch (err: any) {
+      if (err.code === 'auth/requires-recent-login') {
+        alert("For security, you must log in again before deleting your account.");
+      } else {
+        alert("Error deleting account: " + err.message);
+      }
     }
   };
 
@@ -270,7 +306,7 @@ export default function Settings() {
                   <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
                      {[
                         { title: 'Password', desc: 'Secure your account with a strong password.', action: 'Change Password' },
-                        { title: 'Two-Factor Auth', desc: 'Add an extra layer of protection to your account.', action: 'Enable 2FA' },
+                        { title: 'Two-Factor Auth', desc: 'Add an extra layer of protection (Coming Soon).', action: 'Setup 2FA' },
                         { title: 'Linked Accounts', desc: 'Manage your Discord and GitHub connections.', action: 'Manage' }
                      ].map((row, i) => (
                         <div key={i} style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px', background: 'var(--bg-sidebar)', border: '1px solid var(--border-color)', borderRadius: '16px'}}>
@@ -278,7 +314,19 @@ export default function Settings() {
                               <div style={{fontSize: '1rem', fontWeight: 700, marginBottom: '4px', color: 'var(--text-primary)'}}>{row.title}</div>
                               <div style={{fontSize: '0.85rem', color: 'var(--text-secondary)'}}>{row.desc}</div>
                            </div>
-                           <button style={{padding: '10px 20px', background: '#fff', border: '1px solid var(--border-color)', color: 'var(--accent-primary)', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer'}} className="table-row-hover">{row.action}</button>
+                           <button 
+                             onClick={row.title === 'Password' ? handlePasswordReset : undefined}
+                             disabled={row.title === 'Two-Factor Auth'}
+                             style={{
+                                padding: '10px 20px', 
+                                background: '#fff', 
+                                border: '1px solid var(--border-color)', 
+                                color: row.title === 'Two-Factor Auth' ? '#9CA3AF' : 'var(--accent-primary)', 
+                                borderRadius: '10px', 
+                                fontSize: '0.85rem', 
+                                fontWeight: 700, 
+                                cursor: row.title === 'Two-Factor Auth' ? 'not-allowed' : 'pointer'
+                             }} className="table-row-hover">{row.action}</button>
                         </div>
                      ))}
                   </div>
@@ -326,7 +374,9 @@ export default function Settings() {
                   <p style={{fontSize: '0.95rem', color: '#B91C1C', marginBottom: '32px', lineHeight: 1.6}}>
                      Once you delete your account, all your API keys, credits, and historical data will be permanently removed. This action cannot be undone.
                   </p>
-                  <button style={{background: '#EF4444', color: '#fff', padding: '14px 32px', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 800, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px'}}>
+                  <button 
+                    onClick={handleDeleteAccount}
+                    style={{background: '#EF4444', color: '#fff', padding: '14px 32px', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 800, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px'}}>
                      <Trash2 size={18} />
                      Permanently Delete My Account
                   </button>

@@ -34,17 +34,16 @@ interface UsageDoc {
 export default function Usage() {
   const { user } = useAuth();
   const { currentOrg } = useOrg();
-  const userEmail = user?.email || "";
+  const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d'>('7d');
 
   const [stats, setStats] = useState<UsageStat[]>([]);
   const [endpoints, setEndpoints] = useState<EndpointMetric[]>([]);
-  const [chartData, setChartData] = useState<{h: number, active: boolean}[]>([]);
+  const [chartData, setChartData] = useState<{h: number, date: string}[]>([]);
 
   useEffect(() => {
-    if (!userEmail) return;
+    if (!user?.email || !currentOrg) return;
 
     const fetchUsageData = async () => {
-      if (!currentOrg) return;
       try {
         const q = query(
           collection(firestore, "activities"),
@@ -52,9 +51,9 @@ export default function Usage() {
           orderBy("timestamp", "desc")
         );
         const snapshot = await getDocs(q);
-        const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as UsageDoc));
+        const allDocs = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as any));
 
-        if (docs.length === 0) {
+        if (allDocs.length === 0) {
           setStats([
             { label: "Total Requests", value: "0", change: "0%", trend: "up" },
             { label: "Avg. Latency", value: "0ms", change: "0%", trend: "down" },
@@ -65,60 +64,84 @@ export default function Usage() {
           return;
         }
 
-        // Aggregate Stats
-        let totalLatency = 0;
-        let successCount = 0;
-        let totalCost = 0;
-        const endpointMap: Record<string, { calls: number, time: number, cost: number }> = {};
-        const dailyVolume: Record<string, number> = {};
+        // Define Time Boundaries
+        const now = new Date();
+        const getCutoff = (range: string) => {
+          const d = new Date();
+          if (range === '24h') d.setHours(d.getHours() - 24);
+          else if (range === '7d') d.setDate(d.getDate() - 7);
+          else d.setDate(d.getDate() - 30);
+          return d;
+        };
 
-        docs.forEach((d: UsageDoc) => {
-          const path = d.path || d.action || "/v1/api";
-          const latency = d.latency || 0;
-          const status = d.status || 'success';
-          const cost = d.cost || 0;
-          const date = d.timestamp?.toDate().toLocaleDateString() || "Unknown";
+        const cutoff = getCutoff(timeRange);
+        const prevCutoff = new Date(cutoff);
+        if (timeRange === '24h') prevCutoff.setHours(prevCutoff.getHours() - 24);
+        else if (timeRange === '7d') prevCutoff.setDate(prevCutoff.getDate() - 7);
+        else prevCutoff.setDate(prevCutoff.getDate() - 30);
 
-          totalLatency += latency;
-          if (status === 'success') successCount++;
-          totalCost += cost;
+        const currentDocs = allDocs.filter((d: any) => d.timestamp?.toDate() >= cutoff);
+        const previousDocs = allDocs.filter((d: any) => d.timestamp?.toDate() >= prevCutoff && d.timestamp?.toDate() < cutoff);
 
-          // Endpoints
-          if (!endpointMap[path]) endpointMap[path] = { calls: 0, time: 0, cost: 0 };
-          endpointMap[path].calls++;
-          endpointMap[path].time += latency;
-          endpointMap[path].cost += cost;
+        // Calculate Stats
+        const calcMetrics = (docs: any[]) => {
+          if (docs.length === 0) return { total: 0, latency: 0, success: 0, cost: 0 };
+          const sumLatency = docs.reduce((acc, d) => acc + (d.latency || 0), 0);
+          const sumCost = docs.reduce((acc, d) => acc + (d.usdCost || (d.credits ? d.credits * 0.01 : 0)), 0);
+          const success = docs.filter(d => d.status === 'success').length;
+          return { total: docs.length, latency: sumLatency / docs.length, success: (success / docs.length) * 100, cost: sumCost };
+        };
 
-          // Chart
-          dailyVolume[date] = (dailyVolume[date] || 0) + 1;
-        });
+        const current = calcMetrics(currentDocs);
+        const previous = calcMetrics(previousDocs);
 
-        const avgLatency = Math.round(totalLatency / docs.length);
-        const successRate = ((successCount / docs.length) * 100).toFixed(2);
+        const getPct = (cur: number, prev: number) => {
+          if (prev === 0) return cur > 0 ? "+100%" : "0%";
+          const pct = ((cur - prev) / prev) * 100;
+          return (pct >= 0 ? "+" : "") + pct.toFixed(0) + "%";
+        };
 
         setStats([
-          { label: "Total Requests", value: docs.length.toLocaleString(), change: "+0%", trend: "up" },
-          { label: "Avg. Latency", value: `${avgLatency}ms`, change: "-0%", trend: "down" },
-          { label: "Success Rate", value: `${successRate}%`, change: "+0%", trend: "up" },
-          { label: "Total Cost", value: `$${totalCost.toFixed(2)}`, change: "+0%", trend: "up" },
+          { label: "Total Requests", value: current.total.toLocaleString(), change: getPct(current.total, previous.total), trend: current.total >= previous.total ? 'up' : 'down' },
+          { label: "Avg. Latency", value: `${Math.round(current.latency)}ms`, change: getPct(current.latency, previous.latency), trend: current.latency <= previous.latency ? 'down' : 'up' },
+          { label: "Success Rate", value: `${current.success.toFixed(1)}%`, change: getPct(current.success, previous.success), trend: current.success >= previous.success ? 'up' : 'down' },
+          { label: "Total Cost", value: `$${current.cost.toFixed(2)}`, change: getPct(current.cost, previous.cost), trend: current.cost >= previous.cost ? 'up' : 'down' },
         ]);
 
-        // Process Endpoints
+        // Endpoints Breakdown (Current Period Only)
+        const endpointMap: Record<string, { calls: number, time: number, cost: number }> = {};
+        currentDocs.forEach((d: any) => {
+          const path = (d.target || d.action || "/v1/api").split('?')[0];
+          if (!endpointMap[path]) endpointMap[path] = { calls: 0, time: 0, cost: 0 };
+          endpointMap[path].calls++;
+          endpointMap[path].time += (d.latency || 0);
+          endpointMap[path].cost += (d.usdCost || (d.credits ? d.credits * 0.01 : 0));
+        });
+
         const endpointList = Object.entries(endpointMap).map(([path, data]) => ({
           path,
           calls: data.calls,
           avgTime: `${Math.round(data.time / data.calls)}ms`,
           cost: `$${data.cost.toFixed(2)}`,
-          percentage: (data.calls / docs.length) * 100
+          percentage: (data.calls / current.total) * 100
         })).sort((a, b) => b.calls - a.calls).slice(0, 5);
 
         setEndpoints(endpointList);
 
-        // Process Chart Data
-        const chartArr = Object.values(dailyVolume).map(v => ({
-           h: Math.min(100, (v / Math.max(...Object.values(dailyVolume))) * 100),
-           active: false
-        })).slice(-14);
+        // Chart Data (Volume per day/hour)
+        const volumeMap: Record<string, number> = {};
+        currentDocs.forEach(d => {
+          const date = d.timestamp?.toDate();
+          const label = timeRange === '24h' 
+            ? date.getHours() + ":00" 
+            : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+          volumeMap[label] = (volumeMap[label] || 0) + 1;
+        });
+
+        const chartArr = Object.entries(volumeMap).map(([date, v]) => ({
+           h: (v / Math.max(...Object.values(volumeMap), 1)) * 100,
+           date
+        })).reverse();
         setChartData(chartArr);
 
       } catch (e) {
@@ -127,7 +150,7 @@ export default function Usage() {
     };
 
     fetchUsageData();
-  }, [userEmail, currentOrg]);
+  }, [user?.email, currentOrg, timeRange]);
 
   return (
     <div className="fade-in" style={{paddingBottom: '120px', maxWidth: '1200px', margin: '0 auto'}}>
@@ -166,12 +189,12 @@ export default function Usage() {
                </div>
                <div style={{display: 'flex', gap: '8px', background: 'var(--bg-sidebar)', padding: '4px', borderRadius: '10px'}}>
                   {['24h', '7d', '30d'].map(t => (
-                    <button key={t} style={{
+                    <button key={t} onClick={() => setTimeRange(t)} style={{
                        padding: '6px 14px', borderRadius: '8px', border: 'none', 
-                       background: t === '7d' ? '#fff' : 'transparent',
-                       color: t === '7d' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                       background: t === timeRange ? '#fff' : 'transparent',
+                       color: t === timeRange ? 'var(--text-primary)' : 'var(--text-secondary)',
                        fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer',
-                       boxShadow: t === '7d' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none'
+                       boxShadow: t === timeRange ? '0 2px 8px rgba(0,0,0,0.05)' : 'none'
                     }}>{t}</button>
                   ))}
                </div>
@@ -189,7 +212,7 @@ export default function Usage() {
                ))}
             </div>
             <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '24px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 600}}>
-               <span>PAST 14 DAYS</span>
+               <span>PAST ${timeRange.toUpperCase()}</span>
                <span>TODAY</span>
             </div>
          </div>

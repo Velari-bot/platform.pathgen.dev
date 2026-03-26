@@ -113,7 +113,7 @@ export default function Sidebar() {
                 <div style={{width: '24px', height: '24px', borderRadius: '6px', background: 'var(--accent-primary)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0}}>
                    <LogoIcon size={14} />
                 </div>
-                <span style={{fontSize: '0.85rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
+                <span style={{fontSize: '1rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
                   {currentOrg?.name || 'Loading...'}
                 </span>
              </div>
@@ -155,7 +155,7 @@ export default function Sidebar() {
                     }}
                     className="table-row-hover"
                   >
-                    <div style={{flex: 1, fontSize: '0.85rem', fontWeight: currentOrg?.id === org.id ? 700 : 500, color: currentOrg?.id === org.id ? 'var(--accent-primary)' : 'var(--text-primary)'}}>
+                    <div style={{flex: 1, fontSize: '1rem', fontWeight: currentOrg?.id === org.id ? 700 : 500, color: currentOrg?.id === org.id ? 'var(--accent-primary)' : 'var(--text-primary)'}}>
                       {org.name}
                     </div>
                     {currentOrg?.id === org.id && <Check size={14} color="var(--accent-primary)" />}
@@ -197,7 +197,7 @@ export default function Sidebar() {
                       gap: '12px',
                       padding: '8px 16px',
                       borderRadius: '10px',
-                      fontSize: '0.85rem',
+                      fontSize: '1rem',
                       fontWeight: isActive ? 800 : 500,
                       color: isActive ? 'var(--accent-primary)' : 'var(--text-secondary)',
                       background: isActive ? '#EEECE7' : 'transparent',
@@ -222,8 +222,8 @@ export default function Sidebar() {
             <div style={{width: '6px', height: '6px', borderRadius: '50%', background: '#10B981'}}></div>
             <span style={{fontSize: '0.75rem', fontWeight: 600, color: '#111827'}}>Operational</span>
          </div>
-         <div style={{fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 700, marginBottom: '2px'}}>
-            ${balance?.toFixed(2) || "0.00"} Credits
+         <div style={{fontSize: '1rem', color: 'var(--text-primary)', fontWeight: 700, marginBottom: '2px'}}>
+            {Math.round((balance || 0) * 100).toLocaleString()}
          </div>
          <div style={{fontSize: '0.65rem', color: '#6B6A68', fontWeight: 500}}>
             API Latency: {latency}ms

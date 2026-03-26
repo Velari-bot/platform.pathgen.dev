@@ -101,7 +101,7 @@ export default function ApiExplorer() {
                        padding: '8px 12px', 
                        borderRadius: '8px', 
                        fontSize: '0.85rem', 
-                       cursor: 'pointer',
+                       cursor: (isLoading || selectedEndpoint.status === 'coming-soon') ? 'not-allowed' : 'pointer',
                        background: selectedEndpoint.path === ep.path ? 'white' : 'transparent',
                        boxShadow: selectedEndpoint.path === ep.path ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
                        border: selectedEndpoint.path === ep.path ? '1px solid #E5E7EB' : '1px solid transparent',
@@ -149,21 +149,21 @@ export default function ApiExplorer() {
             </div>
             <button 
               onClick={handleSend}
-              disabled={isLoading}
+              disabled={isLoading || selectedEndpoint.status === "coming-soon"}
               style={{
                 padding: '0 32px', 
-                background: '#2563EB', 
+                background: (isLoading || selectedEndpoint.status === 'coming-soon') ? '#93C5FD' : '#2563EB', 
                 color: 'white', 
                 borderRadius: '12px', 
                 fontWeight: 700, 
                 border: 'none', 
-                cursor: 'pointer',
+                cursor: (isLoading || selectedEndpoint.status === 'coming-soon') ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px'
               }}
             >
-              {isLoading ? 'Sending...' : 'Send'}
+              {isLoading ? 'Sending...' : (selectedEndpoint.status === 'coming-soon' ? 'Coming Soon' : 'Send')}
               <Play size={14} fill="currentColor" />
             </button>
          </div>
@@ -183,7 +183,7 @@ export default function ApiExplorer() {
                      fontWeight: 600,
                      color: activeTab === tab ? '#2563EB' : '#6B7280',
                      borderBottom: activeTab === tab ? '2px solid #2563EB' : '2px solid transparent',
-                     cursor: 'pointer',
+                     cursor: (isLoading || selectedEndpoint.status === 'coming-soon') ? 'not-allowed' : 'pointer',
                      textTransform: 'capitalize'
                    }}
                  >

@@ -7,6 +7,7 @@ export interface Endpoint {
   exampleRequest?: string;
   response?: string;
   useCase?: string;
+  status?: 'alpha' | 'beta' | 'coming-soon' | 'free' | 'paid';
 }
 
 export interface Section {
@@ -95,7 +96,8 @@ export const ENDPOINTS_DATA: Section[] = [
       {
         method: 'GET',
         path: '/v1/map/tiles/{z}/{x}/{y}.png',
-        credits: 3,
+        credits: 30,
+        status: 'coming-soon',
         description: 'Returns a high-resolution, Lanczos3-resampled PNG image tile. Supports ?key= authentication.',
         parameters: [
           { name: 'z', required: true, description: 'Zoom level (0-5)' },

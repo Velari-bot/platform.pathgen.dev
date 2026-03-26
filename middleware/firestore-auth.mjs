@@ -58,14 +58,17 @@ export const validateFirestoreKey = (creditCost = 1) => {
 
                 // 3. Log Activity
                 const latency = Date.now() - startTime;
-                const actRef = adminDb.collection('request_logs').doc();
+                const usdCost = parseFloat((creditCost * 0.01).toFixed(4));
+                const actRef = adminDb.collection('activities').doc();
                 
                 transaction.set(actRef, {
                     email,
+                    orgId: keyData.orgId || 'personal',
                     key_id: apiKey,
                     credits: creditCost,
-                    endpoint: req.originalUrl || req.path,
-                    method: req.method,
+                    usdCost: usdCost,
+                    action: `${req.method} ${req.originalUrl || req.path}`,
+                    target: req.originalUrl || req.path,
                     status: 'success',
                     latency: latency,
                     timestamp: new Date()
