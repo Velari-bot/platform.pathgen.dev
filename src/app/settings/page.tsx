@@ -34,6 +34,7 @@ export default function Settings() {
   // Fetch settings from Firestore
   useEffect(() => {
     const fetchSettings = async () => {
+      if (!userEmail) return;
       try {
         const userDoc = await getDoc(doc(firestore, "users", userEmail));
         if (userDoc.exists()) {
@@ -89,9 +90,12 @@ export default function Settings() {
       // 3. Update Profile locally and in Firestore
       const newProfile = { ...profile, image: finalUrl };
       setProfile(newProfile);
-      await updateDoc(doc(firestore, "users", userEmail), {
-        "profile.image": finalUrl
-      });
+      
+      if (userEmail) {
+        await updateDoc(doc(firestore, "users", userEmail), {
+          "profile.image": finalUrl
+        });
+      }
 
     } catch (err) {
       console.error("Upload failed:", err);
@@ -104,6 +108,7 @@ export default function Settings() {
   const toggleNotification = async (key: keyof typeof notifications) => {
     const newVal = !notifications[key];
     setNotifications({...notifications, [key]: newVal});
+    if (!userEmail) return;
     try {
         await updateDoc(doc(firestore, "users", userEmail), {
             [`notifications.${key}`]: newVal
@@ -114,6 +119,7 @@ export default function Settings() {
   };
 
   const saveProfile = async () => {
+    if (!userEmail) return;
     try {
         await updateDoc(doc(firestore, "users", userEmail), {
             profile: profile
