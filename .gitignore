@@ -8,6 +8,7 @@ out
 .env
 .env.local
 .env.*
+!.env.example
 pathgen-api-firebase-adminsdk-fbsvc-*.json
 *.json
 !package.json
