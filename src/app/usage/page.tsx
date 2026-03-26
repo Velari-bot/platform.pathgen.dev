@@ -188,7 +188,7 @@ export default function Usage() {
                   <h3 style={{fontSize: '1.25rem', fontWeight: 600}}>Request Volume</h3>
                </div>
                <div style={{display: 'flex', gap: '8px', background: 'var(--bg-sidebar)', padding: '4px', borderRadius: '10px'}}>
-                  {['24h', '7d', '30d'].map(t => (
+                  {(['24h', '7d', '30d'] as const).map(t => (
                     <button key={t} onClick={() => setTimeRange(t)} style={{
                        padding: '6px 14px', borderRadius: '8px', border: 'none', 
                        background: t === timeRange ? '#fff' : 'transparent',
