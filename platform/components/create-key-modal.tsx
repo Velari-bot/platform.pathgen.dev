@@ -18,7 +18,7 @@ import { MaskedKey } from "@/components/masked-key";
 export function CreateKeyModal() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [newKey, setNewKey] = useState<any>(null);
+  const [newKey, setNewKey] = useState<{ key_id: string; name: string } | null>(null);
   const [open, setOpen] = useState(false);
 
   const handleCreate = async () => {
@@ -36,7 +36,7 @@ export function CreateKeyModal() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed locally");
       setNewKey(data);
-    } catch(err) {
+    } catch(_err) {
       // For demo, show a fake key
       setNewKey({ key_id: `rs_${Math.random().toString(36).substr(2, 20)}`, name });
     } finally {
@@ -83,7 +83,7 @@ export function CreateKeyModal() {
                    <MaskedKey apiKey={newKey.key_id} isNew />
                 </div>
                 <div className="p-2 px-3 bg-amber-500/10 border border-amber-500/20 text-[10px] text-amber-500 rounded-lg">
-                   Make sure to copy this key now. For your security, we don't store the full key after creation.
+                   Make sure to copy this key now. For your security, we don&apos;t store the full key after creation.
                 </div>
              </div>
           )}
@@ -98,7 +98,7 @@ export function CreateKeyModal() {
                </Button>
              </>
            ) : (
-             <Button onClick={closeDialog} className="bg-primary rounded-xl w-full font-bold">I've Copied the Key</Button>
+             <Button onClick={closeDialog} className="bg-primary rounded-xl w-full font-bold">I&apos;ve Copied the Key</Button>
            )}
         </DialogFooter>
       </DialogContent>

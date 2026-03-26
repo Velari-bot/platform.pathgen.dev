@@ -2,20 +2,18 @@
 
 import { motion } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { 
-  Terminal, 
   ChevronRight, 
   Terminal as TerminalIcon, 
   ArrowRight,
   Clipboard,
   Key,
   Database,
-  Search,
-  BookOpen
+  Search
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import React from "react";
 
 const steps = [
   { 
@@ -55,7 +53,7 @@ export default function QuickstartPage() {
             </Link>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight glow-text leading-tight">Zero to API call <br /> in 5 minutes.</h1>
             <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl italic opacity-80 border-l-2 border-primary/20 pl-6">
-              "Building Fortnite applications shouldn't be complex. PathGen reduces weeks of replay infrastructure work to a single POST request."
+              &quot;Building Fortnite applications shouldn&apos;t be complex. PathGen reduces weeks of replay infrastructure work to a single POST request.&quot;
             </p>
          </motion.header>
 
@@ -110,7 +108,7 @@ export default function QuickstartPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm pt-8">
                <div className="space-y-4">
-                  <h4 className="font-bold flex items-center gap-2"><Database className="h-4 w-4 opacity-40" /> What's happening?</h4>
+                  <h4 className="font-bold flex items-center gap-2"><Database className="h-4 w-4 opacity-40" /> What&apos;s happening?</h4>
                   <p className="text-[11px] text-muted-foreground leading-relaxed">
                     Once received, PathGen spins up a dedicated parser instance, decrypts the replay stream using modern AES-GCM logic, 
                     and extracts high-fidelity telemetry. The result is returned as a structured JSON object.
@@ -131,4 +129,4 @@ export default function QuickstartPage() {
 }
 
 // Support Icons not in direct lucide list
-function ShieldCheck(props: any) { return <svg {...props} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>; }
+function ShieldCheck(props: React.SVGProps<SVGSVGElement>) { return <svg {...props} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>; }

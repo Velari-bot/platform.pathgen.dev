@@ -1,17 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
-  CreditCard, 
   Receipt, 
   ExternalLink,
-  ChevronRight,
-  Zap,
-  CheckCircle2,
-  Clock,
-  ArrowRight
+  CheckCircle2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

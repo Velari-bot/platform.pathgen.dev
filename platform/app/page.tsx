@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Shield, Zap, BarChart3, Globe, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Shield, Zap, BarChart3, ArrowRight, CheckCircle2 } from "lucide-react";
 
 export default function LandingPage() {
   return (

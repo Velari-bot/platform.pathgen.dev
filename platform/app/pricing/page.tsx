@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Heart, Shield, Zap, ArrowRight, ArrowDown } from "lucide-react";
+import { CheckCircle2, Heart, Shield, Zap, ArrowDown } from "lucide-react";
 import Link from "next/link";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
@@ -55,7 +55,7 @@ export default function PricingPage() {
         >
           <Badge className="bg-primary/10 text-primary border-primary/20 mb-4 px-4 py-1 h-auto text-xs font-bold uppercase tracking-widest">Pricing Strategy</Badge>
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight glow-text">Pay only for what you parse.</h1>
-          <p className="text-lg text-muted-foreground mt-4 max-w-2xl mx-auto italic">"No monthly subscriptions. Just simple, transparent credits that never expire."</p>
+          <p className="text-lg text-muted-foreground mt-4 max-w-2xl mx-auto italic">&quot;No monthly subscriptions. Just simple, transparent credits that never expire.&quot;</p>
         </motion.div>
         <ArrowDown className="mx-auto h-6 w-6 text-primary animate-bounce opacity-40 mt-8" />
       </section>
