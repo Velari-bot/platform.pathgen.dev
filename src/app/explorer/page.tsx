@@ -3,7 +3,7 @@ import ApiExplorer from '@/components/ApiExplorer';
 import CopyButton from '@/components/CopyButton';
 
 export default function ExplorerPage() {
-  const baseUrl = "https://api.pathgen.dev/v1";
+  const baseUrl = "https://api.pathgen.dev";
   return (
     <div className="fade-in" style={{paddingBottom: '80px'}}>
       <div className="page-header" style={{marginBottom: '48px'}}>

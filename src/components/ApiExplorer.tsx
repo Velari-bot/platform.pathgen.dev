@@ -10,12 +10,31 @@ export default function ApiExplorer() {
   const [response, setResponse] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     setIsLoading(true);
-    setTimeout(() => {
-      setResponse(selectedEndpoint.response || '// No response available');
+    setResponse(null);
+    try {
+      const url = `https://api.pathgen.dev${selectedEndpoint.path}`;
+      const options: RequestInit = {
+        method: selectedEndpoint.method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer rs_vgyqz2jwi203htfpug`
+        }
+      };
+      
+      if (selectedEndpoint.method !== 'GET') {
+          options.body = JSON.stringify({ raw: "json" });
+      }
+
+      const res = await fetch(url, options);
+      const data = await res.json();
+      setResponse(JSON.stringify(data, null, 2));
+    } catch (err) {
+      setResponse(JSON.stringify({ error: true, message: (err as Error).message }, null, 2));
+    } finally {
       setIsLoading(false);
-    }, 800);
+    }
   };
 
   return (
@@ -93,7 +112,7 @@ export default function ApiExplorer() {
                   {selectedEndpoint.method}
                </div>
                <div style={{padding: '12px 20px', flex: 1, color: '#6B7280', fontSize: '0.9rem', fontFamily: 'JetBrains Mono'}}>
-                  https://api.pathgen.dev/v1{selectedEndpoint.path}
+                  https://api.pathgen.dev{selectedEndpoint.path}
                </div>
             </div>
             <button 
