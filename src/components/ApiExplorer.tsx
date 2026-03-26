@@ -27,14 +27,23 @@ export default function ApiExplorer() {
     setResponse(null);
     setStatus(null);
     try {
-      // Construct query string
+      let finalPath = selectedEndpoint.path;
+      
+      // Handle Path Parameters {param}
       const queryParams = new URLSearchParams();
       params.forEach((p) => {
-          if (p.value && p.name) queryParams.append(p.name, p.value);
+          if (p.value && p.name) {
+              const placeholder = `{${p.name}}`;
+              if (finalPath.includes(placeholder)) {
+                  finalPath = finalPath.replace(placeholder, p.value);
+              } else {
+                  queryParams.append(p.name, p.value);
+              }
+          }
       });
       
       const queryString = queryParams.toString();
-      const url = `https://api.pathgen.dev${selectedEndpoint.path}${queryString ? `?${queryString}` : ''}`;
+      const url = `https://api.pathgen.dev${finalPath}${queryString ? `?${queryString}` : ''}`;
       
       const options: RequestInit = {
         method: selectedEndpoint.method,

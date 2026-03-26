@@ -335,5 +335,25 @@ export const ENDPOINTS_DATA: Section[] = [
 }`
       }
     ]
+  },
+  {
+    title: "5. Maps & High-Fidelity Tiling",
+    endpoints: [
+      {
+        method: 'GET',
+        path: '/v1/game/tiles/{z}/{x}/{y}',
+        credits: 3,
+        description: 'Returns a high-resolution, Lanczos3-resampled PNG image tile for use with Leaflet.',
+        parameters: [
+          { name: 'z', required: true, description: 'Zoom level (0-5)' },
+          { name: 'x', required: true, description: 'Horizontal tile coordinate' },
+          { name: 'y', required: true, description: 'Vertical tile coordinate' }
+        ],
+        response: `{
+  "status": 202,
+  "error": "Tiles are being generated. Please wait."
+}`
+      }
+    ]
   }
 ];
