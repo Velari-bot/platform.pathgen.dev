@@ -1,5 +1,5 @@
 "use client"
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ENDPOINTS_DATA, Endpoint } from '@/data/endpoints';
 import { Play, Search } from 'lucide-react';
 import CopyButton from '@/components/CopyButton';
@@ -9,17 +9,36 @@ export default function ApiExplorer() {
   const [activeTab, setActiveTab] = useState<'params' | 'headers' | 'body'>('params');
   const [response, setResponse] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [apiKey, setApiKey] = useState('rs_vgyqz2jwi203htfpug');
+  const [params, setParams] = useState<{name: string, value: string}[]>([]);
+
+  // Update params when endpoint changes
+  useEffect(() => {
+    if (selectedEndpoint.parameters) {
+      setParams(selectedEndpoint.parameters.map(p => ({ name: p.name, value: '' })));
+    } else {
+      setParams([]);
+    }
+  }, [selectedEndpoint]);
 
   const handleSend = async () => {
     setIsLoading(true);
     setResponse(null);
     try {
-      const url = `https://api.pathgen.dev${selectedEndpoint.path}`;
+      // Construct query string
+      const queryParams = new URLSearchParams();
+      params.forEach((p) => {
+          if (p.value && p.name) queryParams.append(p.name, p.value);
+      });
+      
+      const queryString = queryParams.toString();
+      const url = `https://api.pathgen.dev${selectedEndpoint.path}${queryString ? `?${queryString}` : ''}`;
+      
       const options: RequestInit = {
         method: selectedEndpoint.method,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer rs_vgyqz2jwi203htfpug`
+          'Authorization': `Bearer ${apiKey}`
         }
       };
       
@@ -64,7 +83,7 @@ export default function ApiExplorer() {
                      onClick={() => {
                         setSelectedEndpoint(ep);
                         setResponse(null);
-                     }}
+                      }}
                      style={{
                        padding: '8px 12px', 
                        borderRadius: '8px', 
@@ -164,17 +183,32 @@ export default function ApiExplorer() {
                {activeTab === 'params' && (
                  <div>
                     <h4 style={{fontSize: '0.75rem', fontWeight: 800, color: '#9CA3AF', textTransform: 'uppercase', marginBottom: '16px'}}>Query Parameters</h4>
-                    {selectedEndpoint.parameters ? (
+                    {params.length > 0 ? (
                       <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
-                         {selectedEndpoint.parameters.map((p, idx) => (
+                         {params.map((p, idx) => (
                            <div key={idx} style={{display: 'flex', gap: '12px', alignItems: 'center'}}>
-                              <input type="checkbox" checked={p.required} readOnly style={{accentColor: '#2563EB'}} />
-                              <div style={{flex: 1, padding: '10px 16px', borderRadius: '8px', border: '1px solid #E5E7EB', background: '#F9FAFB', fontFamily: 'JetBrains Mono', fontSize: '0.85rem'}}>
-                                {p.name}
-                              </div>
-                              <div style={{flex: 2, padding: '10px 16px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '0.85rem', color: '#6B7280'}}>
-                                {p.description}
-                              </div>
+                              <input type="checkbox" checked={true} readOnly style={{accentColor: '#2563EB'}} />
+                              <input 
+                                type="text"
+                                value={p.name}
+                                onChange={(e) => {
+                                    const newParams = [...params];
+                                    newParams[idx].name = e.target.value;
+                                    setParams(newParams);
+                                }}
+                                style={{flex: 1, padding: '10px 16px', borderRadius: '8px', border: '1px solid #E5E7EB', background: '#F9FAFB', fontFamily: 'JetBrains Mono', fontSize: '0.85rem', outline: 'none'}} 
+                              />
+                              <input 
+                                type="text"
+                                placeholder={"Enter value..."}
+                                value={p.value}
+                                onChange={(e) => {
+                                    const newParams = [...params];
+                                    newParams[idx].value = e.target.value;
+                                    setParams(newParams);
+                                }}
+                                style={{flex: 2, padding: '10px 16px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '0.85rem', color: '#111827', outline: 'none'}} 
+                              />
                            </div>
                          ))}
                       </div>
@@ -193,8 +227,14 @@ export default function ApiExplorer() {
                        <div style={{flex: 1, padding: '10px 16px', borderRadius: '8px', border: '1px solid #E5E7EB', background: '#F9FAFB', fontFamily: 'JetBrains Mono', fontSize: '0.85rem'}}>
                          Authorization
                        </div>
-                       <div style={{flex: 2, padding: '10px 16px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '0.85rem', color: '#6B7280'}}>
-                         Bearer {'{API_KEY}'}
+                       <div style={{flex: 2, display: 'flex', alignItems: 'center', gap: '4px', padding: '10px 16px', borderRadius: '8px', border: '1px solid #E5E7EB', background: '#fff'}}>
+                         <span style={{fontSize: '0.85rem', color: '#6B7280'}}>Bearer</span>
+                         <input 
+                            type="password"
+                            value={apiKey}
+                            onChange={(e) => setApiKey(e.target.value)}
+                            style={{border: 'none', outline: 'none', flex: 1, fontSize: '0.85rem', color: '#111827'}}
+                         />
                        </div>
                     </div>
                     <div style={{display: 'flex', gap: '12px', alignItems: 'center'}}>
