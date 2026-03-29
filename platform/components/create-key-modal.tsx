@@ -36,7 +36,7 @@ export function CreateKeyModal() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed locally");
       setNewKey(data);
-    } catch(_err) {
+    } catch {
       // For demo, show a fake key
       setNewKey({ key_id: `rs_${Math.random().toString(36).substr(2, 20)}`, name });
     } finally {

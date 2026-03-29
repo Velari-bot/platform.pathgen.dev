@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect, useRef } from 'react';
-import { Shield, CreditCard, Box, Terminal, AlertTriangle, Clock, History, Package } from 'lucide-react';
+import { Shield, CreditCard, Box, Terminal, AlertTriangle, Clock, History, Package, Zap } from 'lucide-react';
 import { ENDPOINTS_DATA } from '@/data/endpoints';
 import CopyButton from '@/components/CopyButton';
 
@@ -44,7 +44,8 @@ export default function Docs() {
     {
       section: "GUIDES",
       items: [
-        { id: 'map-integration', title: 'Map Integration', icon: <Box size={18} /> }
+        { id: 'map-integration', title: 'Map Integration', icon: <Box size={18} /> },
+        { id: 'ai-analysis', title: 'AI Analysis', icon: <Zap size={18} /> }
       ]
     },
     { 
@@ -385,6 +386,43 @@ export default function Docs() {
                 This ensures a premium "pro" feel for your map tools.
               </p>
             </div>
+          </section>
+
+          <section id="ai-analysis" style={{paddingTop: '80px', marginBottom: '120px', borderTop: '1px solid #F3F4F6', scrollMarginTop: '48px'}}>
+             <h2 style={{fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '24px'}}>AI Analysis & Coaching</h2>
+             <p style={{fontSize: '1.25rem', color: '#4B5563', lineHeight: 1.6, marginBottom: '32px'}}>
+                Our exclusive AI suite uses Gemini 2.0 Flash to provide deep tactical insights from your replay data. This is the first time high-level coaching has been available via API.
+             </p>
+
+             <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '48px'}}>
+                {[
+                  { title: "Tactical Coach", desc: "Get a breakdown of positions, mechanics, and resource management for any single match.", cost: 30 },
+                  { title: "Session Patterning", desc: "Analyze multiple matches to find consistency ratings and recurring death patterns.", cost: 50 },
+                  { title: "Weapon Mastery", desc: "Compare equip counts and damage efficiency to optimize your loadouts.", cost: 20 },
+                  { title: "Landing Strategy", desc: "Get probability-based drop recommendations for any given bus route.", cost: 20 }
+                ].map((feature, i) => (
+                  <div key={i} style={{padding: '32px', background: '#F9FAFB', borderRadius: '24px', border: '1px solid #E5E7EB'}}>
+                     <div style={{width: '40px', height: '40px', borderRadius: '12px', background: '#000', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px'}}>
+                        <Zap size={20} />
+                     </div>
+                     <h3 style={{fontSize: '1.1rem', fontWeight: 700, marginBottom: '8px'}}>{feature.title}</h3>
+                     <p style={{fontSize: '0.85rem', color: '#6B7280', lineHeight: 1.5, marginBottom: '20px'}}>{feature.desc}</p>
+                     <div style={{fontSize: '0.75rem', fontWeight: 800, color: '#000'}}>{feature.cost} CREDITS</div>
+                  </div>
+                ))}
+             </div>
+
+             <div className="card" style={{background: '#000', border: 'none', padding: '40px', color: '#fff'}}>
+               <h3 style={{fontSize: '1.25rem', fontWeight: 700, marginBottom: '16px'}}>How it works</h3>
+               <p style={{fontSize: '1rem', color: '#9CA3AF', lineHeight: 1.6, marginBottom: '24px'}}>
+                 The engine feeds parsed telemetry (movement, events, building) into a custom Gemini prompt optimized for Fortnite battle royale tactical theory. 
+                 The result is structured JSON that can be displayed directly in your application's UI.
+               </p>
+               <div style={{display: 'flex', gap: '8px', alignItems: 'center', color: '#10B981', fontSize: '0.9rem', fontWeight: 600}}>
+                  <div style={{width: '8px', height: '8px', background: '#10B981', borderRadius: '50%'}}></div>
+                  Available now via /v1/ai/* endpoints
+               </div>
+             </div>
           </section>
 
          <section id="reference" style={{paddingTop: '80px', marginBottom: '120px', borderTop: '1px solid #F3F4F6', scrollMarginTop: '48px'}}>

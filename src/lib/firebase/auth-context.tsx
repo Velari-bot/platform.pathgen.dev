@@ -25,7 +25,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // Check if running in mock/offline mode
     if ((auth as any).name === "mock-app" || !(auth as any).app) {
-      // Provide a mock user for the demo if needed, or null
       setUser(null);
       setLoading(false);
       return;
@@ -34,17 +33,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
-      
-      // Redirect logic
-      if (!u && pathname !== '/' && pathname !== '/login' && pathname !== '/signup' && pathname !== '/map-demo') {
-        router.push('/login');
-      } else if (u && (pathname === '/' || pathname === '/login' || pathname === '/signup')) {
-        router.push('/home');
-      }
     });
 
     return () => unsubscribe();
-  }, [pathname, router]);
+  }, []);
+
+  // Handle redirects in a separate effect to avoid flashing/loading toggles
+  useEffect(() => {
+    if (loading) return;
+
+    const isPublicPath = pathname === '/' || pathname === '/login' || pathname === '/signup' || pathname === '/map-demo';
+    
+    if (!user && !isPublicPath) {
+      router.push('/login');
+    } else if (user && isPublicPath) {
+      router.push('/home');
+    }
+  }, [user, loading, pathname, router]);
 
   const logout = async () => {
     try {
@@ -57,7 +62,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider value={{ user, loading, logout }}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };

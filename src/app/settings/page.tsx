@@ -21,7 +21,7 @@ export default function Settings() {
   const [isUploading, setIsUploading] = useState(false);
   
   const [profile, setProfile] = useState({
-    name: 'Aiden Bender',
+    name: user?.displayName || userEmail.split('@')[0] || 'User',
     email: userEmail,
     organization: 'Personal',
     image: ''
@@ -47,7 +47,7 @@ export default function Settings() {
         } else {
           await setDoc(doc(firestore, "users", userEmail), {
             profile: {
-                name: 'Aiden Bender',
+                name: user?.displayName || userEmail.split('@')[0] || 'User',
                 email: userEmail,
                 organization: 'Personal',
                 image: ''

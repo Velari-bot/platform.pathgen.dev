@@ -19,6 +19,7 @@ import billingRoutes from './routes/billing.mjs';
 import replayRoutes from './routes/replay.mjs';
 import sessionRoutes from './routes/session.mjs';
 import gameRoutes from './routes/game.mjs';
+import aiRoutes from './routes/ai.mjs';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -40,6 +41,7 @@ app.use('/logs', logsRoutes);
 // Paid endpoints (Replay & Session) require credit check and rate limiting
 app.use('/v1/replay', rateLimitMiddleware, replayRoutes);
 app.use('/v1/session', rateLimitMiddleware, sessionRoutes);
+app.use('/v1/ai', rateLimitMiddleware, aiRoutes);
 
 
 // Free / Low-tier endpoints

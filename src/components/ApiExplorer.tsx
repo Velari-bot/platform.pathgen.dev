@@ -13,6 +13,7 @@ export default function ApiExplorer() {
   const [apiKey, setApiKey] = useState('rs_vgyqz2jwi203htfpug');
   const [params, setParams] = useState<{name: string, value: string}[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [body, setBody] = useState<string>('{\n  "raw": "json"\n}');
 
   // Update params when endpoint changes
   useEffect(() => {
@@ -66,7 +67,11 @@ export default function ApiExplorer() {
               // Headers: Fetch handles multipart boundary automatically when body is FormData
           } else {
               (options.headers as Record<string, string>)['Content-Type'] = 'application/json';
-              options.body = JSON.stringify({ raw: "json" });
+              try {
+                options.body = JSON.stringify(JSON.parse(body));
+              } catch (e) {
+                options.body = body; // Fallback to raw string if not valid JSON
+              }
           }
       }
 

@@ -6,7 +6,7 @@
 All `/v1` routes require your API Key in the `X-API-Key` or `Authorization: Bearer` header.
 - **`GET /health`**: Primary health check. **Cost: Free**.
 - **`GET /health/detailed`**: Full system status (DB, Storage, External APIs). **Cost: Free**.
-- **`GET /metrics`**: Prometheus-compatible system metrics. **Cost: Free**.
+- **`GET /metrics`**: Prometheus-compatible system metrics. Supports `?format=json`. **Cost: Free**.
 - **`GET /v1/game/ping`**: Network latency and timestamp test. **Cost: Free**.
 
 ---
@@ -16,8 +16,7 @@ All `/v1` routes require your API Key in the `X-API-Key` or `Authorization: Bear
 | :--- | :--- | :--- | :--- |
 | `/v1/game/map` | GET | **Free** | URLs for raw high-res Fortnite maps. |
 | `/v1/game/map/config` | GET | **Free** | Leaflet.js configuration (bounds, POIs). |
-| `/v1/game/map/tiles` | GET | **Free** | Full list of 1,365 tile URLs with coordinates. |
-| `/v1/game/tiles/:z/:x/:y`| GET | **30 Credits** | Redirect to map tile (24h unlimited pass). |
+| `/v1/game/map/tiles` | GET | **60 Credits**| Full list of tile URLs (36h unlimited pass). |
 | `/v1/game/news` | GET | **Free** | Latest game news and patch notes. |
 | `/v1/game/playlists` | GET | **Free** | Current active game modes and LTMs. |
 | `/v1/game/weapons` | GET | **Free** | List of current weapon pool. |

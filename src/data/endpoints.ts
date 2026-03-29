@@ -34,7 +34,8 @@ export const ENDPOINTS_DATA: Section[] = [
       {
         method: 'GET',
         path: '/metrics',
-        description: 'Prometheus-compatible system and performance metrics.',
+        parameters: [{ name: 'format', required: false, description: 'json or prometheus' }],
+        description: 'Global system and performance metrics.',
         response: `# HELP http_requests_total Total number of HTTP requests\nhttp_requests_total{method="GET",path="/v1/game/stats",status="200"} 1254\n...`
       },
       {
@@ -63,20 +64,9 @@ export const ENDPOINTS_DATA: Section[] = [
       {
         method: 'GET',
         path: '/v1/game/map/tiles',
-        description: 'Full list of 1,365 tile URLs with coordinates for mapping engines.',
+        credits: 60,
+        description: 'Full list of 1,365 tile URLs with coordinates. Includes 36h unlimited pass.',
         response: `{ "tiles": ["https://assets.pathgen.dev/tiles/0/0/0.png", "..."] }`
-      },
-      {
-        method: 'GET',
-        path: '/v1/game/tiles/{z}/{x}/{y}',
-        credits: 30,
-        description: 'Direct redirect to a map tile. Includes a 24h unlimited access pass.',
-        parameters: [
-          { name: 'z', required: true, description: 'Zoom level' },
-          { name: 'x', required: true, description: 'X coordinate' },
-          { name: 'y', required: true, description: 'Y coordinate' }
-        ],
-        response: `// HTTP 302 Redirect to tile image`
       },
       {
         method: 'GET',

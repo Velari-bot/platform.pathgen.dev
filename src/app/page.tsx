@@ -110,11 +110,11 @@ export default function Landing() {
           maxWidth: '1200px', 
           margin: '0 auto'
        }}>
-          <div style={{display: 'flex', alignItems: 'center', gap: '6px'}}>
-             <div style={{color: '#D97757'}}>
-                <LogoIcon size={20} />
+          <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+             <div style={{width: '32px', height: '32px', borderRadius: '8px', background: '#D97757', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0}}>
+                <LogoIcon size={18} />
              </div>
-             <span style={{fontSize: '1.15rem', fontWeight: 500, color: '#111111'}}>Pathgen Console</span>
+             <span style={{fontSize: '1.25rem', fontWeight: 600, color: '#111111'}}>Pathgen Console</span>
           </div>
           <button style={{
             padding: '8px 14px', 
@@ -350,7 +350,9 @@ export default function Landing() {
 function LogoIcon({ size }: { size: number }) {
    return (
       <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-         <path d="M12 2V22M2 12H22M4.93 4.93L19.07 19.07M4.93 19.07L19.07 4.93" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+         <path d="M12 2C6.48 2 2 6.48 2 12C2 14.59 3.02 16.94 4.71 18.71L2 22L5.29 19.29C7.06 20.98 9.41 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C10.11 20 8.39 19.33 7.06 18.23L5.41 19.88L6.23 16.94C5.17 15.61 4.5 13.89 4.5 12C4.5 7.86 7.86 4.5 12 4.5C16.14 4.5 19.5 7.86 19.5 12C19.5 16.14 16.14 19.5 12 19.5Z" fill="currentColor"/>
+         <circle cx="12" cy="11.5" r="3.5" fill="currentColor"/>
+         <path d="M12 15L12 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
       </svg>
    );
 }

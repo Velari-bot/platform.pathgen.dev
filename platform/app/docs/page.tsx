@@ -134,7 +134,7 @@ export default function DocumentationPage() {
                         {[
                            { route: "/health", method: "GET", cost: "Free", desc: "System health check" },
                            { route: "/health/detailed", method: "GET", cost: "Free", desc: "Full infrastructure status" },
-                           { route: "/metrics", method: "GET", cost: "Free", desc: "System performance metrics" },
+                           { route: "/metrics", method: "GET", cost: "Free", desc: "System performance (supports ?format=json)" },
                            { route: "/v1/game/ping", method: "GET", cost: "Free", desc: "Latency & timestamp test" },
                         ].map((e, i) => (
                            <TableRow key={i} className="border-white/5 hover:bg-white/[0.02]">
@@ -167,8 +167,7 @@ export default function DocumentationPage() {
                         {[
                            { route: "/v1/game/map", cost: "Free", desc: "High-res raw island map URLs" },
                            { route: "/v1/game/map/config", cost: "Free", desc: "Leaflet.js coordinate & POI config" },
-                           { route: "/v1/game/map/tiles", cost: "Free", desc: "Full list of map tile CDN URLs" },
-                           { route: "/v1/game/tiles/:z/:x/:y", cost: "30 Credits", desc: "Redirect to tile (24h pass)" },
+                           { route: "/v1/game/map/tiles", cost: "60 Credits", desc: "Full tile URL list (36h pass)" },
                            { route: "/v1/game/news", cost: "Free", desc: "Latest patch and game news" },
                            { route: "/v1/game/playlists", cost: "Free", desc: "Active modes and LTMs" },
                            { route: "/v1/game/weapons", cost: "Free", desc: "Current weapon loot pool stats" },
