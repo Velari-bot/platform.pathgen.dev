@@ -28,6 +28,8 @@ export function AuthForm({ type }: AuthFormProps) {
     setLoading(true);
     setError("");
     try {
+      if (!auth || !db) throw new Error("Firebase not initialized");
+      
       if (type === "login") {
         await signInWithEmailAndPassword(auth, email, password);
       } else {
@@ -59,6 +61,7 @@ export function AuthForm({ type }: AuthFormProps) {
   const handleGoogle = async () => {
     setLoading(true);
     try {
+      if (!auth) throw new Error("Firebase not initialized");
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       router.push("/dashboard");

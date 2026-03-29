@@ -12,9 +12,12 @@ export default function ApiExplorer() {
   const [isLoading, setIsLoading] = useState(false);
   const [apiKey, setApiKey] = useState('rs_vgyqz2jwi203htfpug');
   const [params, setParams] = useState<{name: string, value: string}[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Update params when endpoint changes
   useEffect(() => {
+    setResponse(null);
+    setSelectedFile(null);
     if (selectedEndpoint.parameters) {
       setParams(selectedEndpoint.parameters.map(p => ({ name: p.name, value: '' })));
     } else {
@@ -48,13 +51,23 @@ export default function ApiExplorer() {
       const options: RequestInit = {
         method: selectedEndpoint.method,
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${apiKey}`
         }
       };
       
-      if (selectedEndpoint.method !== 'GET') {
-          options.body = JSON.stringify({ raw: "json" });
+      const isReplay = selectedEndpoint.path.startsWith('/v1/replay');
+      const isPost = selectedEndpoint.method === 'POST' || selectedEndpoint.method === 'PUT';
+
+      if (isPost) {
+          if (isReplay && selectedFile) {
+              const formData = new FormData();
+              formData.append('replay', selectedFile);
+              options.body = formData;
+              // Headers: Fetch handles multipart boundary automatically when body is FormData
+          } else {
+              (options.headers as Record<string, string>)['Content-Type'] = 'application/json';
+              options.body = JSON.stringify({ raw: "json" });
+          }
       }
 
       const res = await fetch(url, options);
@@ -264,10 +277,28 @@ export default function ApiExplorer() {
 
                {activeTab === 'body' && (
                  <div style={{height: '100%', borderRadius: '12px', overflow: 'hidden', border: '1px solid #E5E7EB'}}>
-                    <textarea 
-                      placeholder='{ "raw": "json" }'
-                      style={{width: '100%', height: '200px', padding: '20px', fontFamily: 'JetBrains Mono', fontSize: '0.9rem', border: 'none', background: '#F9FAFB', resize: 'none'}}
-                    />
+                    {selectedEndpoint.path.startsWith('/v1/replay') ? (
+                       <div style={{padding: '40px', textAlign: 'center', background: '#F9FAFB', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
+                          <div style={{fontSize: '0.9rem', color: '#111827', fontWeight: 700, marginBottom: '12px'}}>Upload Replay File</div>
+                          <p style={{fontSize: '0.8rem', color: '#6B7280', marginBottom: '24px', maxWidth: '240px'}}>Select a .replay file to parse using the PathGen infrastructure.</p>
+                          <input 
+                            type="file" 
+                            accept=".replay"
+                            onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                            style={{fontSize: '0.8rem', color: '#111827'}}
+                          />
+                          {selectedFile && (
+                             <div style={{marginTop: '16px', fontSize: '0.75rem', color: '#10B981', fontWeight: 600}}>
+                                Selected: {selectedFile.name}
+                             </div>
+                          )}
+                       </div>
+                    ) : (
+                       <textarea 
+                         placeholder='{ "raw": "json" }'
+                         style={{width: '100%', height: '200px', padding: '20px', fontFamily: 'JetBrains Mono', fontSize: '0.9rem', border: 'none', background: '#F9FAFB', resize: 'none'}}
+                       />
+                    )}
                  </div>
                )}
             </div>

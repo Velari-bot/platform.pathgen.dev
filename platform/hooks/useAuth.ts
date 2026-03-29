@@ -3,33 +3,36 @@
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 
 interface AuthState {
   user: User | null;
   loading: boolean;
-  userData: any | null;
+  userData: Record<string, unknown> | null;
 }
 
 export function useAuth() {
-  const [state, setState] = useState<AuthState>({
+  const [state, setState] = useState<AuthState>(() => ({
     user: null,
-    loading: true,
+    loading: !!auth && !!db, // only loading if firebase is actually configured
     userData: null,
-  });
+  }));
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    if (!auth || !db) return;
+
+    const firebaseDb = db;
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         // Fetch user data from Firestore (credits, etc)
-        const userRef = doc(db, "users", user.uid);
+        const userRef = doc(firebaseDb, "users", user.uid);
         
         // Listen to changes in real-time
         const unsubDoc = onSnapshot(userRef, (snapshot) => {
           setState({
             user,
             loading: false,
-            userData: snapshot.exists() ? snapshot.data() : null,
+            userData: snapshot.exists() ? (snapshot.data() as Record<string, unknown>) : null,
           });
         });
 

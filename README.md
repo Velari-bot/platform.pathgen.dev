@@ -1,12 +1,13 @@
 # PathGen API Server
 
-High-performance Node.js Express API server for parsing Fortnite replay files.
+High-performance Node.js Express API server for parsing Fortnite replay files and automated AI coaching.
 
 ## Tech Stack
 - **Runtime**: Node.js (Express)
 - **Database**: Firebase Firestore (Auth, Credits, Logs) + Postgres (Optional/Historical)
 - **Cache**: Redis (Rate limiting, Stats)
 - **Storage**: Cloudflare R2 (Replay files & Map Tiles)
+- **AI Performance**: Gemini 2.0 Flash (Vertex AI Integration)
 - **Payment**: Stripe
 
 ## Getting Started
@@ -30,6 +31,10 @@ FORTNITE_API_KEY=your_key
 ```bash
 npm run dev
 ```
+
+## Documentation
+
+For full API reference, authentication details, and credit costs, see [endpoints.md](./endpoints.md).
 
 ## Deployment
 Deployed on **Railway** with automatic CD from GitHub.
