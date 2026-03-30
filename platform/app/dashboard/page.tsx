@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { 
@@ -114,8 +115,18 @@ export default function DashboardOverview() {
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Welcome, {userData?.displayName || user.email?.split('@')[0]}</h1>
           <p className="text-muted-foreground mt-1 text-sm font-medium">Monitoring activity for {user.email}</p>
         </div>
-        <div className="flex gap-3">
-           <Badge variant="outline" className="glass py-1 px-3 border-emerald-500/20 text-emerald-400 font-normal">
+        <div className="flex items-center gap-3">
+           <Link href="/dashboard/billing">
+              <Button size="sm" variant="outline" className="glass h-9 px-4 border-primary/20 text-primary hover:bg-primary/10 transition-all font-bold text-xs rounded-lg">
+                <Zap className="h-3.5 w-3.5 mr-2 fill-primary" />
+                Upgrade to Pro
+              </Button>
+           </Link>
+           <Badge variant="outline" className="glass py-1.5 px-3 border-white/10 text-muted-foreground font-normal rounded-lg">
+              Plan: <span className="text-foreground font-bold ml-1">Free</span>
+           </Badge>
+           <div className="h-4 w-px bg-white/10 mx-1" />
+           <Badge variant="outline" className="glass py-1.5 px-3 border-emerald-500/20 text-emerald-400 font-normal rounded-lg italic">
               <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 mr-2 animate-pulse" />
               API Online (DCA)
            </Badge>

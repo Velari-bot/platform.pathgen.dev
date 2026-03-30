@@ -36,15 +36,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (authUser && db) {
         // Real-time listener for user data (credits, tier, etc.)
-        const userDocRef = doc(db, "users", authUser.uid);
-        const unsubDoc = onSnapshot(userDocRef, (docSnap) => {
-          if (docSnap.exists()) {
-            setUserData(docSnap.data() as UserData);
-          }
+        try {
+          const userDocRef = doc(db, "users", authUser.uid);
+          const unsubDoc = onSnapshot(userDocRef, (docSnap) => {
+            if (docSnap.exists()) {
+              setUserData(docSnap.data() as UserData);
+            }
+            setLoading(false);
+          }, (err) => {
+            console.warn("User doc sync failed:", err.message);
+            setLoading(false);
+          });
+          
+          return () => unsubDoc();
+        } catch (e) {
+          console.error("Firestore sync init failed:", e);
           setLoading(false);
-        });
-        
-        return () => unsubDoc();
+        }
       } else {
         setUserData(null);
         setLoading(false);

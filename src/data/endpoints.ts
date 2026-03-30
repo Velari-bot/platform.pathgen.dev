@@ -38,7 +38,7 @@ export const ENDPOINTS_DATA: Section[] = [
       { method: 'GET', path: '/v1/game/news', description: 'Fused news triage (BR, Creative, STW).', tier: 'free', response: '{"br": [...], "creative": [...]}' },
       { method: 'GET', path: '/v1/game/playlists', description: 'Current active game modes & regions.', tier: 'free', response: '{"playlists": [...]}' },
       { method: 'GET', path: '/v1/game/weapons', description: 'Metadata for the active seasonal weapon pool.', tier: 'free', response: '{"weapons": [...]}' },
-      { method: 'GET', path: '/v1/game/shop', description: 'Premium fused item shop with layouts.', tier: 'free', response: '{"shop": [...]}' },
+      { method: 'GET', path: '/v1/game/shop', description: 'Premium fused item shop with layouts.', tier: 'free', credits: 2, response: '{"shop": [...]}' },
       { 
         method: 'GET', 
         path: '/v1/game/cosmetics', 
@@ -75,7 +75,8 @@ export const ENDPOINTS_DATA: Section[] = [
           { name: 'name', required: true, description: 'Epic Games display name.' },
           { name: 'accountType', required: false, description: 'epic or psn or xbl' }
         ],
-        response: '{"rank": "Elite", "progress": 42}' 
+        response: '{"rank": "Elite", "progress": 42}',
+        credits: 1
       },
       { 
         method: 'GET', 
@@ -86,7 +87,8 @@ export const ENDPOINTS_DATA: Section[] = [
           { name: 'name', required: true, description: 'Epic Games display name.' },
           { name: 'timeWindow', required: false, description: 'season or lifetime' }
         ],
-        response: '{"wins": 420, "kd": 4.5}' 
+        response: '{"wins": 420, "kd": 4.5}', 
+        credits: 5
       },
       { method: 'GET', path: '/v1/game/discovery', description: 'Island discovery rows & active CCU counts.', tier: 'free', response: '{"rows": [...]}' },
       { 

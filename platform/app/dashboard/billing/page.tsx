@@ -11,6 +11,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
+import { useAuth } from "@/hooks/useAuth";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+
 const transactions = [
   { id: "TX_154", date: "Mar 20, 2026", pack: "Pro Pack", amount: "$40.00", status: "success", credits: "+50,000" },
   { id: "TX_121", date: "Feb 12, 2026", pack: "Starter Pack", amount: "$10.00", status: "success", credits: "+10,000" },
@@ -18,8 +22,44 @@ const transactions = [
 ];
 
 export default function BillingPage() {
+  const { user, userData } = useAuth();
+  const [isProcessing, setIsProcessing] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const success = searchParams.get('success');
+
+  const handleCheckout = async (amount: number, type: 'credits' | 'subscription' = 'credits') => {
+    if (!user) return alert("Please log in to purchase.");
+    setIsProcessing(type === 'credits' ? `credits-${amount}` : 'subscription');
+    
+    try {
+      const resp = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount,
+          email: user.email,
+          userId: user.uid,
+          type
+        })
+      });
+      
+      const { url, error } = await resp.json();
+      if (error) throw new Error(error);
+      window.location.href = url;
+    } catch (e: any) {
+      alert(e.message);
+      setIsProcessing(null);
+    }
+  };
+
   return (
     <div className="space-y-10 pb-20">
+      {success && (
+        <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl flex items-center gap-3 text-emerald-400 text-sm font-bold">
+           <CheckCircle2 size={18} /> Payment successful! Your credits will be updated shortly.
+        </div>
+      )}
+
       <header>
         <h1 className="text-3xl font-bold tracking-tight">Billing & Credits</h1>
         <p className="text-muted-foreground mt-1">Manage your credit balance, view invoices, and buy packs.</p>
@@ -31,25 +71,27 @@ export default function BillingPage() {
            <div className="absolute top-0 right-1/4 h-full w-full bg-gradient-to-r from-transparent via-primary/5 to-transparent skew-x-12 animate-in fade-in" />
            <div className="space-y-4 relative z-10">
               <div className="text-[10px] font-bold text-primary uppercase tracking-widest">Available Balance</div>
-              <div className="text-5xl font-extrabold tracking-tight">54,020 <span className="text-sm font-bold text-muted-foreground uppercase opacity-50 ml-2">Credits Remaining</span></div>
+              <div className="text-5xl font-extrabold tracking-tight">{(userData?.credits as number || 0).toLocaleString()} <span className="text-sm font-bold text-muted-foreground uppercase opacity-50 ml-2">Credits Remaining</span></div>
               <p className="text-xs text-muted-foreground max-w-sm">Credits are used for replay parsing and telemetry streams. They never expire.</p>
            </div>
            <div className="relative z-10 hidden sm:block">
-              <Button size="lg" className="bg-primary hover:bg-primary/90 font-bold rounded-xl px-10 h-14 shadow-2xl shadow-primary/40">
-                Purchase Pack
+              <Button 
+                onClick={() => handleCheckout(10)}
+                disabled={!!isProcessing}
+                size="lg" className="bg-primary hover:bg-primary/90 font-bold rounded-xl px-10 h-14 shadow-2xl shadow-primary/40">
+                {isProcessing ? 'Connecting...' : 'Purchase Pack'}
               </Button>
            </div>
         </Card>
-
         <Card className="glass-card bg-card/10 border-white/5 p-6 flex flex-col justify-center gap-4">
            <div className="space-y-1">
               <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Spent this month</div>
-              <div className="text-2xl font-bold">12,492 <span className="text-[10px] opacity-40 uppercase ml-1">Credits</span></div>
+              <div className="text-2xl font-bold text-white">{(userData?.monthly_usage as number || 0).toLocaleString()} <span className="text-[10px] opacity-40 uppercase ml-1">Credits</span></div>
            </div>
            <div className="h-px bg-white/5 w-full" />
            <div className="space-y-1">
               <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Avg daily burn</div>
-              <div className="text-2xl font-bold">410 <span className="text-[10px] opacity-40 uppercase ml-1">Credits</span></div>
+              <div className="text-2xl font-bold text-white">{(userData?.daily_avg as number || 0).toLocaleString()} <span className="text-[10px] opacity-40 uppercase ml-1">Credits</span></div>
            </div>
         </Card>
       </div>
@@ -59,19 +101,22 @@ export default function BillingPage() {
          <h2 className="text-xl font-bold opacity-80 pl-2">Available Credit Packs</h2>
          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { name: "Starter", credits: "10,000", price: "$10", bonus: "0%" },
-              { name: "Pro", credits: "50,000", price: "$40", bonus: "10%", popular: true },
-              { name: "Elite", credits: "150,000", price: "$100", bonus: "20%" },
+              { name: "Starter", credits: "10,000", price: "$10", value: 10, bonus: "0%" },
+              { name: "Pro", credits: "60,000", price: "$50", value: 50, bonus: "10k Bonus", popular: true },
+              { name: "Elite", credits: "150,000", price: "$100", value: 100, bonus: "30k Bonus" },
             ].map((p, i) => (
               <Card key={i} className={`glass-card bg-card/5 border-white/5 p-6 flex flex-col transition-all hover:border-primary/20 ${p.popular ? 'bg-primary/[0.02] border-primary/20' : ''}`}>
                  <div className="flex justify-between items-start mb-4">
                     <div className="text-lg font-bold">{p.name}</div>
-                    {p.bonus !== "0%" && <Badge className="bg-emerald-500/20 text-emerald-400 border-none text-[10px]">{p.bonus} BONUS</Badge>}
+                    {p.bonus !== "0%" && <Badge className="bg-emerald-500/20 text-emerald-400 border-none text-[10px]">{p.bonus}</Badge>}
                  </div>
                  <div className="text-3xl font-bold tracking-tight mb-1">{p.price}</div>
                  <div className="text-xs text-primary font-bold">{p.credits} Credits</div>
-                 <Button className="w-full mt-6 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold" variant="outline">
-                    Buy with Stripe
+                 <Button 
+                    onClick={() => handleCheckout(p.value)}
+                    disabled={!!isProcessing}
+                    className="w-full mt-6 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold" variant="outline">
+                    {isProcessing === `credits-${p.value}` ? 'Processing...' : 'Buy with Stripe'}
                  </Button>
               </Card>
             ))}

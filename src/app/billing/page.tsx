@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react';
-import { X, Rocket } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { X, Rocket, Check, Zap } from 'lucide-react';
 import { firestore } from '@/lib/firebase/config';
 import { doc, getDoc, setDoc, collection, query, getDocs, orderBy } from 'firebase/firestore';
 import { useAuth } from '@/lib/firebase/auth-context';
@@ -15,10 +16,14 @@ interface Invoice {
   credits?: string;
 }
 
+import { useSearchParams } from 'next/navigation';
+
 export default function Billing() {
   const { user } = useAuth();
   const { currentOrg } = useOrg();
+  const searchParams = useSearchParams();
   const userEmail = user?.email || "";
+  const success = searchParams.get('success');
 
   const [balance, setBalance] = useState<number>(0);
   const [autoReload, setAutoReload] = useState(false);
@@ -27,19 +32,29 @@ export default function Billing() {
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
   const [purchaseAmount, setPurchaseAmount] = useState(25);
   const [isProcessing, setIsProcessing] = useState(false);
   
-  const taxRate = 0.06;
+  const taxRate = 0.00; 
   const subtotal = purchaseAmount;
   const taxes = purchaseAmount * taxRate;
   const total = subtotal + taxes;
-  const creditsReceived = purchaseAmount * 100;
+  const creditsReceived = purchaseAmount * 1000;
 
   useEffect(() => {
     if (!userEmail) return;
 
     const fetchBilling = async () => {
+      if (!firestore) {
+        setBalance(150000); 
+        setInvoices([
+          { id: "DEMO_1", date: "Jan 1, 2026", type: "Standard", status: "Paid", cost: "$5.00" }
+        ]);
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const billRef = doc(firestore, "billing", userEmail);
         const billSnap = await getDoc(billRef);
@@ -67,14 +82,19 @@ export default function Billing() {
         });
 
         setInvoices(fetchedInvoices);
-      } catch (e) { console.error(e); } finally { setIsLoading(false); }
+      } catch (e) { 
+          console.error("Billing fetch error:", e); 
+          setBalance(150.00); 
+      } finally { 
+          setIsLoading(false); 
+      }
     };
     fetchBilling();
   }, [userEmail]);
 
-    const handleBuyCredits = async () => {
+  const handleBuyCredits = async (type: 'credits' | 'subscription' = 'credits') => {
     if (isProcessing) return;
-    if (purchaseAmount < 5) return;
+    if (type === 'credits' && purchaseAmount < 5) return;
     setIsProcessing(true);
     try {
       const response = await fetch('/api/checkout', {
@@ -83,7 +103,8 @@ export default function Billing() {
         body: JSON.stringify({ 
           amount: purchaseAmount, 
           email: userEmail,
-          orgId: currentOrg?.id || 'personal'
+          userId: user?.uid || 'personal',
+          type
         }),
       });
       
@@ -93,7 +114,6 @@ export default function Billing() {
         return;
       }
       
-      // Redirect to Stripe Checkout
       window.location.href = url;
     } catch (e: unknown) { 
       console.error(e); 
@@ -103,13 +123,8 @@ export default function Billing() {
     }
   };
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('success')) {
-       // Refresh or alert success? State will update automatically from Firestore listener or fetch
-       console.log("Stripe order confirmed.");
-    }
-  }, []);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   if (isLoading) {
     return (
@@ -122,16 +137,131 @@ export default function Billing() {
 
   return (
     <div className="fade-in" style={{paddingBottom: '120px', maxWidth: '1000px', margin: '0 auto'}}>
-      
-      {/* HORIZONTALLY OPTIMIZED MODAL */}
-      {isModalOpen && (
+      {success && (
         <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(255, 255, 255, 0.4)', backdropFilter: 'blur(8px)', 
-          padding: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999999
+          background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.1)', 
+          padding: '24px', borderRadius: '16px', color: '#10B981', fontWeight: 700,
+          display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px'
+        }}>
+           <Check size={20} strokeWidth={3} />
+           Payment successful! Your credits will be updated shortly.
+        </div>
+      )}
+      
+      {/* PRICING PLANS MODAL - Centered Viewport */}
+      {isPricingModalOpen && mounted && createPortal(
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+          background: 'rgba(255, 255, 255, 0.4)', backdropFilter: 'blur(20px)', 
+          padding: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999999
+        }}>
+          <div className="fade-in shadow-xl" style={{
+            width: '100%', maxWidth: '960px', background: '#F9FAFB', borderRadius: '40px', padding: '64px', 
+            position: 'relative', border: '1px solid var(--border-color)', textAlign: 'center', maxHeight: '90vh', overflowY: 'auto'
+          }}>
+            <button onClick={() => setIsPricingModalOpen(false)} style={{position: 'absolute', top: '32px', right: '32px', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)'}}>
+              <X size={24} />
+            </button>
+
+            <h1 style={{fontSize: '2.5rem', fontWeight: 500, letterSpacing: '-0.03em', color: 'var(--text-primary)', marginBottom: '40px'}}>Plans that grow with you</h1>
+            
+            <div style={{display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px', margin: '0 auto', textAlign: 'left'}}>
+                {/* Free Plan */}
+                <div style={{
+                    background: '#fff', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '40px',
+                    display: 'flex', flexDirection: 'column', position: 'relative'
+                }}>
+                    <div style={{marginBottom: '24px'}}>
+                        <div style={{width: '48px', height: '48px', borderRadius: '12px', background: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px'}}>
+                            <Rocket size={24} color="#6B7280" />
+                        </div>
+                        <h3 style={{fontSize: '1.25rem', fontWeight: 600, marginBottom: '4px'}}>Free</h3>
+                        <p style={{fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '24px'}}>For hobbyists and casual creators.</p>
+                        <div style={{fontSize: '2.5rem', fontWeight: 500}}>$0 <span style={{fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 400}}>USD / month</span></div>
+                    </div>
+
+                    <div style={{padding: '16px', background: '#F9FAFB', borderRadius: '12px', marginBottom: '32px'}}>
+                        <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0}}>You are currently on the Free plan.</p>
+                    </div>
+
+                    <div style={{marginTop: 'auto'}}>
+                        <div style={{fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px'}}>Includes:</div>
+                        <ul style={{listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px'}}>
+                            <li style={{fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                <Check size={14} color="#10B981" /> 60 req/min Rate Limit
+                            </li>
+                            <li style={{fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                <Check size={14} color="#10B981" /> Core Replay Parsing
+                            </li>
+                            <li style={{fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                <Check size={14} color="#10B981" /> Public Discovery
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                {/* Pro Plan */}
+                <div style={{
+                    background: '#fff', border: '1.5px solid #111827', borderRadius: '24px', padding: '40px',
+                    display: 'flex', flexDirection: 'column', boxShadow: '0 20px 40px rgba(0,0,0,0.04)'
+                }}>
+                    <div style={{marginBottom: '24px'}}>
+                        <div style={{width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(217, 119, 87, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px'}}>
+                            <Zap size={24} color="#D97757" fill="#D97757" />
+                        </div>
+                        <h3 style={{fontSize: '1.25rem', fontWeight: 600, marginBottom: '4px'}}>Pro</h3>
+                        <p style={{fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '24px'}}>For competitive teams and professional tools.</p>
+                        <div style={{fontSize: '2.5rem', fontWeight: 500}}>$15 <span style={{fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 400}}>USD / month</span></div>
+                    </div>
+
+                    <button 
+                        onClick={() => {
+                            setPurchaseAmount(15);
+                            handleBuyCredits('subscription');
+                        }}
+                        disabled={isProcessing}
+                        style={{
+                            width: '100%', padding: '14px', borderRadius: '12px', background: '#111827',
+                            color: '#fff', border: 'none', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem',
+                            marginBottom: '32px'
+                        }}>
+                        {isProcessing && purchaseAmount === 15 ? 'Connecting...' : 'Upgrade to Pro'}
+                    </button>
+
+                    <div style={{marginTop: 'auto'}}>
+                        <div style={{fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px'}}>Everything in Free, plus:</div>
+                        <ul style={{listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px'}}>
+                            <li style={{fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                <Check size={14} color="#D97757" /> 2,000 req/min Rate Limit
+                            </li>
+                            <li style={{fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                <Check size={14} color="#D97757" /> Gemini AI Intelligence
+                            </li>
+                            <li style={{fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                <Check size={14} color="#D97757" /> 25% Credit Purchase Discount
+                            </li>
+                            <li style={{fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                <Check size={14} color="#D97757" /> Real-time Webhooks
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* HORIZONTALLY OPTIMIZED MODAL - Centered Viewport */}
+      {isModalOpen && mounted && createPortal(
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(255, 255, 255, 0.4)', backdropFilter: 'blur(12px)', 
+          padding: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999999
         }}>
           <div className="fade-in shadow-xl" style={{
             width: '100%', maxWidth: '880px', background: '#fff', borderRadius: '24px', padding: '48px', 
-            position: 'relative', border: '1px solid var(--border-color)', margin: 'auto'
+            position: 'relative', border: '1px solid var(--border-color)', maxHeight: '90vh', overflowY: 'auto'
           }}>
             <button onClick={() => setIsModalOpen(false)} style={{position: 'absolute', top: '24px', right: '24px', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)'}}>
               <X size={24} />
@@ -155,9 +285,9 @@ export default function Billing() {
                            value={purchaseAmount} 
                            onChange={(e) => setPurchaseAmount(Number(e.target.value))} 
                            style={{
-                              width: '100%', padding: '12px 16px 12px 28px', borderRadius: '10px', 
-                              border: '1.5px solid #635BFF', fontSize: '1rem', fontWeight: 600,
-                              outline: 'none', boxShadow: '0 0 0 2px rgba(99, 91, 255, 0.1)'
+                               width: '100%', padding: '12px 16px 12px 28px', borderRadius: '10px', 
+                               border: '1.5px solid #D97757', fontSize: '1rem', fontWeight: 600,
+                               outline: 'none', boxShadow: '0 0 0 2px rgba(217, 119, 87, 0.05)'
                            }} 
                         />
                     </div>
@@ -178,16 +308,6 @@ export default function Billing() {
                            <div style={{width: '18px', height: '18px', background: '#fff', borderRadius: '50%', position: 'absolute', top: '2px', left: '2px'}}></div>
                         </div>
                      </div>
-                     <div style={{display: 'flex', gap: '16px'}}>
-                        <div style={{flex: 1}}>
-                           <label style={{display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px'}}>Min. balance reaches:</label>
-                           <input disabled style={{width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', background: '#F9FAFB', color: '#9CA3AF', cursor: 'not-allowed', fontSize: '0.85rem'}} />
-                        </div>
-                        <div style={{flex: 1}}>
-                           <label style={{display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px'}}>Refill balance to:</label>
-                           <input disabled style={{width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', background: '#F9FAFB', color: '#9CA3AF', cursor: 'not-allowed', fontSize: '0.85rem'}} />
-                        </div>
-                     </div>
                   </div>
                </div>
 
@@ -201,7 +321,7 @@ export default function Billing() {
                     </div>
                     
                     <button 
-                       onClick={handleBuyCredits} 
+                       onClick={() => handleBuyCredits('credits')} 
                        disabled={isProcessing} 
                        className="active-scale"
                        style={{
@@ -219,14 +339,39 @@ export default function Billing() {
                </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Main UI */}
+      {/* TIER MANAGEMENT COMPACT SECTION */}
+      <div style={{background: '#fff', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '32px 48px', marginBottom: '32px', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+          <div style={{display: 'flex', alignItems: 'center', gap: '32px'}}>
+              <div style={{width: '56px', height: '56px', borderRadius: '16px', background: 'linear-gradient(135deg, #D97757 0%, #C1664C 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 16px rgba(217, 119, 87, 0.2)'}}>
+                  <Zap size={28} color="white" fill="white" />
+              </div>
+              <div>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px'}}>
+                      <h2 style={{fontSize: '1.25rem', fontWeight: 700, margin: 0}}>Subscription Plan</h2>
+                      <span style={{fontSize: '0.65rem', fontWeight: 900, color: '#D97757', background: 'rgba(217, 119, 87, 0.05)', padding: '4px 10px', borderRadius: '6px', border: '1px solid rgba(217, 119, 87, 0.1)'}}>FREE TIER</span>
+                  </div>
+                  <p style={{fontSize: '0.9rem', color: 'var(--text-secondary)', margin: 0}}>Unlock AI intelligence, higher rate limits, and real-time data streams.</p>
+              </div>
+          </div>
+          <button 
+             onClick={() => setIsPricingModalOpen(true)}
+             style={{padding: '12px 24px', borderRadius: '12px', border: '1px solid #E5E7EB', background: '#fff', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.15s'}}
+             onMouseEnter={(e) => e.currentTarget.style.background = '#F9FAFB'}
+             onMouseLeave={(e) => e.currentTarget.style.background = '#fff'}
+          >
+              Manage Tier
+          </button>
+      </div>
+
       <div style={{background: '#fff', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '48px', marginBottom: '32px', boxShadow: '0 4px 20px rgba(0,0,0,0.02)'}}>
          <h2 style={{fontSize: '1.5rem', fontWeight: 500, letterSpacing: '-0.02em', marginBottom: '8px'}}>Credit balance</h2>
          <div style={{color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '40px', maxWidth: '800px'}}>
-            Your credit balance will be consumed with Pathgen API, Pathgen Toolkit and Pathgen Playground usage. You can buy credits directly or set up auto-reload thresholds.
+            Credits are spent when making requests to the PathGen API, using the Toolkit, or running experiments in the Playground. You can purchase credits as needed or configure auto-reload.
          </div>
 
          <div style={{display: 'flex', gap: '48px', alignItems: 'flex-start'}}>
@@ -235,8 +380,8 @@ export default function Billing() {
                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px',
                boxShadow: 'inset 0 0 40px rgba(255,255,255,0.4)', border: '1px solid #DEDAD3'
             }}>
-               <div style={{fontSize: '3.5rem', fontWeight: 500, color: 'var(--text-primary)'}}>${balance.toFixed(2)}</div>
-               <div style={{fontSize: '0.9rem', fontWeight: 500, color: 'var(--text-secondary)'}}>Remaining Balance</div>
+               <div style={{fontSize: '3.5rem', fontWeight: 500, color: 'var(--text-primary)'}}>{balance.toLocaleString()}</div>
+               <div style={{fontSize: '0.9rem', fontWeight: 500, color: 'var(--text-secondary)'}}>Credits Remaining</div>
             </div>
 
             <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: '20px'}}>
@@ -281,21 +426,6 @@ export default function Billing() {
                   }}>Edit</button>
                </div>
             </div>
-         </div>
-
-         <div style={{
-            marginTop: '40px', background: 'var(--bg-sidebar)', border: '1px solid var(--border-color)', 
-            borderRadius: '16px', padding: '16px 24px', display: 'flex', 
-            alignItems: 'center', justifyContent: 'space-between'
-         }}>
-            <div style={{display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.9rem', color: 'var(--text-secondary)'}}>
-               <Rocket size={16} color="var(--text-primary)" />
-               Pay after-the-fact with monthly invoicing by contacting the Pathgen accounts team.
-            </div>
-            <button style={{
-               background: 'transparent', border: '1px solid var(--border-color)', 
-               padding: '10px 20px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer'
-            }}>Contact Sales</button>
          </div>
       </div>
 

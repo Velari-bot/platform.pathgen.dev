@@ -128,8 +128,8 @@ export default function LandingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             { name: "Starter", credits: "10,000", price: "$10", features: ["Full API Access", "Standard Parsing", "Community Support"] },
-            { name: "Pro", credits: "50,000", price: "$40", features: ["10% Bonus Credits", "Priority Processing", "Email Support"], recommended: true },
-            { name: "Elite", credits: "150,000", price: "$100", features: ["20% Bonus Credits", "Dedicated Infrastructure", "Direct Developer Support"] }
+            { name: "Pro", credits: "60,000", price: "$50", features: ["10k Bonus Credits", "Priority Processing", "Email Support"], recommended: true },
+            { name: "Elite", credits: "150,000", price: "$100", features: ["50k Bonus Credits", "Dedicated Infrastructure", "Direct Developer Support"] }
           ].map((p, i) => (
             <Card key={i} className={`glass-card relative overflow-hidden ${p.recommended ? 'ring-2 ring-primary border-transparent' : 'border-white/5'}`}>
               {p.recommended && (

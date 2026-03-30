@@ -37,10 +37,15 @@ export default function Apps() {
   useEffect(() => {
     if (!userEmail) return;
     const fetchApps = async () => {
-      setApps([]); // Clear existing state before re-fetch
+      setApps([]);
       if (!currentOrg) {
         setIsLoading(false);
         return;
+      }
+      if (!firestore) {
+         setApps([{ id: 'mock-app', name: 'Standard App', description: 'Sample workspace for testing.', createdAt: 'Mar 29, 2026', keyCount: 1, orgId: currentOrg.id }]);
+         setIsLoading(false);
+         return;
       }
       setIsLoading(true);
       try {
@@ -73,7 +78,7 @@ export default function Apps() {
   }, [userEmail, currentOrg]);
 
   const handleCreateApp = async () => {
-    if (!newAppName.trim() || isCreating) return;
+    if (!newAppName.trim() || isCreating || !firestore) return;
     if (!currentOrg) {
       console.error("Cannot create app: No organization selected.");
       return;
@@ -103,9 +108,9 @@ export default function Apps() {
   };
 
   const handleUpdateApp = async () => {
-    if (!editingApp) return;
+    if (!editingApp || !firestore) return;
     try {
-      const ref = doc(firestore, "apps", editingApp.id);
+      const ref = doc(firestore!, "apps", editingApp.id);
       await updateDoc(ref, { name: editingApp.name, description: editingApp.description });
       setApps(apps.map(a => a.id === editingApp.id ? editingApp : a));
       setEditingApp(null);
@@ -113,9 +118,9 @@ export default function Apps() {
   };
 
   const handleDeleteApp = async (id: string) => {
-    if (!confirm("Are you sure? This will hide the app from your view.")) return;
+    if (!confirm("Are you sure? This will hide the app from your view.") || !firestore) return;
     try {
-      await deleteDoc(doc(firestore, "apps", id));
+      await deleteDoc(doc(firestore!, "apps", id));
       setApps(apps.filter(a => a.id !== id));
       setActiveMenu(null);
     } catch (e) { console.error(e); }

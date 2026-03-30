@@ -4,37 +4,37 @@ import { motion } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Zap } from "lucide-react";
+import { CheckCircle2, Zap, ArrowRight, ShieldCheck } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const tiers = [
   { 
     name: "Free", 
-    price: "€0", 
+    price: "$0", 
     priceFreq: "/mo",
     desc: "For hobbyists and casual creators.",
     features: [
-      "10 req/min Rate Limit",
+      "60 req/min Rate Limit",
       "Core Replay Parsing",
       "Public Discovery & Metadata",
-      "Community Discord Support"
+      "Community Support"
     ],
-    cta: "Get Started Free",
+    cta: "Get Started",
     id: "tier_free"
   },
   { 
     name: "Pro", 
-    price: "€15", 
+    price: "$15", 
     priceFreq: "/mo",
-    desc: "For competitive teams and pro tools.",
+    desc: "For competitive teams and professional tools.",
     features: [
-      "100+ req/min Rate Limit",
+      "2,000 req/min Rate Limit",
       "Gemini AI Intelligence Layer",
       "Real-time Webhook Pushes",
       "Enhanced Heatmaps & Timelines",
-      "Private OAuth Locker Access"
+      "25% Credit Purchase Discount"
     ],
-    cta: "Go Pro Now",
+    cta: "Upgrade to Pro",
     id: "tier_pro",
     popular: true
   }
@@ -43,7 +43,7 @@ const tiers = [
 const packs = [
   { credits: "10,000", price: "$10", id: "pack_10k" },
   { credits: "60,000", price: "$50", id: "pack_60k", bonus: "10k Bonus" },
-  { credits: "150,000", price: "$100", id: "pack_150k", bonus: "30k Bonus" },
+  { credits: "150,000", price: "$100", id: "pack_150k", bonus: "50k Bonus" },
 ];
 
 const costs = [
@@ -57,24 +57,24 @@ const costs = [
 export default function PricingPage() {
   const comparisons = [
     { feature: "Daily Parse Limit", free: "50", pro: "Unlimited", info: "Total .replay files processed" },
-    { feature: "API Rate Limit", free: "10 req/min", pro: "100 req/min", info: "Burst protection thresholds" },
-    { feature: "AI Match Analyst", free: "Unavailable", pro: "Gemini Pro 1.5", info: "Automated tactical coaching" },
-    { feature: "Real-time Webhooks", free: "Unavailable", pro: "Unlimited", info: "Push notifications for events" },
-    { feature: "Data Retention", free: "24 Hours", pro: "90 Days", info: "JSON matches stored in R2" },
-    { feature: "Developer Support", free: "Discord", pro: "Priority Slack", info: "Access to engineering team" },
+    { feature: "API Rate Limit", free: "60 req/min", pro: "2,000 req/min", info: "Burst protection thresholds" },
+    { feature: "Credit Pricing", free: "Standard", pro: "25% Discount", info: "Refill cost across all packs" },
+    { feature: "AI Match Analyst", free: "Not Included", pro: "Full Access", info: "Automated tactical coaching" },
+    { feature: "Real-time Webhooks", free: "Disabled", pro: "Full Access", info: "Push notifications for events" },
+    { feature: "Developer Support", free: "Community", pro: "Priority Support", info: "Access to engineering team" },
   ];
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-32">
+    <div className="min-h-screen bg-white text-black pb-32">
       {/* Hero */}
       <section className="pt-24 pb-12 px-6 text-center max-w-5xl mx-auto space-y-6">
         <motion.div
-           initial={{ opacity: 0, scale: 0.9 }}
-           animate={{ opacity: 1, scale: 1 }}
+           initial={{ opacity: 0, y: 10 }}
+           animate={{ opacity: 1, y: 0 }}
         >
-          <Badge className="bg-primary/10 text-primary border-primary/20 mb-4 px-4 py-1 h-auto text-[10px] font-extrabold uppercase tracking-[0.2em]">SaaS Tier Selection</Badge>
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight glow-text mb-4">Choose your intelligence.</h1>
-          <p className="text-xl text-muted-foreground mt-4 max-w-2xl mx-auto font-medium opacity-80 leading-relaxed italic">&quot;Pathgen scales with your ambition. Unlock the AI engine with Pro, or scale core parsing on Free.&quot;</p>
+          <Badge className="bg-[#D97757]/5 text-[#D97757] border-[#D97757]/10 mb-4 px-4 py-1 h-auto text-[10px] font-extrabold uppercase tracking-widest">Platform Tiers</Badge>
+          <h1 className="text-5xl md:text-6xl font-medium tracking-tight mb-4">Plans that scale with you.</h1>
+          <p className="text-xl text-gray-500 mt-4 max-w-2xl mx-auto font-normal leading-relaxed">PathGen provides the infrastructure for high-performance apps. Choose the tier that matches your ambition.</p>
         </motion.div>
       </section>
 
@@ -87,33 +87,36 @@ export default function PricingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
           >
-             <Card className={`glass-card relative h-full flex flex-col group transition-all duration-500 overflow-hidden ${t.popular ? 'border-primary/40 ring-1 ring-primary/20 bg-primary/[0.03] shadow-2xl shadow-primary/10' : 'border-white/5 bg-card/5 hover:border-white/10'}`}>
+             <Card className={`relative h-full flex flex-col transition-all duration-300 border ${t.popular ? 'border-black bg-white shadow-2xl scale-[1.02]' : 'border-gray-100 bg-white hover:border-gray-300'}`}>
                 {t.popular && (
-                  <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] font-black px-4 py-1.5 rounded-bl-xl tracking-widest shadow-xl">MOST POPULAR</div>
+                  <div className="absolute top-4 right-4 text-[10px] font-black bg-[#D97757] text-white px-3 py-1 rounded-full tracking-widest">MOST POPULAR</div>
                 )}
                 <CardHeader className="p-10">
-                  <CardTitle className="text-3xl font-bold tracking-tight mb-2">{t.name}</CardTitle>
-                  <CardDescription className="text-sm leading-relaxed min-h-[40px] opacity-70 font-medium">{t.desc}</CardDescription>
+                   <div style={{width: '40px', height: '40px', borderRadius: '10px', background: t.popular ? 'rgba(217, 119, 87, 0.05)' : '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px'}}>
+                      {t.popular ? <Zap size={20} color="#D97757" fill="#D97757" /> : <ShieldCheck size={20} color="#6B7280" />}
+                   </div>
+                  <CardTitle className="text-2xl font-bold tracking-tight mb-1">{t.name}</CardTitle>
+                  <CardDescription className="text-sm font-medium text-gray-500">{t.desc}</CardDescription>
                   <div className="mt-8 flex items-baseline gap-2">
-                    <span className="text-6xl font-bold tracking-tighter">{t.price}</span>
-                    <span className="text-muted-foreground font-semibold text-lg">{t.priceFreq}</span>
+                    <span className="text-5xl font-bold tracking-tighter">{t.price}</span>
+                    <span className="text-gray-400 font-medium text-lg">{t.priceFreq}</span>
                   </div>
                 </CardHeader>
                 <CardContent className="px-10 pb-10 flex-1">
-                   <ul className="space-y-5">
+                   <div className="text-[11px] font-black uppercase tracking-widest text-gray-400 mb-6">Capabilities</div>
+                   <ul className="space-y-4">
                       {t.features.map((f, j) => (
-                        <li key={j} className="flex items-center gap-4 text-sm font-medium text-foreground/70 group-hover:text-foreground/90 transition-colors">
-                           <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                              <CheckCircle2 className="h-3 w-3 text-primary opacity-80" />
-                           </div>
+                        <li key={j} className="flex items-center gap-3 text-sm font-medium text-gray-600">
+                           <CheckCircle2 className={`h-4 w-4 shrink-0 ${t.popular ? 'text-[#D97757]' : 'text-gray-300'}`} />
                            {f}
                         </li>
                       ))}
                    </ul>
                 </CardContent>
                 <CardFooter className="p-10 pt-0">
-                    <Button className={`w-full h-14 rounded-2xl text-base font-bold shadow-2xl transition-all duration-300 transform active:scale-95 ${t.popular ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-primary/20' : 'bg-white/10 hover:bg-white/15 text-white'}`}>
+                    <Button className={`w-full h-12 rounded-xl text-sm font-bold transition-all duration-200 ${t.popular ? 'bg-black hover:bg-gray-900 text-white' : 'bg-gray-100 hover:bg-gray-200 text-black'}`}>
                        {t.cta}
+                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                 </CardFooter>
              </Card>
@@ -124,30 +127,30 @@ export default function PricingPage() {
       {/* Comparison Table */}
       <section className="px-6 py-24 max-w-5xl mx-auto space-y-16">
          <div className="text-center space-y-4">
-            <h2 className="text-4xl font-bold tracking-tight">Compare capabilities.</h2>
-            <p className="text-muted-foreground font-medium max-w-xl mx-auto">See why developers are switching to the Pathgen Intelligence engine.</p>
+            <h2 className="text-4xl font-bold tracking-tight text-black">Technical Comparison</h2>
+            <p className="text-gray-500 font-medium max-w-xl mx-auto">Detailed breakdown of platform capabilities and limitations across tiers.</p>
          </div>
 
-         <div className="rounded-3xl border border-white/5 bg-card/5 overflow-hidden glass-card shadow-2xl">
+         <div className="rounded-3xl border border-gray-100 bg-white overflow-hidden shadow-sm">
             <Table>
                <TableHeader>
-                  <TableRow className="hover:bg-transparent border-white/5 bg-white/[0.03]">
-                    <TableHead className="w-[40%] pl-10 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground py-6">Feature Package</TableHead>
-                    <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground text-center">Pathgen Free</TableHead>
-                    <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-primary text-center">Pathgen Pro</TableHead>
+                  <TableRow className="hover:bg-transparent border-gray-100 bg-gray-50">
+                    <TableHead className="w-[40%] pl-10 text-[11px] font-black uppercase tracking-widest text-gray-400 py-6">Capability</TableHead>
+                    <TableHead className="text-[11px] font-black uppercase tracking-widest text-gray-400 text-center">Free Tier</TableHead>
+                    <TableHead className="text-[11px] font-black uppercase tracking-widest text-[#D97757] text-center">Pro Tier</TableHead>
                   </TableRow>
                </TableHeader>
                <TableBody>
                   {comparisons.map((c, i) => (
-                    <TableRow key={i} className="hover:bg-white/[0.01] border-white/5 transition-colors group">
+                    <TableRow key={i} className="hover:bg-gray-50/50 border-gray-50 transition-colors">
                        <TableCell className="pl-10 py-5">
-                         <div className="font-bold text-sm text-foreground/90">{c.feature}</div>
-                         <div className="text-[11px] text-muted-foreground mt-1 font-medium opacity-60 group-hover:opacity-100 transition-opacity">{c.info}</div>
+                         <div className="font-bold text-sm text-black">{c.feature}</div>
+                         <div className="text-[11px] text-gray-400 mt-1 font-medium italic">{c.info}</div>
                        </TableCell>
-                       <TableCell className="text-center font-mono text-xs text-muted-foreground opacity-70">{c.free}</TableCell>
+                       <TableCell className="text-center font-medium text-xs text-gray-400">{c.free}</TableCell>
                        <TableCell className="text-center">
-                          <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold ${c.pro === 'Unavailable' ? 'bg-white/5 text-muted-foreground' : 'bg-primary/10 text-primary border border-primary/20 shadow-lg shadow-primary/5'}`}>
-                             {c.pro === 'Unavailable' ? '—' : c.pro}
+                          <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold ${c.pro === 'Not Included' || c.pro === 'Disabled' ? 'text-gray-300' : 'text-[#D97757] bg-[#D97757]/5'}`}>
+                             {c.pro}
                           </div>
                        </TableCell>
                     </TableRow>
@@ -158,39 +161,39 @@ export default function PricingPage() {
       </section>
 
       {/* Top up */}
-      <section className="px-6 py-24 max-w-5xl mx-auto border-t border-white/5">
+      <section className="px-6 py-24 max-w-5xl mx-auto border-t border-gray-100">
          <div className="flex flex-col items-center mb-16 text-center space-y-2">
-            <h2 className="text-3xl font-bold tracking-tight">Need more credits?</h2>
-            <p className="text-muted-foreground font-medium">Refill your balance instantly via Stripe. Shared across all tiers.</p>
+            <h2 className="text-3xl font-bold tracking-tight">Purchase Credits</h2>
+            <p className="text-gray-500 font-medium">Refill your balance instantly via Stripe. Shared across all tiers.</p>
          </div>
          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {packs.map((p, i) => (
-               <Card key={i} className="glass-card bg-card/5 border-white/5 p-8 group hover:border-primary/20 transition-all cursor-pointer flex flex-row items-center justify-between shadow-lg hover:shadow-primary/5">
+               <Card key={i} className="bg-white border-gray-100 p-8 group hover:border-[#D97757]/20 transition-all cursor-pointer flex flex-row items-center justify-between shadow-sm hover:shadow-md">
                   <div className="space-y-1">
-                    <div className="text-2xl font-bold tracking-tight">{p.credits} <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest ml-1">Credits</span></div>
-                    <div className="text-sm font-semibold text-primary">{p.price} <span className="text-[10px] font-normal text-muted-foreground opacity-60 italic">One-time refill</span></div>
-                    {p.bonus && <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[9px] font-black">{p.bonus}</Badge>}
+                    <div className="text-2xl font-bold tracking-tight">{p.credits} <span className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Credits</span></div>
+                    <div className="text-sm font-semibold text-[#D97757]">{p.price} <span className="text-[10px] font-normal text-gray-400 opacity-60 ml-1">One-time refill</span></div>
+                    {p.bonus && <Badge className="bg-green-50 text-green-600 border-green-100 text-[9px] font-black py-0.5 mt-2">{p.bonus}</Badge>}
                   </div>
-                  <Button variant="ghost" className="h-12 w-12 p-0 rounded-2xl bg-white/5 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
-                     <Zap className="h-5 w-5 fill-current" />
+                  <Button variant="ghost" className="h-10 w-10 p-0 rounded-xl bg-gray-50 group-hover:bg-[#D97757] group-hover:text-white transition-all duration-300">
+                     <ArrowRight className="h-4 w-4" />
                   </Button>
                </Card>
             ))}
          </div>
       </section>
 
-      {/* Technical Ticker */}
-      <section className="px-6 py-24 max-w-4xl mx-auto space-y-12 mb-20 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
+      {/* Technical Ledger */}
+      <section className="px-6 py-24 max-w-4xl mx-auto space-y-12 mb-20 opacity-60">
          <div className="text-center">
-            <h2 className="text-xs font-black tracking-[0.3em] uppercase text-muted-foreground">Technical Consumption Ledger</h2>
+            <h2 className="text-[10px] font-black tracking-[0.4em] uppercase text-gray-400">Consumption Transparency Ledger</h2>
          </div>
-         <div className="rounded-3xl border border-white/5 overflow-hidden">
+         <div className="rounded-2xl border border-gray-100 overflow-hidden">
             <Table>
                 <TableBody>
                    {costs.map((c, i) => (
-                     <TableRow key={i} className="border-white/5">
-                        <TableCell className="font-mono text-[10px] py-4 pl-8">{c.endpoint}</TableCell>
-                        <TableCell className="text-right pr-8 text-[10px] font-bold text-primary tabular-nums">-{c.cost} Credits</TableCell>
+                     <TableRow key={i} className="border-gray-50">
+                        <TableCell className="font-mono text-[10px] py-4 pl-8 text-gray-500">{c.endpoint}</TableCell>
+                        <TableCell className="text-right pr-8 text-[10px] font-bold text-black tabular-nums">-{c.cost} Credits</TableCell>
                      </TableRow>
                    ))}
                 </TableBody>

@@ -1,96 +1,101 @@
 "use client"
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle, Terminal, Key, Rocket, ExternalLink, ChevronRight } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Terminal, Key, Rocket, ExternalLink, ChevronRight, Zap, Database, Code, Globe } from 'lucide-react';
 import CopyButton from '@/components/CopyButton';
 
 export default function Quickstart() {
 
   return (
-    <div className="fade-in" style={{paddingBottom: '160px', maxWidth: '800px', margin: '0 auto'}}>
+    <div className="fade-in" style={{paddingBottom: '160px', maxWidth: '1000px', margin: '12vh auto 0'}}>
       
-      <Link href="/docs" style={{display: 'flex', alignItems: 'center', gap: '8px', color: '#6B7280', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600, marginBottom: '32px'}} className="table-row-hover">
+      <Link href="/docs" style={{display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 700, marginBottom: '48px'}} className="active-scale">
          <ArrowLeft size={16} />
          Back to Documentation
       </Link>
 
-      <div style={{marginBottom: '64px'}}>
-         <div style={{width: '56px', height: '56px', borderRadius: '16px', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px'}}>
-            <Rocket size={24} color="#fff" />
+      <div style={{marginBottom: '80px'}}>
+         <div style={{width: '64px', height: '64px', borderRadius: '18px', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '32px', boxShadow: '0 8px 30px rgba(0,0,0,0.1)'}}>
+            <Rocket size={28} color="#fff" />
          </div>
-         <h1 style={{fontSize: '3.5rem', fontWeight: 900, letterSpacing: '-0.05em', marginBottom: '16px'}}>Developer Quickstart</h1>
-         <p style={{fontSize: '1.25rem', color: '#6B7280', lineHeight: 1.6}}>
-            Go from zero to your first Pathgen API call in under 5 minutes. No SDKs or libraries required—just raw HTTP.
+         <h1 style={{fontSize: '4.5rem', fontWeight: 900, letterSpacing: '-0.06em', marginBottom: '20px', lineHeight: 1.0}}>Zero to API call <br /> in 5 minutes.</h1>
+         <p style={{fontSize: '1.25rem', color: 'var(--text-secondary)', lineHeight: 1.6, maxWidth: '700px'}}>
+            Go from zero to your first high-fidelity telemetry extracted in under 5 minutes. No complex infrastructure required.
          </p>
       </div>
 
-      <div style={{display: 'flex', flexDirection: 'column', gap: '80px'}}>
+      <div style={{display: 'flex', flexDirection: 'column', gap: '100px'}}>
          
          {/* Step 1 */}
-         <div style={{display: 'flex', gap: '32px'}}>
-            <div style={{width: '32px', height: '32px', borderRadius: '50%', background: '#F3F4F6', color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', fontWeight: 800, flexShrink: 0}}>1</div>
+         <div style={{display: 'flex', gap: '48px'}}>
+            <div style={{width: '40px', height: '40px', borderRadius: '12px', background: 'var(--bg-sidebar)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', fontWeight: 900, flexShrink: 0, border: '1px solid var(--border-color)'}}>1</div>
             <div style={{flex: 1}}>
-               <h3 style={{fontSize: '1.5rem', fontWeight: 800, marginBottom: '12px'}}>Create an API Key</h3>
-               <p style={{fontSize: '1rem', color: '#6B7280', marginBottom: '24px', lineHeight: 1.6}}>
-                  Head to your keys dashboard to generate a new authentication token. Keys are unique to your individual developer account.
+               <h3 style={{fontSize: '1.75rem', fontWeight: 900, marginBottom: '16px', letterSpacing: '-0.02em'}}>Create an API Key</h3>
+               <p style={{fontSize: '1.1rem', color: 'var(--text-secondary)', marginBottom: '32px', lineHeight: 1.6}}>
+                  Head to your keys dashboard to generate a new authentication token. All platform requests use Bearer Authorization.
                </p>
                <Link href="/keys" style={{textDecoration: 'none'}}>
-                  <button style={{padding: '12px 24px', background: '#000', color: '#fff', borderRadius: '12px', border: 'none', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'}}>
-                     <Key size={16} />
-                     Manage API Keys
+                  <button style={{padding: '14px 28px', background: '#000', color: '#fff', borderRadius: '14px', border: 'none', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px'}} className="pop-out-hover active-scale">
+                     <Key size={18} />
+                     Generate API Key
                   </button>
                </Link>
             </div>
          </div>
 
          {/* Step 2 */}
-         <div style={{display: 'flex', gap: '32px'}}>
-            <div style={{width: '32px', height: '32px', borderRadius: '50%', background: '#F3F4F6', color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', fontWeight: 800, flexShrink: 0}}>2</div>
+         <div style={{display: 'flex', gap: '48px'}}>
+            <div style={{width: '40px', height: '40px', borderRadius: '12px', background: 'var(--bg-sidebar)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', fontWeight: 900, flexShrink: 0, border: '1px solid var(--border-color)'}}>2</div>
             <div style={{flex: 1}}>
-               <h3 style={{fontSize: '1.5rem', fontWeight: 800, marginBottom: '12px'}}>Choose an Endpoint</h3>
-               <p style={{fontSize: '1rem', color: '#6B7280', marginBottom: '24px', lineHeight: 1.6}}>
-                  For your first call, we recommend testing a <strong>Free Endpoint</strong> like Account Lookup. This doesn&apos;t consume any credits.
+               <h3 style={{fontSize: '1.75rem', fontWeight: 900, marginBottom: '16px', letterSpacing: '-0.02em'}}>Submit a Replay Parse</h3>
+               <p style={{fontSize: '1.1rem', color: 'var(--text-secondary)', marginBottom: '32px', lineHeight: 1.6}}>
+                  PathGen thrives on telemetry. For your first call, we&apos;ll use the POST /v1/replay/parse endpoint with a sample FN_REPLAY file.
                </p>
-               <div style={{display: 'flex', flexWrap: 'wrap', gap: '12px'}}>
-                  <span style={{padding: '8px 16px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 700, fontFamily: 'JetBrains Mono'}}>GET /v1/players/lookup</span>
-                  <span style={{padding: '8px 16px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 700, fontFamily: 'JetBrains Mono'}}>GET /v1/cosmetics/search</span>
+               
+               <div style={{background: '#111827', borderRadius: '24px', position: 'relative', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)'}}>
+                  <div style={{padding: '16px 32px', background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                     <div style={{display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.7rem', fontWeight: 900, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em'}}>
+                        <Terminal size={14} />
+                        cURL CLI
+                     </div>
+                      <CopyButton 
+                         text='curl -X POST "https://api.pathgen.dev/v1/replay/parse" \
+     -H "Authorization: Bearer YOUR_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d "{ \"file_url\": \"https://assets.pathgen.dev/samples/replays/S2.replay\" }"'
+                         size={14}
+                         color="#fff"
+                      />
+                  </div>
+                  <pre style={{margin: 0, padding: '32px', background: 'transparent', fontSize: '0.95rem', color: '#D97757', whiteSpace: 'pre-wrap', fontFamily: 'JetBrains Mono', lineHeight: 1.6}}>
+                     <code>
+{`curl -X POST "https://api.pathgen.dev/v1/replay/parse" \\
+     -H "Authorization: Bearer YOUR_API_KEY" \\
+     -H "Content-Type: application/json" \\
+     -d '{ "file_url": "https://assets.pathgen.dev/samples/replays/S2.replay" }'`}
+                     </code>
+                  </pre>
                </div>
             </div>
          </div>
 
          {/* Step 3 */}
-         <div style={{display: 'flex', gap: '32px'}}>
-            <div style={{width: '32px', height: '32px', borderRadius: '50%', background: '#F3F4F6', color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', fontWeight: 800, flexShrink: 0}}>3</div>
+         <div style={{display: 'flex', gap: '48px'}}>
+            <div style={{width: '40px', height: '40px', borderRadius: '12px', background: 'var(--bg-sidebar)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', fontWeight: 900, flexShrink: 0, border: '1px solid var(--border-color)'}}>3</div>
             <div style={{flex: 1}}>
-               <h3 style={{fontSize: '1.5rem', fontWeight: 800, marginBottom: '12px'}}>Make the Request</h3>
-               <p style={{fontSize: '1rem', color: '#6B7280', marginBottom: '24px', lineHeight: 1.6}}>
-                  Copy and paste this curl command into your terminal. Replace your-api-key-here with the key you generated in Step 1.
+               <h3 style={{fontSize: '1.75rem', fontWeight: 900, marginBottom: '16px', letterSpacing: '-0.02em'}}>Integrate our SDKs</h3>
+               <p style={{fontSize: '1.1rem', color: 'var(--text-secondary)', marginBottom: '32px', lineHeight: 1.6}}>
+                  Raw HTTP is great for testing, but PathGen SDKs for Node.js and Python handle rate-limiting and cache-invalidation automatically.
                </p>
-               
-               <div style={{background: '#111827', borderRadius: '20px', padding: '32px', position: 'relative', overflow: 'hidden'}}>
-                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
-                     <div style={{display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', fontWeight: 800, color: '#4B5563', textTransform: 'uppercase'}}>
-                        <Terminal size={14} />
-                        cURL Request
-                     </div>
-                      <CopyButton 
-                         text='curl -X GET "https://api.pathgen.dev/v1/players/lookup?name=blackgirlslikeme" \\\n     -H "Authorization: Bearer YOUR_API_KEY_HERE"'
-                         size={14}
-                         color="#fff"
-                      />
+               <div style={{display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px'}}>
+                  <div style={{padding: '24px', background: '#fff', border: '1px solid var(--border-color)', borderRadius: '20px'}} className="pop-out-hover border-button-hover active-scale">
+                     <Code size={20} color="#D97757" style={{marginBottom: '12px'}} />
+                     <div style={{fontWeight: 800, fontSize: '1rem', marginBottom: '4px'}}>pathgen-node</div>
+                     <div style={{fontSize: '0.8rem', color: 'var(--text-secondary)'}}>npm install @pathgen/sdk</div>
                   </div>
-                  <pre style={{margin: 0, fontSize: '0.95rem', color: '#A5F3FC', whiteSpace: 'pre-wrap', fontFamily: 'JetBrains Mono', lineHeight: 1.6}}>
-                     {`curl -X GET "https://api.pathgen.dev/v1/players/lookup?name=blackgirlslikeme" \\
-     -H "Authorization: Bearer YOUR_API_KEY_HERE"`}
-                  </pre>
-               </div>
-
-               <div style={{marginTop: '40px', padding: '32px', background: '#F0FDF4', border: '1px solid #DCFCE7', borderRadius: '24px', display: 'flex', gap: '20px'}}>
-                  <div style={{marginTop: '4px'}}><CheckCircle size={24} color="#10B981" /></div>
-                  <div>
-                     <h4 style={{fontSize: '1.1rem', fontWeight: 800, color: '#064E3B', marginBottom: '8px'}}>You&apos;re officially a Pathgen developer!</h4>
-                     <p style={{fontSize: '0.95rem', color: '#065F46', lineHeight: 1.5}}>
-                        Check out our <Link href="/docs#schema" style={{color: '#064E3B', fontWeight: 700}}>Response Schema</Link> to understand how to parse the data coming back, or dive into our <Link href="/tutorials" style={{color: '#064E3B', fontWeight: 700}}>Tutorials</Link> for complex implementations.
-                     </p>
+                  <div style={{padding: '24px', background: '#fff', border: '1px solid var(--border-color)', borderRadius: '20px'}} className="pop-out-hover border-button-hover active-scale">
+                     <Database size={20} color="#D97757" style={{marginBottom: '12px'}} />
+                     <div style={{fontWeight: 800, fontSize: '1rem', marginBottom: '4px'}}>pathgen-py</div>
+                     <div style={{fontSize: '0.8rem', color: 'var(--text-secondary)'}}>pip install pathgen-sdk</div>
                   </div>
                </div>
             </div>
@@ -98,23 +103,48 @@ export default function Quickstart() {
 
       </div>
 
-      <div style={{marginTop: '120px', paddingTop: '80px', borderTop: '1px solid #F3F4F6', textAlign: 'center'}}>
-         <h2 style={{fontSize: '1.75rem', fontWeight: 800, marginBottom: '24px'}}>Ready for more advanced tools?</h2>
-         <div style={{display: 'flex', justifyContent: 'center', gap: '16px'}}>
-            <Link href="/docs" style={{textDecoration: 'none'}}>
-               <button style={{padding: '14px 28px', border: '1px solid #E5E7EB', background: '#fff', borderRadius: '12px', color: '#111827', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'}}>
-                  Full API Docs
-                  <ExternalLink size={16} />
-               </button>
-            </Link>
-            <Link href="/tutorials" style={{textDecoration: 'none'}}>
-               <button style={{padding: '14px 28px', background: '#000', color: '#fff', borderRadius: '12px', border: 'none', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'}}>
-                  View Tutorials
-                  <ChevronRight size={16} />
-               </button>
-            </Link>
+      <div style={{marginTop: '150px', padding: '100px 64px', background: '#000', borderRadius: '48px', color: '#fff', textAlign: 'center', position: 'relative', overflow: 'hidden'}}>
+         <div style={{position: 'relative', zIndex: 2}}>
+            <h2 style={{fontSize: '2.5rem', fontWeight: 900, marginBottom: '20px', letterSpacing: '-0.04em'}}>You&apos;re officially a PathGen developer.</h2>
+            <p style={{fontSize: '1.1rem', opacity: 0.7, maxWidth: '600px', margin: '0 auto 48px', lineHeight: 1.6}}>
+               Dive into our expert guides to learn how to visualize movement maps, track real-time stats, and leverage Gemini-powered match analysis.
+            </p>
+            <div style={{display: 'flex', justifyContent: 'center', gap: '16px'}}>
+               <Link href="/tutorials" style={{textDecoration: 'none'}}>
+                  <button style={{padding: '16px 32px', background: '#D97757', color: '#fff', borderRadius: '14px', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer'}} className="pop-out-hover active-scale">
+                     Master Tutorials
+                  </button>
+               </Link>
+               <Link href="/explorer" style={{textDecoration: 'none'}}>
+                  <button style={{padding: '16px 32px', background: 'rgba(255,255,255,0.1)', color: '#fff', borderRadius: '14px', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'}} className="pop-out-hover active-scale">
+                     API Explorer
+                  </button>
+               </Link>
+            </div>
+         </div>
+         {/* Decorative Blur */}
+         <div style={{position: 'absolute', top: '-100px', left: '-100px', width: '300px', height: '300px', background: 'rgba(217, 119, 87, 0.1)', filter: 'blur(100px)', borderRadius: '50%'}}></div>
+      </div>
+
+      <div style={{marginTop: '120px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 40px'}}>
+         <div style={{display: 'flex', gap: '40px'}}>
+            <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+               <span style={{fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-secondary)'}}>RESOURCES</span>
+               <Link href="/docs" style={{color: 'var(--text-primary)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600}}>System Status</Link>
+               <Link href="/docs" style={{color: 'var(--text-primary)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600}}>Changelog</Link>
+            </div>
+            <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+               <span style={{fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-secondary)'}}>COMMUNITY</span>
+               <Link href="https://discord.gg/pathgen" style={{color: 'var(--text-primary)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600}}>Discord Server</Link>
+               <Link href="https://github.com/pathgen" style={{color: 'var(--text-primary)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600}}>GitHub</Link>
+            </div>
+         </div>
+         <div style={{display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-sidebar)', padding: '12px 20px', borderRadius: '16px', border: '1px solid var(--border-color)'}}>
+            <Globe size={18} color="var(--accent-primary)" />
+            <span style={{fontSize: '0.9rem', fontWeight: 700}}>Global Network: Online</span>
          </div>
       </div>
     </div>
   );
 }
+

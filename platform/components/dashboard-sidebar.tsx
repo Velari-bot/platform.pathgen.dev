@@ -89,15 +89,30 @@ export function DashboardSidebar() {
         ))}
       </nav>
 
-      <div className="p-4 border-t border-white/5">
-        <div className="px-3 py-4 glass-card bg-primary/5 border-primary/10 mb-4">
-           <div className="text-[10px] font-bold text-primary/70 uppercase">Balance</div>
-           <div className="text-xl font-bold tracking-tight">54,020 <span className="text-[10px] font-normal text-muted-foreground uppercase ml-1">Credits</span></div>
+      <div className="p-4 border-t border-white/5 space-y-4">
+        {/* Upgrade Card */}
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/5 to-transparent border border-primary/20 relative overflow-hidden group">
+           <div className="absolute -right-4 -top-4 w-16 h-16 bg-primary/20 blur-2xl group-hover:bg-primary/40 transition-all duration-700" />
+           <div className="relative z-10">
+              <div className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-1">Scale your tools</div>
+              <div className="text-sm font-bold text-foreground mb-1">Upgrade to Pro</div>
+              <p className="text-[10px] text-muted-foreground leading-relaxed mb-3 opacity-70">Unlock Gemini AI coaching and 100+ req/min rate limits.</p>
+              <Link href="/dashboard/billing">
+                <Button size="sm" className="w-full h-8 rounded-lg text-[10px] font-black uppercase tracking-widest bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20">
+                  Go Pro Now
+                </Button>
+              </Link>
+           </div>
+        </div>
+
+        <div className="px-3 py-4 glass-card bg-white/[0.02] border-white/5">
+           <div className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-widest mb-1">Available Credits</div>
+           <div className="text-xl font-bold tracking-tight">54,020</div>
         </div>
         
         <Button 
           variant="ghost" 
-          className="w-full justify-start gap-3 rounded-xl hover:bg-destructive/10 hover:text-destructive text-muted-foreground"
+          className="w-full justify-start gap-3 rounded-xl hover:bg-destructive/10 hover:text-destructive text-muted-foreground transition-all"
           onClick={handleLogout}
         >
           <LogOut className="h-4 w-4" />

@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react';
 import { ENDPOINTS_DATA, Endpoint } from '@/data/endpoints';
-import { Play, Search } from 'lucide-react';
+import { Play, Search, Coins } from 'lucide-react';
 import CopyButton from '@/components/CopyButton';
 
 export default function ApiExplorer() {
@@ -136,30 +136,33 @@ export default function ApiExplorer() {
                        transition: 'all 0.2s ease'
                      }}
                    >
-                     <span style={{
-                        fontSize: '0.6rem', 
-                        padding: '4px 8px', 
-                        borderRadius: '6px',
-                        fontWeight: 800,
-                        minWidth: '40px', 
-                        textAlign: 'center', 
-                        background: ep.method === 'GET' ? '#EFF6FF' : ep.method === 'WEBHOOK' ? '#F0FDF4' : '#F5F3FF',
-                        color: ep.method === 'GET' ? '#3B82F6' : ep.method === 'WEBHOOK' ? '#16A34A' : '#8B5CF6'
-                     }}>{ep.status === 'beta' ? 'BETA' : ep.method}</span>
-                     
-                     <span style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, fontWeight: selectedEndpoint.path === ep.path ? 600 : 400}}>{ep.path}</span>
-                     
-                     {ep.tier === 'pro' && (
-                        <span style={{
-                           fontSize: '0.6rem', 
-                           fontWeight: 900, 
-                           color: '#8B5CF6', 
-                           background: '#F5F3FF', 
-                           padding: '2px 6px', 
-                           borderRadius: '4px',
-                           border: '1px solid #DDD6FE'
-                        }}>PRO</span>
-                     )}
+                      <span style={{
+                         fontSize: '0.6rem', 
+                         padding: '4px 8px', 
+                         borderRadius: '6px',
+                         fontWeight: 800,
+                         minWidth: '40px', 
+                         textAlign: 'center', 
+                         background: ep.method === 'GET' ? '#F0FDF4' : ep.method === 'POST' ? '#EFF6FF' : ep.method === 'DELETE' ? '#FEF2F2' : '#F9FAFB',
+                         color: ep.method === 'GET' ? '#16A34A' : ep.method === 'POST' ? '#3B82F6' : ep.method === 'DELETE' ? '#DC2626' : '#6B7280'
+                      }}>{ep.status === 'beta' ? 'BETA' : ep.method}</span>
+                      
+                      <span style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, fontWeight: selectedEndpoint.path === ep.path ? 600 : 400}}>{ep.path}</span>
+                      
+                      <div style={{display: 'flex', gap: '4px'}}>
+                        {ep.tier === 'free' && (
+                            <span style={{fontSize: '0.6rem', fontWeight: 900, color: '#16A34A', background: '#F0FDF4', padding: '2px 6px', borderRadius: '4px', border: '1px solid #DCFCE7'}}>FREE</span>
+                        )}
+                        {ep.tier === 'pro' && (
+                            <span style={{fontSize: '0.6rem', fontWeight: 900, color: '#8B5CF6', background: '#F5F3FF', padding: '2px 6px', borderRadius: '4px', border: '1px solid #DDD6FE'}}>PRO</span>
+                        )}
+                        {ep.credits && (
+                            <span style={{fontSize: '0.6rem', fontWeight: 600, color: '#6366F1', background: '#EEF2FF', padding: '2px 6px', borderRadius: '4px', border: '1px solid #E0E7FF', display: 'flex', alignItems: 'center', gap: '3px'}}>
+                              <Coins size={10} strokeWidth={3} />
+                              {ep.credits}
+                            </span>
+                        )}
+                      </div>
                    </div>
                  ))}
               </div>
@@ -186,7 +189,7 @@ export default function ApiExplorer() {
                  style={{
                    height: '52px',
                    padding: '0 36px', 
-                   background: isLoading ? '#93C5FD' : '#000', 
+                   background: isLoading ? '#93C5FD' : '#2563EB', 
                    color: 'white', 
                    borderRadius: '16px', 
                    fontWeight: 700, 
@@ -197,8 +200,10 @@ export default function ApiExplorer() {
                    alignItems: 'center',
                    gap: '12px',
                    transition: 'all 0.2s',
-                   boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                   boxShadow: '0 10px 15px -3px rgba(37, 99, 235, 0.2)'
                  }}
+                 onMouseEnter={(e) => !isLoading && (e.currentTarget.style.background = '#1D4ED8')}
+                 onMouseLeave={(e) => !isLoading && (e.currentTarget.style.background = '#2563EB')}
                >
                  {isLoading ? 'Processing...' : 'Run Request'}
                  {!isLoading && <Play size={16} fill="white" />}

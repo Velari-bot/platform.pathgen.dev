@@ -45,6 +45,12 @@ export default function OrganizationPage() {
   useEffect(() => {
     if (!userEmail) return;
     const fetchOrgs = async () => {
+      if (!firestore) {
+         const mockOrg = { id: 'personal', name: 'Personal Org', ownerEmail: userEmail, role: 'owner', createdAt: null };
+         setOrganizations([mockOrg]);
+         setEditingOrg(mockOrg);
+         return;
+      }
       try {
         const q = query(collection(firestore, "organizations"), where("ownerEmail", "==", userEmail));
         const snapshot = await getDocs(q);
@@ -80,6 +86,10 @@ export default function OrganizationPage() {
   useEffect(() => {
     if (!editingOrg) return;
     const fetchMembers = async () => {
+      if (!firestore) {
+         setMembers([{ id: 'owner', name: userEmail.split('@')[0], email: userEmail, role: 'Owner', status: 'Active' }]);
+         return;
+      }
       try {
         const q = query(collection(firestore, `organizations/${editingOrg.id}/members`));
         const snapshot = await getDocs(q);
@@ -99,7 +109,7 @@ export default function OrganizationPage() {
   }, [editingOrg, userEmail]);
 
   const handleCreateOrg = async () => {
-    if (!newOrgName.trim() || organizations.length >= 2) return;
+    if (!newOrgName.trim() || organizations.length >= 2 || !firestore) return;
     try {
       const orgData = { name: newOrgName, ownerEmail: userEmail, role: 'owner', createdAt: Timestamp.now() };
       const docRef = await addDoc(collection(firestore, "organizations"), orgData);
@@ -112,7 +122,7 @@ export default function OrganizationPage() {
   };
 
   const handleInvite = async () => {
-    if (!inviteEmail.trim() || !editingOrg) return;
+    if (!inviteEmail.trim() || !editingOrg || !firestore) return;
     try {
       const docRef = await addDoc(collection(firestore, `organizations/${editingOrg.id}/members`), {
         name: inviteEmail.split('@')[0],
@@ -127,19 +137,19 @@ export default function OrganizationPage() {
   };
 
   const handleRemoveMember = async (id: string) => {
-    if (!editingOrg) return;
+    if (!editingOrg || !firestore) return;
     try {
-      await deleteDoc(doc(firestore, `organizations/${editingOrg.id}/members`, id));
+      await deleteDoc(doc(firestore!, `organizations/${editingOrg.id}/members`, id));
       setMembers(members.filter(m => m.id !== id));
     } catch (e) { console.error(e); }
   };
 
   const handleDeleteOrg = async () => {
-    if (!editingOrg || organizations.length <= 1) return;
+    if (!editingOrg || organizations.length <= 1 || !firestore) return;
     if (!confirm(`Are you sure you want to delete "${editingOrg.name}"? This will permanently remove all associated data.`)) return;
     
     try {
-      await deleteDoc(doc(firestore, "organizations", editingOrg.id));
+      await deleteDoc(doc(firestore!, "organizations", editingOrg.id));
       const updatedOrgs = organizations.filter(o => o.id !== editingOrg.id);
       setOrganizations(updatedOrgs);
       setEditingOrg(updatedOrgs[0]);
@@ -311,9 +321,9 @@ export default function OrganizationPage() {
                         type="text" 
                         defaultValue={editingOrg?.name}
                         onBlur={async (e) => { 
-                           if (editingOrg) {
+                           if (editingOrg && firestore) {
                               try {
-                                await setDoc(doc(firestore, "organizations", editingOrg.id), { name: e.target.value }, { merge: true });
+                                await setDoc(doc(firestore!, "organizations", editingOrg.id), { name: e.target.value }, { merge: true });
                                 setEditingOrg({...editingOrg, name: e.target.value});
                                 refreshOrgs();
                               } catch (err) {

@@ -228,7 +228,7 @@ export default function Sidebar() {
             <span style={{fontSize: '0.75rem', fontWeight: 600, color: '#111827'}}>Operational</span>
          </div>
          <div style={{fontSize: '1rem', color: 'var(--text-primary)', fontWeight: 700, marginBottom: '2px'}}>
-            {Math.round((balance || 0) * 100).toLocaleString()}
+            {Math.round((balance || 0) * 100).toLocaleString()} <span style={{fontSize: '0.65rem', fontWeight: 500, opacity: 0.5}}>Credits</span>
          </div>
          <div style={{fontSize: '0.65rem', color: '#6B6A68', fontWeight: 500}}>
             API Latency: {latency}ms

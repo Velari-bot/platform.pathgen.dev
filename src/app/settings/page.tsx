@@ -38,6 +38,11 @@ export default function Settings() {
   useEffect(() => {
     const fetchSettings = async () => {
       if (!userEmail) return;
+      if (!firestore) {
+          setProfile(prev => ({...prev, name: user?.displayName || userEmail.split('@')[0] || 'User'}));
+          setIsLoading(false);
+          return;
+      }
       try {
         const userDoc = await getDoc(doc(firestore, "users", userEmail));
         if (userDoc.exists()) {
@@ -68,7 +73,7 @@ export default function Settings() {
     };
 
     fetchSettings();
-  }, [userEmail]);
+  }, [userEmail, user?.displayName]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -94,7 +99,7 @@ export default function Settings() {
       const newProfile = { ...profile, image: finalUrl };
       setProfile(newProfile);
       
-      if (userEmail) {
+      if (userEmail && firestore) {
         await updateDoc(doc(firestore, "users", userEmail), {
           "profile.image": finalUrl
         });
@@ -111,7 +116,7 @@ export default function Settings() {
   const toggleNotification = async (key: keyof typeof notifications) => {
     const newVal = !notifications[key];
     setNotifications({...notifications, [key]: newVal});
-    if (!userEmail) return;
+    if (!userEmail || !firestore) return;
     try {
         await updateDoc(doc(firestore, "users", userEmail), {
             [`notifications.${key}`]: newVal
@@ -122,7 +127,10 @@ export default function Settings() {
   };
 
   const saveProfile = async () => {
-    if (!userEmail) return;
+    if (!userEmail || !firestore) {
+        if (!firestore) alert("Running in Sandbox - Profile not saved to cloud.");
+        return;
+    }
     try {
         await updateDoc(doc(firestore, "users", userEmail), {
             profile: profile
@@ -134,7 +142,10 @@ export default function Settings() {
   };
 
   const handlePasswordReset = async () => {
-    if (!userEmail) return;
+    if (!userEmail || !auth) {
+      if (!auth) alert("Authentication service not initialized.");
+      return;
+    }
     try {
       await sendPasswordResetEmail(auth, userEmail);
       alert("Password reset email sent! Check your inbox.");
@@ -150,7 +161,9 @@ export default function Settings() {
 
     try {
       // 1. Delete Firestore Data
-      await deleteDoc(doc(firestore, "users", userEmail));
+      if (firestore) {
+        await deleteDoc(doc(firestore, "users", userEmail));
+      }
       
       // 2. Delete Auth User
       await deleteUser(user);
