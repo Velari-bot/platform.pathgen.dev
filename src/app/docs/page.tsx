@@ -114,14 +114,14 @@ export default function Docs() {
       <div style={{flex: 1, maxWidth: '900px'}}>
          
          <section id="overview" style={{paddingTop: '0', marginBottom: '80px', scrollMarginTop: '48px'}}>
-            <h1 style={{fontSize: '3rem', fontWeight: 800, letterSpacing: '-0.04em', marginBottom: '24px'}}>Omni-Source Blueprint</h1>
+            <h1 style={{fontSize: '3.5rem', fontWeight: 900, letterSpacing: '-0.05em', marginBottom: '24px', lineHeight: 1}}>Master Registry v1.2.9</h1>
             <p style={{fontSize: '1.25rem', color: '#4B5563', lineHeight: 1.6, marginBottom: '32px'}}>
-               Pathgen is now a <strong>Fused API</strong>. We reconcile data across FN-API, Osirion, and our own Parser to return a "True North" dataset with 99.9% accuracy. 
+               Pathgen is now a <strong>Unified Mega-Service</strong>. We have fused 53 endpoints across Fortnite-API, Osirion, and Epic Games into a single high-performance engine for professional developers.
             </p>
-            <div className="card" style={{background: '#F3F4F6', border: 'none', padding: '32px'}}>
-               <h3 style={{fontSize: '1.1rem', fontWeight: 700, marginBottom: '16px'}}>R2 Edge Mirroring</h3>
+            <div className="card" style={{background: '#F3F4F6', border: 'none', padding: '32px', borderRadius: '32px'}}>
+               <h3 style={{fontSize: '1.1rem', fontWeight: 700, marginBottom: '16px'}}>Fused Intelligence Engine</h3>
                <p style={{fontSize: '0.95rem', color: '#6B7280', lineHeight: 1.6}}>
-                  All Discovery and Cosmetic assets are mirrored to our <strong>Cloudflare R2</strong> storage. This ensures zero-latency image delivery and zero egress fees for your application.
+                  Our engine reconciles data across three primary providers to return a "True North" dataset. All Discovery and Cosmetic assets are mirrored to our <strong>Cloudflare R2</strong> storage for zero-latency delivery.
                </p>
             </div>
          </section>
