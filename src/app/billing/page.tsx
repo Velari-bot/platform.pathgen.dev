@@ -17,8 +17,9 @@ interface Invoice {
 }
 
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
-export default function Billing() {
+function BillingContent() {
   const { user } = useAuth();
   const { currentOrg } = useOrg();
   const searchParams = useSearchParams();
@@ -466,5 +467,18 @@ export default function Billing() {
          </table>
       </div>
     </div>
+  );
+}
+
+export default function Billing() {
+  return (
+    <Suspense fallback={
+      <div style={{height: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px'}}>
+          <div style={{width: '24px', height: '24px', border: '2px solid var(--accent-primary)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite'}}></div>
+          <span style={{fontWeight: 700, color: 'var(--text-secondary)'}}>Loading Billing...</span>
+      </div>
+    }>
+      <BillingContent />
+    </Suspense>
   );
 }

@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
 import { useAuth } from "@/hooks/useAuth";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 const transactions = [
@@ -21,7 +21,7 @@ const transactions = [
   { id: "TX_094", date: "Jan 05, 2026", pack: "Starter Pack", amount: "$10.00", status: "failed", credits: "0" },
 ];
 
-export default function BillingPage() {
+function BillingContent() {
   const { user, userData } = useAuth();
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
   const searchParams = useSearchParams();
@@ -182,5 +182,20 @@ export default function BillingPage() {
          </div>
       </footer>
     </div>
+  );
+}
+
+export default function BillingPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex-1 flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm font-medium text-muted-foreground">Loading Billing Dashboard...</p>
+        </div>
+      </div>
+    }>
+      <BillingContent />
+    </Suspense>
   );
 }
