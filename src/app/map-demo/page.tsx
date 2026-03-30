@@ -1,8 +1,14 @@
 "use client";
+
 import React, { useState, useEffect } from 'react';
-import ReplayMap from '@/components/ReplayMap';
+import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
+
+const ReplayMap = dynamic(() => import('@/components/ReplayMap'), {
+    ssr: false,
+    loading: () => <div className="h-[600px] w-full bg-muted animate-pulse rounded-2xl" />
+});
 
 export default function MapDemoPage() {
     const [currentTimeMs, setCurrentTimeMs] = useState(0);
