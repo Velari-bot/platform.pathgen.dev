@@ -117,34 +117,72 @@ export default function Landing() {
   const footerLinks = [
     {
       title: 'Products',
-      links: ['Pathgen API', 'Pathgen SDK', 'Enterprise', 'Cowork', 'Max plan', 'Team plan', 'Pricing', 'Log in']
+      links: [
+        { name: 'Pathgen API', href: '/docs' },
+        { name: 'Pathgen SDK', href: '/docs' },
+        { name: 'Enterprise', href: '/support' },
+        { name: 'Max plan', href: '/pricing' },
+        { name: 'Team plan', href: '/pricing' },
+        { name: 'Pricing', href: '/pricing' },
+        { name: 'Log in', href: '/' }
+      ]
     },
     {
       title: 'Solutions',
-      links: ['AI agents', 'Code Security', 'Telemedicine', 'Education', 'Financial services', 'Government', 'Nonprofits']
+      links: [
+        { name: 'AI agents', href: '/docs#ai' },
+        { name: 'Code Security', href: '/docs#security' },
+        { name: 'Telemedicine', href: '/tutorials' },
+        { name: 'Education', href: '/tutorials' },
+        { name: 'Government', href: '/support' }
+      ]
     },
     {
       title: 'Resources',
-      links: ['Blog', 'Partner network', 'Connectors', 'Community', 'Status', 'Tutorials', 'Use cases']
+      links: [
+        { name: 'Blog', href: '/docs' },
+        { name: 'Community', href: '/' },
+        { name: 'Status', href: '/status' },
+        { name: 'Tutorials', href: '/tutorials' },
+        { name: 'Use cases', href: '/quickstart' }
+      ]
     },
     {
       title: 'Help',
-      links: ['Availability', 'Support center', 'Contact us', 'Documentation', 'API Reference']
+      links: [
+        { name: 'Support center', href: '/support' },
+        { name: 'Contact us', href: '/support' },
+        { name: 'Documentation', href: '/docs' },
+        { name: 'API Reference', href: '/docs#reference' }
+      ]
     }
   ];
 
   const secondaryFooterLinks = [
     {
       title: 'Features',
-      links: ['Replay Parsing', 'Movement Telemetry', 'AI Analytics', 'Stats Engine']
+      links: [
+        { name: 'Replay Parsing', href: '/docs' },
+        { name: 'Movement Telemetry', href: '/docs' },
+        { name: 'AI Analytics', href: '/docs' },
+        { name: 'Stats Engine', href: '/docs' }
+      ]
     },
     {
       title: 'Models',
-      links: ['Pathgen V2', 'Pathgen Lite', 'Vison (Alpha)']
+      links: [
+        { name: 'Pathgen V2', href: '/docs' },
+        { name: 'Pathgen Lite', href: '/docs' },
+        { name: 'Vison (Alpha)', href: '/docs' }
+      ]
     },
     {
        title: 'Company',
-       links: ['About Pathgen', 'Careers', 'Our Mission', 'Research', 'Transparency']
+       links: [
+         { name: 'About Pathgen', href: '/docs' },
+         { name: 'Our Mission', href: '/docs' },
+         { name: 'Research', href: '/docs' }
+       ]
     },
     {
        title: 'Terms and policies',
@@ -417,8 +455,8 @@ export default function Landing() {
                         <div style={{fontSize: '0.9rem', color: '#6B6A68', marginBottom: '24px', fontWeight: 500}}>{col.title}</div>
                         <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
                            {col.links.map((link) => (
-                             <Link key={link} href="#" style={{fontSize: '0.85rem', color: '#fff', textDecoration: 'none', opacity: 0.9}} onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')} onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.9')}>
-                                {link}
+                             <Link key={link.name} href={link.href} style={{fontSize: '0.85rem', color: '#fff', textDecoration: 'none', opacity: 0.9}} onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')} onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.9')}>
+                                {link.name}
                              </Link>
                            ))}
                         </div>
