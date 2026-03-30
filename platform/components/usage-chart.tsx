@@ -1,8 +1,7 @@
 "use client";
 
+import React from 'react';
 import { 
-  LineChart, 
-  Line, 
   XAxis, 
   YAxis, 
   CartesianGrid, 
@@ -23,6 +22,14 @@ const data = [
 ];
 
 export function UsageChart() {
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return <div className="h-64 mt-4 w-full bg-white/5 animate-pulse rounded-xl" />;
+
   return (
     <div className="h-64 mt-4 w-full">
       <ResponsiveContainer width="100%" height="100%">

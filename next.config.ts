@@ -20,6 +20,7 @@ const nextConfig: NextConfig = {
           { key: "X-XSS-Protection", value: "1; mode=block" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), interest-cohort=()" },
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
           { 
             key: "Content-Security-Policy", 
             value: [
@@ -27,9 +28,9 @@ const nextConfig: NextConfig = {
               "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.googleapis.com https://www.gstatic.com challenges.cloudflare.com static.cloudflareinsights.com vercel.live https://www.googletagmanager.com https://apis.google.com https://*.google.com https://*.firebaseapp.com;",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.cloudflare.com https://*.google.com;",
               "font-src 'self' data: https://fonts.gstatic.com;",
-              "img-src 'self' data: https://*.googleusercontent.com https://challenges.cloudflare.com https://www.google-analytics.com https://www.googletagmanager.com;",
+              "img-src 'self' data: https://*.googleusercontent.com https://challenges.cloudflare.com https://www.google-analytics.com https://www.googletagmanager.com https://*.cloudflarestorage.com https://assets.pathgen.dev;",
               "frame-src 'self' challenges.cloudflare.com vercel.live https://*.firebaseapp.com https://*.google.com;",
-              "connect-src 'self' https://*.googleapis.com https://*.cloudfunctions.net challenges.cloudflare.com static.cloudflareinsights.com ws://localhost:* https://*.google-analytics.com https://stats.g.doubleclick.net https://*.firebaseio.com vercel.live;",
+              "connect-src 'self' https://*.googleapis.com https://*.cloudfunctions.net challenges.cloudflare.com static.cloudflareinsights.com ws://localhost:* https://*.google-analytics.com https://stats.g.doubleclick.net https://*.firebaseio.com vercel.live https://*.cloudflarestorage.com https://assets.pathgen.dev;",
             ].join(' ')
           }
         ]
