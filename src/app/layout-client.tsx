@@ -20,6 +20,8 @@ export default function LayoutClient({
                       pathname === '/privacy' || 
                       pathname === '/terms' || 
                       pathname === '/usage-policy' || 
+                      pathname === '/blog' || 
+                      pathname?.startsWith('/blog/') || 
                       pathname?.startsWith('/docs/');
 
   return (

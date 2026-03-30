@@ -12,7 +12,9 @@ export default function robots(): MetadataRoute.Robots {
           '/pricing',
           '/status',
           '/signup',
-          '/login'
+          '/login',
+          '/blog',
+          '/blog/'
         ],
         disallow: [
           '/dashboard',

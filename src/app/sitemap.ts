@@ -40,6 +40,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.7
+    },
+    {
+      url: `${base}/blog`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9
+    },
+    {
+      url: `${base}/blog/reverse-engineering-fortnite-replay-format`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 1.0
     }
   ]
 }
