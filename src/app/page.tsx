@@ -148,7 +148,12 @@ export default function Landing() {
     },
     {
        title: 'Terms and policies',
-       links: ['Privacy choices', 'Privacy policy', 'Terms of service', 'Usage policy']
+       links: [
+         { name: 'Privacy choices', href: '/privacy' },
+         { name: 'Privacy policy', href: '/privacy' },
+         { name: 'Terms of service', href: '/terms' },
+         { name: 'Usage policy', href: '/usage-policy' }
+       ]
     }
   ];
 
@@ -321,7 +326,7 @@ export default function Landing() {
             </form>
 
             <p style={{fontSize: '0.75rem', color: '#6B6A68', textAlign: 'center', marginTop: '8px', lineHeight: 1.4}}>
-               By continuing, you agree to Pathgen&apos;s <Link href="/terms" style={{color: '#111111', textDecoration: 'underline'}}>Commercial Terms</Link> and <Link href="/privacy" style={{color: '#111111', textDecoration: 'underline'}}>Usage Policy</Link>, 
+               By continuing, you agree to Pathgen&apos;s <Link href="/terms" style={{color: '#111111', textDecoration: 'underline'}}>Commercial Terms</Link> and <Link href="/usage-policy" style={{color: '#111111', textDecoration: 'underline'}}>Usage Policy</Link>, 
                <br/> and acknowledge our <Link href="/privacy" style={{color: '#111111', textDecoration: 'underline'}}>Privacy Policy</Link>.
             </p>
 
@@ -419,13 +424,13 @@ export default function Landing() {
                         </div>
                     </div>
                   ))}
-                  {secondaryFooterLinks.map((col) => (
+                   {secondaryFooterLinks.map((col) => (
                     <div key={col.title}>
                         <div style={{fontSize: '0.9rem', color: '#6B6A68', marginBottom: '24px', fontWeight: 500}}>{col.title}</div>
                         <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
                            {col.links.map((link) => (
-                             <Link key={link} href="#" style={{fontSize: '0.85rem', color: '#fff', textDecoration: 'none', opacity: 0.9}} onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')} onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.9')}>
-                                {link}
+                             <Link key={typeof link === 'string' ? link : link.name} href={typeof link === 'string' ? '#' : link.href} style={{fontSize: '0.85rem', color: '#fff', textDecoration: 'none', opacity: 0.9}} onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')} onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.9')}>
+                                {typeof link === 'string' ? link : link.name}
                              </Link>
                            ))}
                         </div>

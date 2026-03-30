@@ -77,7 +77,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (loading) return;
 
-    const isPublicPath = pathname === '/' || pathname === '/map-demo';
+    const publicPaths = ['/', '/map-demo', '/privacy', '/terms', '/usage-policy'];
+    const isPublicPath = publicPaths.includes(pathname);
     
     if (!user && !isPublicPath) {
       router.push('/');
