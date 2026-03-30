@@ -38,8 +38,13 @@ export default function Keys() {
   useEffect(() => {
     if (!userEmail || !currentOrg) return;
     const fetchApps = async () => {
+      if (!firestore) {
+        setApps([{ id: 'mock-app', name: 'Default App' }]);
+        setSelectedAppId('mock-app');
+        return;
+      }
       try {
-        const appsQ = query(collection(firestore, "apps"), where("orgId", "==", currentOrg.id));
+        const appsQ = query(collection(firestore!, "apps"), where("orgId", "==", currentOrg.id));
         const appsSnapshot = await getDocs(appsQ);
         const fetchedApps = appsSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name }));
         setApps(fetchedApps);
@@ -64,11 +69,18 @@ export default function Keys() {
     }
 
     const fetchData = async () => {
+      if (!firestore) {
+        setKeys([
+            { id: 'rs_mock_123', label: 'Staging API', workspace: 'Default App', email: userEmail, createdAt: 'Mar 29, 2026', lastUsed: '2 hrs ago', scopes: ['Read'], orgId: 'personal', appId: 'mock-app' }
+        ]);
+        setIsLoading(false);
+        return;
+      }
       setKeys([]);
       setIsLoading(true);
       try {
         const keysQ = query(
-          collection(firestore, "api_keys"), 
+          collection(firestore!, "api_keys"), 
           where("orgId", "==", currentOrg.id),
           where("appId", "==", selectedAppId),
           orderBy("createdAt", "desc")
@@ -102,6 +114,7 @@ export default function Keys() {
 
 
   const handleCreateKey = async () => {
+    if (!firestore) return;
     if (!newKeyLabel.trim() || !selectedAppId) {
        if (!selectedAppId) alert("Please select an application first.");
        return;
@@ -112,7 +125,7 @@ export default function Keys() {
       const appName = targetApp ? targetApp.name : "Unknown App";
       const keyId = `rs_${Math.random().toString(36).substring(2, 11)}${Math.random().toString(36).substring(2, 11)}`;
       
-      await setDoc(doc(firestore, "api_keys", keyId), {
+      await setDoc(doc(firestore!, "api_keys", keyId), {
         label: newKeyLabel,
         appId: selectedAppId,
         appName: appName,
@@ -146,9 +159,10 @@ export default function Keys() {
 
   const handleDeleteKey = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!firestore) return;
     if (!confirm("Are you sure you want to delete this API key?")) return;
     try {
-      await deleteDoc(doc(firestore, "api_keys", id));
+      await deleteDoc(doc(firestore!, "api_keys", id));
       setKeys(keys.filter(k => k.id !== id));
     } catch (error) {
       console.error("Error deleting key:", error);

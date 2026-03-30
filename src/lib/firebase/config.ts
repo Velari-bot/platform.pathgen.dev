@@ -13,9 +13,9 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-let app: FirebaseApp;
-let firestore: Firestore;
-let auth: Auth;
+let app: FirebaseApp | null = null;
+let firestore: Firestore | null = null;
+let auth: Auth | null = null;
 let analytics: Analytics | null = null;
 
 const hasValidConfig = !!(firebaseConfig.apiKey && firebaseConfig.projectId);
@@ -27,40 +27,21 @@ if (hasValidConfig) {
         auth = getAuth(app);
     } catch (e) {
         console.error("Firebase init failed:", e);
-        // Fallback to mock on init failure
-        app = { name: "fallback" } as any;
-        firestore = { name: "mock-app", type: 'firestore-mock' } as any;
-        auth = { onAuthStateChanged: (cb: any) => cb(null) } as any;
     }
 } else {
-    console.warn("Firebase config missing. Using mock/offline mode.");
-    app = { name: "mock-app" } as any;
-    firestore = { name: "mock-app", type: 'firestore-mock' } as any;
-    auth = { 
-        name: "mock-app",
-        app: app,
-        onAuthStateChanged: (cb: any) => {
-            const isMockLoggedIn = typeof window !== 'undefined' && localStorage.getItem('mock_user_logged_in') === 'true';
-            if (isMockLoggedIn) {
-                cb({ email: 'aiden@pathgen.dev', displayName: 'Aiden Bender', uid: 'mock-uid-123', emailVerified: true } as any);
-            } else {
-                cb(null);
-            }
-            return () => {};
-        },
-        currentUser: null,
-        signOut: () => {
-            if (typeof window !== 'undefined') localStorage.removeItem('mock_user_logged_in');
-            window.location.reload(); // Refresh to clear context
-            return Promise.resolve();
-        }
-    } as any;
+    // Pathgen Mock Mode
+    // We export null instead of mock objects because the Firebase SDK throws type errors 
+    // when mock objects are passed to collection() or doc() functions.
+    console.warn("PathGen: Using Offline/Mock mode. Firebase data features are disabled.");
 }
 
-if (typeof window !== "undefined" && hasValidConfig) {
+if (typeof window !== "undefined" && hasValidConfig && app) {
   isSupported().then((supported) => {
-    if (supported) analytics = getAnalytics(app);
+    if (supported && app) analytics = getAnalytics(app);
   });
 }
 
-export { app, firestore, auth, analytics };
+// db is an alias for firestore to match platform naming conventions
+const db = firestore;
+
+export { app, firestore, auth, analytics, db };

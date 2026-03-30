@@ -52,11 +52,11 @@ export function AuthForm({ type }: AuthFormProps) {
       }
       
       if (type === "login") {
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth!, email, password);
       } else {
-        const { user } = await createUserWithEmailAndPassword(auth, email, password);
+        const { user } = await createUserWithEmailAndPassword(auth!, email, password);
         // Create Firestore document with 100 credits on first signup
-        const userRef = doc(db, "users", user.uid);
+        const userRef = doc(db!, "users", user.uid);
         await setDoc(userRef, {
           email: user.email,
           displayName: user.displayName || email.split('@')[0],
@@ -66,7 +66,7 @@ export function AuthForm({ type }: AuthFormProps) {
         });
         
         // Also create an entry in billing collection (optional, depends on model)
-        const billingRef = doc(db, "billing", user.email!);
+        const billingRef = doc(db!, "billing", user.email!);
         await setDoc(billingRef, { balance: 100 }, { merge: true });
         
         console.log("User created with 100 free credits");
@@ -84,10 +84,10 @@ export function AuthForm({ type }: AuthFormProps) {
     try {
       if (!auth || !db) throw new Error("Firebase not correctly initialized");
       const provider = new GoogleAuthProvider();
-      const { user } = await signInWithPopup(auth, provider);
+      const { user } = await signInWithPopup(auth!, provider);
       
       // Ensure user document exists (Atomic Set with Merge)
-      const userRef = doc(db, "users", user.uid);
+      const userRef = doc(db!, "users", user.uid);
       const userSnap = await getDoc(userRef);
       
       if (!userSnap.exists()) {

@@ -35,10 +35,10 @@ export default function Overview() {
     const fetchData = async () => {
       if (!userEmail) return;
       
-      // Mock mode data fallback
-      if ((firestore as any).type === 'firestore-mock') {
-        setProfileName('Developer');
-        setStats({
+      // Pathgen Mock Mode
+      if (!firestore) {
+         setProfileName('Developer');
+         setStats({
           activeKeys: 2,
           apiRequests: "1.2k",
           uptime: "99.99%",
@@ -61,21 +61,21 @@ export default function Overview() {
 
       try {
         // 1. Fetch Profile Name
-        const userDoc = await getDoc(doc(firestore, "users", userEmail));
+        const userDoc = await getDoc(doc(firestore!, "users", userEmail));
         if (userDoc.exists()) {
           setProfileName(userDoc.data().profile?.name?.split(' ')[0] || 'Developer');
         }
 
         // 2. Fetch active keys count (Filtered by Org)
         if (!currentOrg) return;
-        const keysQ = query(collection(firestore, "api_keys"), where("orgId", "==", currentOrg.id));
+        const keysQ = query(collection(firestore!, "api_keys"), where("orgId", "==", currentOrg.id));
         const keysSnapshot = await getDocs(keysQ);
         const activeKeysCount = keysSnapshot.size;
 
         // 3. Fetch Activities for metrics and chart (Filtered by Org)
         const sevenDaysAgo = new Timestamp(Timestamp.now().seconds - 7 * 24 * 60 * 60, 0);
         const activityQAll = query(
-          collection(firestore, "activities"), 
+          collection(firestore!, "activities"), 
           where("orgId", "==", currentOrg.id),
           where("timestamp", ">=", sevenDaysAgo),
           orderBy("timestamp", "desc")

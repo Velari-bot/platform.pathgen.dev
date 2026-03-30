@@ -46,17 +46,17 @@ export default function Landing() {
           return;
       }
 
-      // Safety check for mock/offline mode (Now it only triggers after Turnstile success)
-      if ((auth as any).name === "mock-app" || !(auth as any).app) {
-        localStorage.setItem('mock_user_logged_in', 'true');
+      // Pathgen Mock Mode
+      if (!auth) {
+        if (typeof window !== 'undefined') localStorage.setItem('mock_user_logged_in', 'true');
         window.location.href = '/home';
         return;
       }
 
       if (isRegistering) {
-        await createUserWithEmailAndPassword(auth, email, password);
+        await createUserWithEmailAndPassword(auth!, email, password);
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth!, email, password);
       }
       router.push('/home');
     } catch (err: unknown) {
@@ -71,10 +71,9 @@ export default function Landing() {
   };
 
   const handleGoogleSignIn = async () => {
-    // Safety check for mock/offline mode
-    if ((auth as any).name === "mock-app" || !(auth as any).app) {
+    // Pathgen Mock Mode Logic
+    if (!auth) {
        setError("Firebase config is missing or invalid. Please check your .env file to enable the Google Auth popup.");
-       // Optional: fall back to mock after a delay or user choice
        console.warn("Mock mode bypass blocked to show popup requirement.");
        return;
     }
@@ -82,14 +81,14 @@ export default function Landing() {
     const provider = new GoogleAuthProvider();
     try {
       setLoading(true);
-      const { user } = await signInWithPopup(auth, provider);
+      const { user } = await signInWithPopup(auth!, provider);
       
       // Sync with Firestore (Ensure user doc exists)
       // We import firestore from the same config
       const { doc, setDoc, getDoc } = await import('firebase/firestore');
       const { firestore } = await import('@/lib/firebase/config');
       
-      const userRef = doc(firestore, "users", user.uid);
+      const userRef = doc(firestore!, "users", user.uid);
       const userSnap = await getDoc(userRef);
       if (!userSnap.exists()) {
         await setDoc(userRef, {

@@ -39,18 +39,66 @@ export const ENDPOINTS_DATA: Section[] = [
       { method: 'GET', path: '/v1/game/playlists', description: 'Current active game modes & regions.', tier: 'free', response: '{"playlists": [...]}' },
       { method: 'GET', path: '/v1/game/weapons', description: 'Metadata for the active seasonal weapon pool.', tier: 'free', response: '{"weapons": [...]}' },
       { method: 'GET', path: '/v1/game/shop', description: 'Premium fused item shop with layouts.', tier: 'free', response: '{"shop": [...]}' },
-      { method: 'GET', path: '/v1/game/cosmetics', description: 'Database of all 10,000+ Fortnite items.', tier: 'free', response: '{"items": [...]}' },
+      { 
+        method: 'GET', 
+        path: '/v1/game/cosmetics', 
+        description: 'Database of all 10,000+ Fortnite items.', 
+        tier: 'free', 
+        parameters: [
+          { name: 'search', required: false, description: 'Search by name or description.' },
+          { name: 'language', required: false, description: 'Return localized results (en, de, fr, etc.)' }
+        ],
+        response: '{"items": [...]}' 
+      },
       { method: 'GET', path: '/v1/game/cosmetics/new', description: 'Real-time list of newly added items.', tier: 'free', response: '{"new_items": [...]}' },
     ]
   },
   {
     title: "3. Player Intelligence",
     endpoints: [
-      { method: 'GET', path: '/v1/game/lookup', description: 'Account ID resolver (Display Name based).', tier: 'free', response: '{"id": "4b3...", "name": "Ninja"}' },
-      { method: 'GET', path: '/v1/game/ranked', description: 'Competitive Rank, Division, and Ladder status.', tier: 'free', response: '{"rank": "Elite", "progress": 42}' },
-      { method: 'GET', path: '/v1/game/stats', description: 'Fused Wins/Kills career profile.', tier: 'free', response: '{"wins": 420, "kd": 4.5}' },
+      { 
+        method: 'GET', 
+        path: '/v1/game/lookup', 
+        description: 'Account ID resolver (Display Name based).', 
+        tier: 'free', 
+        parameters: [
+          { name: 'name', required: true, description: 'Epic Games display name.' }
+        ],
+        response: '{"id": "4b3...", "name": "Ninja"}' 
+      },
+      { 
+        method: 'GET', 
+        path: '/v1/game/ranked', 
+        description: 'Competitive Rank, Division, and Ladder status.', 
+        tier: 'free',
+        parameters: [
+          { name: 'name', required: true, description: 'Epic Games display name.' },
+          { name: 'accountType', required: false, description: 'epic or psn or xbl' }
+        ],
+        response: '{"rank": "Elite", "progress": 42}' 
+      },
+      { 
+        method: 'GET', 
+        path: '/v1/game/stats', 
+        description: 'Fused Wins/Kills career profile.', 
+        tier: 'free',
+        parameters: [
+          { name: 'name', required: true, description: 'Epic Games display name.' },
+          { name: 'timeWindow', required: false, description: 'season or lifetime' }
+        ],
+        response: '{"wins": 420, "kd": 4.5}' 
+      },
       { method: 'GET', path: '/v1/game/discovery', description: 'Island discovery rows & active CCU counts.', tier: 'free', response: '{"rows": [...]}' },
-      { method: 'GET', path: '/v1/game/player/locker', description: 'Real-time equipped cosmetics (OAuth).', tier: 'pro', response: '{"locker": {"skin": "Midas"}}' },
+      { 
+        method: 'GET', 
+        path: '/v1/game/player/locker', 
+        description: 'Real-time equipped cosmetics (OAuth).', 
+        tier: 'pro',
+        parameters: [
+          { name: 'accountId', required: true, description: 'Internal Epic Account ID.' }
+        ],
+        response: '{"locker": {"skin": "Midas"}}' 
+      },
     ]
   },
   {
@@ -76,8 +124,29 @@ export const ENDPOINTS_DATA: Section[] = [
   {
     title: "6. AI Coaching Hub (PRO)",
     endpoints: [
-      { method: 'POST', path: '/v1/ai/analyze', description: 'Gemini-powered strategy scorecard.', credits: 15, tier: 'pro', response: '{"analysis": "...", "score": 88}' },
-      { method: 'POST', path: '/v1/ai/coach', description: 'Deep tactical match critique (Game phases).', credits: 25, tier: 'pro', response: '{"coach_notes": {...}}' },
+      { 
+        method: 'POST', 
+        path: '/v1/ai/analyze', 
+        description: 'Gemini-powered strategy scorecard.', 
+        credits: 15, 
+        tier: 'pro',
+        parameters: [
+          { name: 'match_id', required: true, description: 'ID of the parsed match.' }
+        ],
+        response: '{"analysis": "...", "score": 88}' 
+      },
+      { 
+        method: 'POST', 
+        path: '/v1/ai/coach', 
+        description: 'Deep tactical match critique (Game phases).', 
+        credits: 25, 
+        tier: 'pro',
+        parameters: [
+           { name: 'match_id', required: true, description: 'ID of the parsed match.' },
+           { name: 'focus', required: false, description: 'combat, rotation, or building' }
+        ],
+        response: '{"coach_notes": {...}}' 
+      },
       { method: 'POST', path: '/v1/ai/session-coach', description: 'Cross-match performance pattern discovery.', credits: 50, tier: 'pro', response: '{"patterns": [...]}' },
       { method: 'POST', path: '/v1/ai/weapon-coach', description: 'Weapon-specific accuracy and loadout review.', credits: 20, tier: 'pro', response: '{"weapon_stats": {...}}' },
       { method: 'POST', path: '/v1/ai/drop-recommend', description: 'Strategic landing POI suggestions.', credits: 10, tier: 'pro', response: '{"recommendation": "Retail Row"}' },
@@ -91,7 +160,16 @@ export const ENDPOINTS_DATA: Section[] = [
       { method: 'GET', path: '/v1/account/balance', description: 'Real-time USD credit balance.', tier: 'free', response: '{"balance": 1450}' },
       { method: 'GET', path: '/v1/account/keys', description: 'List all current API keys.', tier: 'free', response: '{"keys": [...]}' },
       { method: 'POST', path: '/v1/account/keys', description: 'Securely generate new API keys.', tier: 'free', response: '{"key": "pathgen_..."}' },
-      { method: 'DELETE', path: '/v1/account/keys/{id}', description: 'Immediately revoke an API key.', tier: 'free', response: '{"revoked": true}' },
+      { 
+        method: 'DELETE', 
+        path: '/v1/account/keys/{id}', 
+        description: 'Immediately revoke an API key.', 
+        tier: 'free',
+        parameters: [
+          { name: 'id', required: true, description: 'The unique key ID (rs_...).' }
+        ],
+        response: '{"revoked": true}' 
+      },
       { method: 'GET', path: '/v1/account/usage', description: 'Account-wide cumulative Platform Analytics.', tier: 'free', response: '{"usage": [...]}' },
       { method: 'GET', path: '/v1/billing/history', description: 'Recharge and transaction log.', tier: 'free', response: '{"history": [...]}' },
       { method: 'POST', path: '/v1/billing/checkout', description: 'Initiate Stripe-based credit top-up.', tier: 'free', response: '{"url": "https://checkout.stripe.com/..."}' },
@@ -102,7 +180,16 @@ export const ENDPOINTS_DATA: Section[] = [
     endpoints: [
       { method: 'POST', path: '/v1/webhooks/subscribe', description: 'Subscribe to push notifications.', tier: 'pro', response: '{"id": "sub_...", "active": true}' },
       { method: 'GET', path: '/v1/webhooks/events', description: 'Discovery of triggerable platform events.', tier: 'free', response: '{"events": ["match.start", "shop.rotate", ...]}' },
-      { method: 'DELETE', path: '/v1/webhooks/{id}', description: 'Unsubscribe from a push event.', tier: 'pro', response: '{"unsubscribed": true}' },
+      { 
+        method: 'DELETE', 
+        path: '/v1/webhooks/{id}', 
+        description: 'Unsubscribe from a push event.', 
+        tier: 'pro',
+        parameters: [
+          { name: 'id', required: true, description: 'The subscription ID (sub_...).' }
+        ],
+        response: '{"unsubscribed": true}' 
+      },
     ]
   }
 ];

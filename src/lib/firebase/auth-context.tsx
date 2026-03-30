@@ -24,11 +24,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Check if running in mock/offline mode
-    if ((auth as any).name === "mock-app" || !(auth as any).app) {
-      const isMockLoggedIn = localStorage.getItem('mock_user_logged_in') === 'true';
+    // Check if running in mock/offline mode (auth is null)
+    if (!auth) {
+      const isMockLoggedIn = typeof window !== 'undefined' && localStorage.getItem('mock_user_logged_in') === 'true';
       if (isMockLoggedIn) {
-        // Create a fake user object that matches the properties expected by the app
         setUser({
           email: 'developer@pathgen.dev',
           displayName: 'Pathgen Developer',
@@ -59,13 +58,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(u);
       setLoading(false);
       
-      if (u && u.uid && (auth as any).name !== "mock-app") {
+      // Only attempt to sync with Firestore if we have a real user and a real Firestore instance
+      if (u && u.uid && firestore) {
         try {
           await updateDoc(doc(firestore, "users", u.uid), {
             last_login: serverTimestamp()
           });
         } catch (e) {
-          // Silent fail for non-existent users (e.g. first signup)
           console.debug("Login sync skipped");
         }
       }
@@ -78,7 +77,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (loading) return;
 
-    // The landing page (/) is now the primary entry for both auth and intro
     const isPublicPath = pathname === '/' || pathname === '/map-demo';
     
     if (!user && !isPublicPath) {
@@ -90,8 +88,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
-      localStorage.removeItem('mock_user_logged_in');
-      if (auth.app) {
+      if (typeof window !== 'undefined') localStorage.removeItem('mock_user_logged_in');
+      
+      if (auth) {
         await auth.signOut();
       }
       setUser(null);

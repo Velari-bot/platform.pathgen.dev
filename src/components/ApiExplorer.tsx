@@ -78,8 +78,15 @@ export default function ApiExplorer() {
 
       const res = await fetch(url, options);
       setStatus(res.status);
-      const data = await res.json();
-      setResponse(JSON.stringify(data, null, 2));
+      
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+          const data = await res.json();
+          setResponse(JSON.stringify(data, null, 2));
+      } else {
+          const text = await res.text();
+          setResponse(text);
+      }
     } catch (err) {
       setStatus(500);
       setResponse(JSON.stringify({ error: true, message: (err as Error).message }, null, 2));
@@ -323,7 +330,9 @@ export default function ApiExplorer() {
                     ) : (
                        <textarea 
                          placeholder='{ "raw": "json" }'
-                         style={{width: '100%', height: '200px', padding: '20px', fontFamily: 'JetBrains Mono', fontSize: '0.9rem', border: 'none', background: '#F9FAFB', resize: 'none'}}
+                         value={body}
+                         onChange={(e) => setBody(e.target.value)}
+                         style={{width: '100%', height: '100%', padding: '20px', fontFamily: 'JetBrains Mono, monospace', fontSize: '0.9rem', border: 'none', background: '#F9FAFB', resize: 'none', outline: 'none'}}
                        />
                     )}
                  </div>
@@ -365,7 +374,15 @@ export default function ApiExplorer() {
             </div>
             <div className="custom-scrollbar" style={{flex: 1, overflowY: 'auto', padding: '32px', background: '#0D0D12'}}>
                <pre style={{margin: 0, padding: 0, background: 'transparent', color: response ? '#A5F3FC' : '#6B7280', fontSize: '0.9rem', fontFamily: 'JetBrains Mono', lineHeight: 1.6}}>
-                  {response || JSON.stringify(JSON.parse(selectedEndpoint.response || '{}'), null, 2) || '// No output available'}
+                  {(() => {
+                    const raw = response || selectedEndpoint.response || '';
+                    if (!raw) return '// No output available';
+                    try {
+                      return JSON.stringify(JSON.parse(raw), null, 2);
+                    } catch (e) {
+                      return raw; // Return raw text if not valid JSON (e.g. metrics, robots.txt)
+                    }
+                  })()}
                </pre>
             </div>
          </div>
