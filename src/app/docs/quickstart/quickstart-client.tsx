@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { ArrowLeft, CheckCircle, Terminal, Key, Rocket, ExternalLink, ChevronRight, Zap, Database, Code, Globe } from 'lucide-react';
 import CopyButton from '@/components/CopyButton';
 
-export default function Quickstart() {
+export default function QuickstartClient() {
 
   return (
     <div className="fade-in" style={{paddingBottom: '160px', maxWidth: '1000px', margin: '12vh auto 0'}}>
