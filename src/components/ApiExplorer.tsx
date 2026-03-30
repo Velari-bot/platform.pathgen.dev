@@ -88,64 +88,70 @@ export default function ApiExplorer() {
   };
 
   return (
-    <div className="api-explorer-container" style={{display: 'flex', height: 'calc(100vh - 160px)', background: 'white', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-md)'}}>
+    <div className="api-playground-container" style={{display: 'flex', height: 'calc(100vh - 180px)', background: 'white', borderRadius: '32px', overflow: 'hidden', border: '1px solid #E5E7EB', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.05)'}}>
       
       {/* Explorer Sidebar */}
-      <div className="explorer-sidebar" style={{width: '300px', borderRight: '1px solid var(--border-color)', background: '#F9FAFB', display: 'flex', flexDirection: 'column'}}>
-         <div style={{padding: '24px', borderBottom: '1px solid var(--border-color)'}}>
+      <div className="explorer-sidebar" style={{width: '320px', borderRight: '1px solid #F3F4F6', background: '#FDFDFF', display: 'flex', flexDirection: 'column'}}>
+         <div style={{padding: '24px', borderBottom: '1px solid #F3F4F6'}}>
             <div style={{position: 'relative'}}>
                <Search size={14} style={{position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF'}} />
                <input 
                  type="text" 
-                 placeholder="Search endpoints..." 
-                 style={{width: '100%', padding: '8px 12px 8px 36px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '0.85rem'}}
+                 placeholder="Search fused endpoints..." 
+                 style={{width: '100%', padding: '10px 12px 10px 36px', borderRadius: '12px', border: '1px solid #E5E7EB', fontSize: '0.85rem', background: 'white', transition: 'all 0.2s'}}
                />
             </div>
          </div>
-         <div style={{flex: 1, overflowY: 'auto', padding: '12px'}}>
+         <div style={{flex: 1, overflowY: 'auto', padding: '12px', background: '#FAFAFB'}}>
             {ENDPOINTS_DATA.map((section, sIdx) => (
-              <div key={sIdx} style={{marginBottom: '20px'}}>
-                 <div style={{fontSize: '0.7rem', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.05em', padding: '0 12px 8px 12px'}}>
+              <div key={sIdx} style={{marginBottom: '24px'}}>
+                 <div style={{fontSize: '0.65rem', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 16px 12px 16px', display: 'flex', justifyContent: 'space-between'}}>
                     {section.title}
                  </div>
                  {section.endpoints.map((ep, eIdx) => (
                    <div 
                      key={eIdx} 
-                     onClick={() => {
-                        setSelectedEndpoint(ep);
-                        setResponse(null);
-                      }}
+                     onClick={() => !isLoading && setSelectedEndpoint(ep)}
                      style={{
-                       padding: '8px 12px', 
-                       borderRadius: '8px', 
+                       padding: '10px 16px', 
+                       borderRadius: '12px', 
                        fontSize: '0.85rem', 
-                       cursor: (isLoading || selectedEndpoint.status === 'coming-soon') ? 'not-allowed' : 'pointer',
+                       cursor: isLoading ? 'not-allowed' : 'pointer',
                        background: selectedEndpoint.path === ep.path ? 'white' : 'transparent',
-                       boxShadow: selectedEndpoint.path === ep.path ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
+                       boxShadow: selectedEndpoint.path === ep.path ? '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03)' : 'none',
                        border: selectedEndpoint.path === ep.path ? '1px solid #E5E7EB' : '1px solid transparent',
-                       color: selectedEndpoint.path === ep.path ? '#000' : '#6B7280',
+                       color: selectedEndpoint.path === ep.path ? '#000' : '#4B5563',
                        display: 'flex',
                        alignItems: 'center',
-                       gap: '8px',
-                       marginBottom: '2px'
+                       gap: '12px',
+                       marginBottom: '4px',
+                       transition: 'all 0.2s ease'
                      }}
                    >
-                     <span className={`method-badge method-${ep.method.toLowerCase()}`} style={{fontSize: '0.65rem', padding: '2px 4px', minWidth: '32px', textAlign: 'center', flexShrink: 0}}>{ep.method}</span>
-                     <span style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1}}>{ep.path}</span>
-                     
-                     {/* Cost Tag */}
                      <span style={{
-                        fontSize: '0.65rem', 
-                        fontWeight: 700,
-                        padding: '2px 8px',
-                        borderRadius: '20px',
-                        background: ep.credits ? 'rgba(0,0,0,0.05)' : 'rgba(16, 185, 129, 0.1)',
-                        color: ep.credits ? 'var(--text-secondary)' : '#10B981',
-                        flexShrink: 0,
-                        whiteSpace: 'nowrap'
-                     }}>
-                        {ep.credits ? `${ep.credits} Credits` : 'Free'}
-                     </span>
+                        fontSize: '0.6rem', 
+                        padding: '4px 8px', 
+                        borderRadius: '6px',
+                        fontWeight: 800,
+                        minWidth: '40px', 
+                        textAlign: 'center', 
+                        background: ep.method === 'GET' ? '#EFF6FF' : ep.method === 'WEBHOOK' ? '#F0FDF4' : '#F5F3FF',
+                        color: ep.method === 'GET' ? '#3B82F6' : ep.method === 'WEBHOOK' ? '#16A34A' : '#8B5CF6'
+                     }}>{ep.status === 'beta' ? 'BETA' : ep.method}</span>
+                     
+                     <span style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, fontWeight: selectedEndpoint.path === ep.path ? 600 : 400}}>{ep.path}</span>
+                     
+                     {ep.tier === 'pro' && (
+                        <span style={{
+                           fontSize: '0.6rem', 
+                           fontWeight: 900, 
+                           color: '#8B5CF6', 
+                           background: '#F5F3FF', 
+                           padding: '2px 6px', 
+                           borderRadius: '4px',
+                           border: '1px solid #DDD6FE'
+                        }}>PRO</span>
+                     )}
                    </div>
                  ))}
               </div>
@@ -153,37 +159,52 @@ export default function ApiExplorer() {
          </div>
       </div>
 
-      {/* Request Content */}
-      <div className="explorer-main" style={{flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden'}}>
-         {/* URL Bar */}
-         <div style={{padding: '24px 32px', borderBottom: '1px solid var(--border-color)', display: 'flex', gap: '12px'}}>
-            <div style={{display: 'flex', flex: 1, borderRadius: '12px', overflow: 'hidden', border: '1px solid #E5E7EB'}}>
-               <div style={{padding: '12px 20px', background: '#F9FAFB', borderRight: '1px solid #E5E7EB', fontWeight: 700, fontSize: '0.9rem', color: '#111827'}}>
-                  {selectedEndpoint.method}
+      {/* Main Playground Content */}
+      <div className="explorer-main" style={{flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'white'}}>
+         {/* Method & URL Bar */}
+         <div style={{padding: '32px', borderBottom: '1px solid #F3F4F6', background: 'white'}}>
+            <div style={{display: 'flex', gap: '16px', alignItems: 'center'}}>
+               <div style={{display: 'flex', flex: 1, borderRadius: '16px', overflow: 'hidden', border: '1px solid #E5E7EB', background: '#F9FAFB', height: '52px'}}>
+                  <div style={{padding: '0 24px', background: 'white', borderRight: '1px solid #E5E7EB', fontWeight: 800, fontSize: '0.9rem', display: 'flex', alignItems: 'center', color: '#111827'}}>
+                     {selectedEndpoint.method}
+                  </div>
+                  <div style={{padding: '0 24px', flex: 1, color: '#4B5563', fontSize: '0.9rem', fontFamily: 'JetBrains Mono', display: 'flex', alignItems: 'center', letterSpacing: '-0.01em'}}>
+                     https://api.pathgen.dev{selectedEndpoint.path}
+                  </div>
                </div>
-               <div style={{padding: '12px 20px', flex: 1, color: '#6B7280', fontSize: '0.9rem', fontFamily: 'JetBrains Mono'}}>
-                  https://api.pathgen.dev{selectedEndpoint.path}
-               </div>
+               <button 
+                 onClick={handleSend}
+                 disabled={isLoading}
+                 style={{
+                   height: '52px',
+                   padding: '0 36px', 
+                   background: isLoading ? '#93C5FD' : '#000', 
+                   color: 'white', 
+                   borderRadius: '16px', 
+                   fontWeight: 700, 
+                   fontSize: '0.95rem',
+                   border: 'none', 
+                   cursor: isLoading ? 'not-allowed' : 'pointer',
+                   display: 'flex',
+                   alignItems: 'center',
+                   gap: '12px',
+                   transition: 'all 0.2s',
+                   boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                 }}
+               >
+                 {isLoading ? 'Processing...' : 'Run Request'}
+                 {!isLoading && <Play size={16} fill="white" />}
+               </button>
             </div>
-            <button 
-              onClick={handleSend}
-              disabled={isLoading || selectedEndpoint.status === "coming-soon"}
-              style={{
-                padding: '0 32px', 
-                background: (isLoading || selectedEndpoint.status === 'coming-soon') ? '#93C5FD' : '#2563EB', 
-                color: 'white', 
-                borderRadius: '12px', 
-                fontWeight: 700, 
-                border: 'none', 
-                cursor: (isLoading || selectedEndpoint.status === 'coming-soon') ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}
-            >
-              {isLoading ? 'Sending...' : (selectedEndpoint.status === 'coming-soon' ? 'Coming Soon' : 'Send')}
-              <Play size={14} fill="currentColor" />
-            </button>
+            
+            {selectedEndpoint.status === 'beta' && (
+               <div style={{marginTop: '20px', padding: '12px 20px', borderRadius: '12px', border: '1px solid #FDE68A', background: '#FFFBEB', display: 'flex', alignItems: 'center', gap: '12px'}}>
+                  <div style={{width: '8px', height: '8px', borderRadius: '50%', background: '#D97706', animation: 'pulse 2s infinite'}} />
+                  <span style={{fontSize: '0.8rem', color: '#92400E', fontWeight: 600}}>
+                    This is a <strong>Closed Beta</strong> endpoint. Ensure your key has <code>betaAccess: true</code> or you will receive a 403.
+                  </span>
+               </div>
+            )}
          </div>
 
          {/* Request Tabs */}
@@ -310,35 +331,40 @@ export default function ApiExplorer() {
          </div>
 
          {/* Response Section */}
-         <div style={{height: '40%', borderTop: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', background: '#FAFAFA'}}>
-            <div style={{padding: '12px 32px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-               <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                  <div style={{fontSize: '0.8rem', fontWeight: 700, color: '#9CA3AF'}}>
-                    {response ? 'LIVE RESPONSE' : 'EXAMPLE RESPONSE'}
+         <div style={{height: '45%', borderTop: '1px solid #F3F4F6', display: 'flex', flexDirection: 'column', background: '#FAFAFB'}}>
+            <div style={{padding: '16px 32px', borderBottom: '1px solid #F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'white'}}>
+               <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+                  <div style={{fontSize: '0.7rem', fontWeight: 800, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
+                    {response ? 'Live Output' : 'Schema Preview'}
                   </div>
-                  <CopyButton text={response || selectedEndpoint.response || ''} size={14} />
+                  {response && <CopyButton text={response} size={14} />}
                </div>
                {status && (
                  <div style={{
-                    fontSize: '0.8rem', 
+                    fontSize: '0.85rem', 
+                    fontWeight: 700,
                     color: status >= 200 && status < 300 ? '#059669' : '#DC2626', 
                     display: 'flex', 
                     alignItems: 'center', 
-                    gap: '6px'
+                    gap: '8px',
+                    padding: '4px 12px',
+                    borderRadius: '20px',
+                    background: status >= 200 && status < 300 ? '#ECFDF5' : '#FEF2F2'
                  }}>
                    <div style={{
-                      width: '6px', 
-                      height: '6px', 
-                      background: status >= 200 && status < 300 ? '#059669' : '#DC2626', 
-                      borderRadius: '50%'
+                      width: '8px', 
+                      height: '8px', 
+                      background: status >= 200 && status < 300 ? '#10B981' : '#EF4444', 
+                      borderRadius: '50%',
+                      boxShadow: status >= 200 && status < 300 ? '0 0 8px #10B981' : 'none'
                    }}></div>
-                   {status} {status === 200 ? 'OK' : status === 404 ? 'Not Found' : status === 401 ? 'Unauthorized' : status === 500 ? 'Error' : ''}
+                   HTTP {status} {status === 200 ? 'OK' : ''}
                  </div>
                )}
             </div>
-            <div style={{flex: 1, overflowY: 'auto', padding: '24px 32px'}}>
-               <pre style={{margin: 0, padding: 0, background: 'transparent', color: response ? '#111827' : '#6B7280', fontSize: '0.85rem', opacity: response ? 1 : 0.8}}>
-                  {response || selectedEndpoint.response || '// No response example available'}
+            <div className="custom-scrollbar" style={{flex: 1, overflowY: 'auto', padding: '32px', background: '#0D0D12'}}>
+               <pre style={{margin: 0, padding: 0, background: 'transparent', color: response ? '#A5F3FC' : '#6B7280', fontSize: '0.9rem', fontFamily: 'JetBrains Mono', lineHeight: 1.6}}>
+                  {response || JSON.stringify(JSON.parse(selectedEndpoint.response || '{}'), null, 2) || '// No output available'}
                </pre>
             </div>
          </div>

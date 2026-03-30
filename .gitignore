@@ -29,6 +29,7 @@ yarn-error.log*
 *.bin
 *.txt
 *.png
+!public/*.png
 *.json (unless inside routes/ etc.)
 !package.json
 !package-lock.json

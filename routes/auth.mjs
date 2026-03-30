@@ -2,10 +2,11 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { adminDb } from '../lib/db.mjs';
+import { verifyTurnstile } from '../middleware/turnstile.mjs';
 
 const router = express.Router();
 
-router.post('/register', async (req, res) => {
+router.post('/register', verifyTurnstile, async (req, res) => {
     const { email, password } = req.body;
     try {
         if (!email || !password) {
@@ -35,7 +36,7 @@ router.post('/register', async (req, res) => {
     }
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', verifyTurnstile, async (req, res) => {
     const { email, password } = req.body;
     try {
         if (!email || !password) {

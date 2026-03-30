@@ -8,9 +8,10 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Input } from "@/components/ui/input";
 import { auth, db } from "@/lib/firebase";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { Mail, Lock, Loader2, Globe } from "lucide-react";
 import Link from "next/link";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 interface AuthFormProps {
   type: "login" | "signup";
@@ -21,14 +22,34 @@ export function AuthForm({ type }: AuthFormProps) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const router = useRouter();
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+
     try {
-      if (!auth || !db) throw new Error("Firebase not initialized");
+      // Verify Turnstile token
+      const verifyRes = await fetch('/api/turnstile/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: turnstileToken }),
+      });
+
+      if (!verifyRes.ok) {
+        setError("Security check failed. Please refresh.");
+        setLoading(false);
+        return;
+      }
+
+      // Safety check for mock/offline mode (Allows developer testing without Firebase config)
+      if (!auth || !db) {
+        localStorage.setItem('mock_user_logged_in', 'true');
+        router.push("/dashboard");
+        return;
+      }
       
       if (type === "login") {
         await signInWithEmailAndPassword(auth, email, password);
@@ -61,9 +82,25 @@ export function AuthForm({ type }: AuthFormProps) {
   const handleGoogle = async () => {
     setLoading(true);
     try {
-      if (!auth) throw new Error("Firebase not initialized");
+      if (!auth || !db) throw new Error("Firebase not correctly initialized");
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      const { user } = await signInWithPopup(auth, provider);
+      
+      // Ensure user document exists (Atomic Set with Merge)
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+      
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          email: user.email,
+          displayName: user.displayName || "PathGen Developer",
+          credits: 100, // New user bonus
+          created_at: new Date().toISOString(),
+          setup_complete: true,
+          provider: "google",
+        });
+      }
+      
       router.push("/dashboard");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Google sign-in failed");
@@ -119,7 +156,22 @@ export function AuthForm({ type }: AuthFormProps) {
               </div>
             )}
             
-            <Button className="w-full h-11 rounded-xl bg-primary hover:bg-primary/90 font-semibold" disabled={loading}>
+            <div className="flex justify-center my-4">
+              <Turnstile 
+                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "0x4AAAAAACxrtv94QGjXeUxO"} 
+                onSuccess={(token) => setTurnstileToken(token)}
+                onExpire={() => setTurnstileToken(null)}
+                onError={() => {
+                  setError("Security check failed. Please refresh.");
+                  setTurnstileToken(null);
+                }}
+                options={{
+                  theme: 'dark'
+                }}
+              />
+            </div>
+            
+            <Button className="w-full h-11 rounded-xl bg-primary hover:bg-primary/90 font-semibold" disabled={loading || !turnstileToken}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : (type === "login" ? "Sign In" : "Create Account")}
             </Button>
           </form>

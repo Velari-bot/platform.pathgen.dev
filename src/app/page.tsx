@@ -2,8 +2,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowUpRight, BookOpen, Code, Lightbulb, Zap, Globe, MessageSquare, Mail, Lock } from 'lucide-react';
+import { ArrowUpRight, BookOpen, Code, Lightbulb, Zap, Globe, MessageSquare, Mail, Lock, Loader2 } from 'lucide-react';
+import Image from 'next/image';
 import { auth } from '@/lib/firebase/config';
+import { Turnstile } from '@marsidev/react-turnstile';
 import { 
   signInWithEmailAndPassword, 
   signInWithPopup, 
@@ -16,12 +18,41 @@ export default function Landing() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    
+    if (!turnstileToken) {
+       setError('Please complete the security check');
+       return;
+    }
+
+    setLoading(true);
     try {
+      // Verify token with our API
+      const verifyRes = await fetch('/api/turnstile/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: turnstileToken }),
+      });
+
+      if (!verifyRes.ok) {
+          setError('Security check failed. Please refresh and try again.');
+          setLoading(false);
+          return;
+      }
+
+      // Safety check for mock/offline mode (Now it only triggers after Turnstile success)
+      if ((auth as any).name === "mock-app" || !(auth as any).app) {
+        localStorage.setItem('mock_user_logged_in', 'true');
+        window.location.href = '/home';
+        return;
+      }
+
       if (isRegistering) {
         await createUserWithEmailAndPassword(auth, email, password);
       } else {
@@ -34,20 +65,52 @@ export default function Landing() {
       } else {
         setError('An unexpected error occurred');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
+    // Safety check for mock/offline mode
+    if ((auth as any).name === "mock-app" || !(auth as any).app) {
+       setError("Firebase config is missing or invalid. Please check your .env file to enable the Google Auth popup.");
+       // Optional: fall back to mock after a delay or user choice
+       console.warn("Mock mode bypass blocked to show popup requirement.");
+       return;
+    }
+
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      setLoading(true);
+      const { user } = await signInWithPopup(auth, provider);
+      
+      // Sync with Firestore (Ensure user doc exists)
+      // We import firestore from the same config
+      const { doc, setDoc, getDoc } = await import('firebase/firestore');
+      const { firestore } = await import('@/lib/firebase/config');
+      
+      const userRef = doc(firestore, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          email: user.email,
+          displayName: user.displayName || user.email?.split('@')[0],
+          credits: 100,
+          created_at: new Date().toISOString(),
+          setup_complete: true,
+          provider: 'google'
+        });
+      }
+
       router.push('/home');
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError('An unexpected error occurred');
+        setError('An unexpected error occurred during Google sign-in');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -111,9 +174,13 @@ export default function Landing() {
           margin: '0 auto'
        }}>
           <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-             <div style={{width: '32px', height: '32px', borderRadius: '8px', background: '#D97757', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0}}>
-                <LogoIcon size={18} />
-             </div>
+             <Image 
+               src="/Pathgen Base Platform logo.png" 
+               alt="Pathgen Logo" 
+               width={44} 
+               height={44} 
+               style={{objectFit: 'contain'}}
+             />
              <span style={{fontSize: '1.25rem', fontWeight: 600, color: '#111111'}}>Pathgen Console</span>
           </div>
           <button style={{
@@ -214,6 +281,22 @@ export default function Landing() {
                       }}
                   />
                 )}
+                
+                <div className="flex justify-center my-2">
+                  <Turnstile 
+                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "0x4AAAAAACxrtv94QGjXeUxO"} 
+                    onSuccess={(token) => setTurnstileToken(token)}
+                    onExpire={() => setTurnstileToken(null)}
+                    onError={() => {
+                        setError('Security check failed. Please refresh.');
+                        setTurnstileToken(null);
+                    }}
+                    options={{
+                        theme: 'light'
+                    }}
+                  />
+                </div>
+
                 <button type="submit" style={{
                     background: '#111111', 
                     color: '#fff', 
@@ -223,12 +306,17 @@ export default function Landing() {
                     fontWeight: 500, 
                     border: 'none',
                     cursor: 'pointer',
-                    transition: 'opacity 0.2s'
+                    transition: 'opacity 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
                 }}
+                disabled={!turnstileToken || loading}
                 onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
                 onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
                 >
-                    Continue with email
+                    {loading ? <Loader2 size={18} className="animate-spin" /> : (isRegistering ? 'Create account' : 'Continue with email')}
                 </button>
             </form>
 
@@ -295,9 +383,13 @@ export default function Landing() {
                {/* Left Side: Logo (Top) and Branding (Bottom) */}
                <div style={{flex: '1 0 300px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '300px'}}>
                   <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                    <div style={{color: '#D97757'}}>
-                       <LogoIcon size={24} />
-                    </div>
+                    <Image 
+                      src="/Pathgen Base Platform logo.png" 
+                      alt="Pathgen Logo" 
+                      width={44} 
+                      height={44} 
+                      style={{objectFit: 'contain'}}
+                    />
                     <span style={{fontSize: '1.5rem', fontWeight: 500, color: '#fff'}}>Pathgen</span>
                   </div>
                   
@@ -347,12 +439,3 @@ export default function Landing() {
   );
 }
 
-function LogoIcon({ size }: { size: number }) {
-   return (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-         <path d="M12 2C6.48 2 2 6.48 2 12C2 14.59 3.02 16.94 4.71 18.71L2 22L5.29 19.29C7.06 20.98 9.41 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C10.11 20 8.39 19.33 7.06 18.23L5.41 19.88L6.23 16.94C5.17 15.61 4.5 13.89 4.5 12C4.5 7.86 7.86 4.5 12 4.5C16.14 4.5 19.5 7.86 19.5 12C19.5 16.14 16.14 19.5 12 19.5Z" fill="currentColor"/>
-         <circle cx="12" cy="11.5" r="3.5" fill="currentColor"/>
-         <path d="M12 15L12 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      </svg>
-   );
-}

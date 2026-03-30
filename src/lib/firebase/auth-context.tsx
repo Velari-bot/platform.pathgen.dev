@@ -1,8 +1,9 @@
 "use client"
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth } from './config';
+import { auth, firestore } from './config';
 import { useRouter, usePathname } from 'next/navigation';
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 
 interface AuthContextType {
   user: User | null;
@@ -25,14 +26,49 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // Check if running in mock/offline mode
     if ((auth as any).name === "mock-app" || !(auth as any).app) {
-      setUser(null);
+      const isMockLoggedIn = localStorage.getItem('mock_user_logged_in') === 'true';
+      if (isMockLoggedIn) {
+        // Create a fake user object that matches the properties expected by the app
+        setUser({
+          email: 'developer@pathgen.dev',
+          displayName: 'Pathgen Developer',
+          uid: 'mock-user-123',
+          emailVerified: true,
+          isAnonymous: false,
+          metadata: {},
+          providerData: [],
+          refreshToken: '',
+          tenantId: null,
+          delete: async () => {},
+          getIdToken: async () => 'mock-token',
+          getIdTokenResult: async () => ({ token: 'mock-token', authTime: '', expirationTime: '', issuedAtTime: '', signInProvider: '', claims: {} }),
+          reload: async () => {},
+          toJSON: () => ({}),
+          phoneNumber: null,
+          photoURL: null,
+          providerId: 'firebase'
+        } as any);
+      } else {
+        setUser(null);
+      }
       setLoading(false);
       return;
     }
 
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
+    const unsubscribe = onAuthStateChanged(auth, async (u) => {
       setUser(u);
       setLoading(false);
+      
+      if (u && u.uid && (auth as any).name !== "mock-app") {
+        try {
+          await updateDoc(doc(firestore, "users", u.uid), {
+            last_login: serverTimestamp()
+          });
+        } catch (e) {
+          // Silent fail for non-existent users (e.g. first signup)
+          console.debug("Login sync skipped");
+        }
+      }
     });
 
     return () => unsubscribe();
@@ -42,18 +78,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (loading) return;
 
-    const isPublicPath = pathname === '/' || pathname === '/login' || pathname === '/signup' || pathname === '/map-demo';
+    // The landing page (/) is now the primary entry for both auth and intro
+    const isPublicPath = pathname === '/' || pathname === '/map-demo';
     
     if (!user && !isPublicPath) {
-      router.push('/login');
-    } else if (user && isPublicPath) {
+      router.push('/');
+    } else if (user && (pathname === '/')) {
       router.push('/home');
     }
   }, [user, loading, pathname, router]);
 
   const logout = async () => {
     try {
-      await auth.signOut();
+      localStorage.removeItem('mock_user_logged_in');
+      if (auth.app) {
+        await auth.signOut();
+      }
+      setUser(null);
       router.push('/');
     } catch (error) {
       console.error("Logout error:", error);

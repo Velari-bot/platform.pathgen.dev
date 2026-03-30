@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Image from 'next/image';
 import { 
   LayoutDashboard, Key, Receipt, BarChart3, 
   FileText, Globe, Play, ChevronRight, Settings, 
@@ -110,9 +111,13 @@ export default function Sidebar() {
                 transition: 'all 0.15s ease'
              }} className="border-button-hover active-scale">
              <div style={{display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden'}}>
-                <div style={{width: '24px', height: '24px', borderRadius: '6px', background: 'var(--accent-primary)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0}}>
-                   <LogoIcon size={14} />
-                </div>
+                 <Image 
+                   src="/Pathgen Base Platform logo.png" 
+                   alt="Pathgen Logo" 
+                   width={32} 
+                   height={32} 
+                   style={{objectFit: 'contain', marginRight: '6px'}}
+                 />
                 <span style={{fontSize: '1rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
                   {currentOrg?.name || 'Loading...'}
                 </span>
@@ -233,12 +238,3 @@ export default function Sidebar() {
   );
 }
 
-function LogoIcon({ size }: { size: number }) {
-   return (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-         <path d="M12 2C6.48 2 2 6.48 2 12C2 14.59 3.02 16.94 4.71 18.71L2 22L5.29 19.29C7.06 20.98 9.41 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C10.11 20 8.39 19.33 7.06 18.23L5.41 19.88L6.23 16.94C5.17 15.61 4.5 13.89 4.5 12C4.5 7.86 7.86 4.5 12 4.5C16.14 4.5 19.5 7.86 19.5 12C19.5 16.14 16.14 19.5 12 19.5Z" fill="currentColor"/>
-         <circle cx="12" cy="11.5" r="3.5" fill="currentColor"/>
-         <path d="M12 15L12 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      </svg>
-   );
-}

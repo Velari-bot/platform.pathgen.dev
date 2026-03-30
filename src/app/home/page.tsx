@@ -34,6 +34,31 @@ export default function Overview() {
   useEffect(() => {
     const fetchData = async () => {
       if (!userEmail) return;
+      
+      // Mock mode data fallback
+      if ((firestore as any).type === 'firestore-mock') {
+        setProfileName('Developer');
+        setStats({
+          activeKeys: 2,
+          apiRequests: "1.2k",
+          uptime: "99.99%",
+          latency: "84ms"
+        });
+        setActivities([
+          { id: '1', action: 'Account Active', target: 'Pathgen Console', time: 'Now', status: 'success' },
+          { id: '2', action: 'API Key Created', target: 'Default App', time: '2m ago', status: 'success' }
+        ]);
+        setChartData([
+          { name: 'Mon', requests: 120 },
+          { name: 'Tue', requests: 450 },
+          { name: 'Wed', requests: 300 },
+          { name: 'Thu', requests: 800 },
+          { name: 'Fri', requests: 1200 }
+        ]);
+        setIsLoading(false);
+        return;
+      }
+
       try {
         // 1. Fetch Profile Name
         const userDoc = await getDoc(doc(firestore, "users", userEmail));

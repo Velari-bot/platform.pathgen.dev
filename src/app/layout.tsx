@@ -5,6 +5,7 @@ import Header from "../components/Header";
 import { usePathname } from 'next/navigation';
 import { AuthProvider } from '../lib/firebase/auth-context';
 import { OrgProvider } from '@/lib/context/OrgContext';
+import CloudflareAnalytics from '../components/CloudflareAnalytics';
 
 export default function RootLayout({
   children,
@@ -12,9 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const isLandingPage = pathname === '/';
-  const isLoginPage = pathname === '/login';
-  const isOuterPage = isLandingPage || isLoginPage;
+  const isOuterPage = pathname === '/';
 
   return (
     <html lang="en">
@@ -47,6 +46,7 @@ export default function RootLayout({
             </div>
           </OrgProvider>
         </AuthProvider>
+        <CloudflareAnalytics />
       </body>
     </html>
   );

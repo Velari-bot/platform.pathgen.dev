@@ -1,10 +1,14 @@
 "use client"
 import { useState } from 'react';
-import { MessageSquare, BookOpen, AlertCircle, Send, ChevronDown, CheckCircle } from 'lucide-react';
+import { MessageSquare, BookOpen, AlertCircle, Send, ChevronDown, CheckCircle, Loader2 } from 'lucide-react';
+import { Turnstile } from '@marsidev/react-turnstile';
 
 export default function Support() {
   const [activeFaq, setActiveFaq] = useState<number | null>(0);
   const [isSubmitSuccess, setIsSubmitSuccess] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const faqs = [
     { q: "Does it support all Fortnite seasons?", a: "Yes, Pathgen supports replay files from Chapter 1 through the present. Some legacy versions (Chapter 2-3) have limited telemetry data due to engine shifts." },
@@ -17,9 +21,37 @@ export default function Support() {
     setActiveFaq(activeFaq === i ? null : i);
   };
 
-  const handleSupportSubmit = (e: React.FormEvent) => {
+  const handleSupportSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitSuccess(true);
+    if (!turnstileToken) {
+        setError('Please complete the security check');
+        return;
+    }
+    
+    setLoading(true);
+    setError(null);
+
+    try {
+        const verifyRes = await fetch('/api/turnstile/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: turnstileToken }),
+        });
+
+        if (!verifyRes.ok) {
+            setError('Security check failed. Please refresh and try again.');
+            setLoading(false);
+            return;
+        }
+
+        // Mock submission
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setIsSubmitSuccess(true);
+    } catch (err) {
+        setError('An error occurred. Please try again later.');
+    } finally {
+        setLoading(false);
+    }
   };
 
   return (
@@ -106,9 +138,32 @@ export default function Support() {
                         <label style={{display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#9CA3AF', marginBottom: '8px', letterSpacing: '0.05em'}}>MESSAGE</label>
                         <textarea required style={{width: '100%', height: '140px', padding: '16px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: '1rem', outline: 'none', resize: 'none', fontFamily: 'inherit'}} />
                      </div>
-                     <button type="submit" style={{padding: '16px', background: '#fff', color: '#000', borderRadius: '12px', border: 'none', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'}}>
-                        <Send size={18} />
-                        Submit Request
+                      {error && (
+                         <div style={{color: '#EF4444', fontSize: '0.8rem', textAlign: 'center', marginBottom: '12px'}}>{error}</div>
+                      )}
+
+                      <div style={{display: 'flex', justifyContent: 'center', marginBottom: '24px'}}>
+                        <Turnstile 
+                            siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "0x4AAAAAACxrtv94QGjXeUxO"} 
+                            onSuccess={(token) => setTurnstileToken(token)}
+                            onExpire={() => setTurnstileToken(null)}
+                            onError={() => {
+                                setError('Security check failed. Please refresh.');
+                                setTurnstileToken(null);
+                            }}
+                            options={{
+                                theme: 'dark'
+                            }}
+                        />
+                      </div>
+
+                     <button type="submit" disabled={!turnstileToken || loading} style={{padding: '16px', background: '#fff', color: '#000', borderRadius: '12px', border: 'none', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', width: '100%', opacity: (!turnstileToken || loading) ? 0.5 : 1}}>
+                        {loading ? <Loader2 size={18} className="animate-spin" /> : (
+                           <>
+                              <Send size={18} />
+                              Submit Request
+                           </>
+                        )}
                      </button>
                   </form>
                </>

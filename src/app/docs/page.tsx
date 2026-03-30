@@ -52,10 +52,8 @@ export default function Docs() {
       section: "API REFERENCE", 
       items: [
         { id: 'reference', title: 'Full API Reference', icon: <Terminal size={18} /> },
-        { id: 'schema', title: 'Response Schema', icon: <Package size={18} /> },
-        { id: 'errors', title: 'Error Codes', icon: <AlertTriangle size={18} /> },
         { id: 'limits', title: 'Rate Limits', icon: <Clock size={18} /> },
-        { id: 'versions', title: 'Game Versions', icon: <History size={18} /> }
+        { id: 'errors', title: 'Error Codes', icon: <AlertTriangle size={18} /> }
       ]
     }
   ];
@@ -116,25 +114,24 @@ export default function Docs() {
       <div style={{flex: 1, maxWidth: '900px'}}>
          
          <section id="overview" style={{paddingTop: '0', marginBottom: '80px', scrollMarginTop: '48px'}}>
-            <h1 style={{fontSize: '3rem', fontWeight: 800, letterSpacing: '-0.04em', marginBottom: '24px'}}>Documentation Overview</h1>
+            <h1 style={{fontSize: '3rem', fontWeight: 800, letterSpacing: '-0.04em', marginBottom: '24px'}}>Omni-Source Blueprint</h1>
             <p style={{fontSize: '1.25rem', color: '#4B5563', lineHeight: 1.6, marginBottom: '32px'}}>
-               Welcome to the Pathgen API. Our high-fidelity replay processing engine and game world data API allow you to build next-generation Fortnite tools and integrations.
+               Pathgen is now a <strong>Fused API</strong>. We reconcile data across FN-API, Osirion, and our own Parser to return a "True North" dataset with 99.9% accuracy. 
             </p>
             <div className="card" style={{background: '#F3F4F6', border: 'none', padding: '32px'}}>
-               <h3 style={{fontSize: '1.1rem', fontWeight: 700, marginBottom: '16px'}}>Read This First</h3>
+               <h3 style={{fontSize: '1.1rem', fontWeight: 700, marginBottom: '16px'}}>R2 Edge Mirroring</h3>
                <p style={{fontSize: '0.95rem', color: '#6B7280', lineHeight: 1.6}}>
-                  All requests must use HTTPS and include a valid API key in the <code>Authorization</code> header (except for Free Endpoints). 
-                  Our API is REST-compliant and returns JSON for all responses and errors.
+                  All Discovery and Cosmetic assets are mirrored to our <strong>Cloudflare R2</strong> storage. This ensures zero-latency image delivery and zero egress fees for your application.
                </p>
             </div>
          </section>
 
          <section id="auth" style={{paddingTop: '80px', marginBottom: '80px', borderTop: '1px solid #F3F4F6', scrollMarginTop: '48px'}}>
-            <h2 style={{fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '24px'}}>Authentication</h2>
+            <h2 style={{fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '24px'}}>Authentication & Governance</h2>
             <p style={{fontSize: '1.1rem', color: '#4B5563', lineHeight: 1.6, marginBottom: '24px'}}>
-               API keys are used to authenticate requests. You can manage your keys in the <a href="/keys" style={{color: '#000', fontWeight: 600}}>API Keys</a> dashboard.
+               API keys are used to authenticate requests. We implement a <strong>Beta Access Guard</strong> to restrict high-compute and experimental features.
             </p>
-            <div style={{position: 'relative'}}>
+            <div style={{position: 'relative', marginBottom: '32px'}}>
               <pre style={{width: '100%', background: '#000', color: '#fff', padding: '24px', borderRadius: '16px', fontSize: '0.95rem', fontFamily: 'JetBrains Mono', border: '1px solid #1f1f1f'}}>
                  Authorization: Bearer rs_your_api_key_here
               </pre>
@@ -142,46 +139,69 @@ export default function Docs() {
                  <CopyButton text="Authorization: Bearer rs_your_api_key_here" color="#6B7280" />
               </div>
             </div>
-            <div style={{marginTop: '32px', display: 'flex', gap: '16px', padding: '20px', borderRadius: '16px', background: '#F9FAFB', border: '1px solid #E5E7EB'}}>
-               <Shield size={20} color="#000" />
-               <p style={{fontSize: '0.9rem', color: '#4B5563'}}>
-                  <strong>Security Best Practice:</strong> We recommend rotating your keys every 90 days. Keep your keys secret—stolen keys can drain your credit balance.
+            
+            <div className="card" style={{background: '#FFFBEB', border: '1px solid #FDE68A', padding: '32px', borderRadius: '24px'}}>
+               <h3 style={{fontSize: '1.1rem', fontWeight: 700, color: '#92400E', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px'}}>
+                  <Shield size={20} /> Beta Access Required
+               </h3>
+               <p style={{fontSize: '0.95rem', color: '#92400E', lineHeight: 1.6}}>
+                  Endpoints marked as <strong>Beta</strong> return a <code>403 Forbidden (BETA_ACCESS_REQUIRED)</code> unless your keys have been explicitly authorized in our governance records.
+                  Contact support or your account manager to request access to AI Coaching and Advanced Visualization layers.
                </p>
             </div>
          </section>
 
-         <section id="credits" style={{paddingTop: '80px', marginBottom: '120px', borderTop: '1px solid #F3F4F6', scrollMarginTop: '48px'}}>
-            <h2 style={{fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '24px'}}>Credits & Billing</h2>
+         <section id="credits" style={{paddingTop: '80px', marginBottom: '80px', borderTop: '1px solid #F3F4F6', scrollMarginTop: '48px'}}>
+            <h2 style={{fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '24px'}}>Tiers & Credits</h2>
             <p style={{fontSize: '1.1rem', color: '#4B5563', lineHeight: 1.6, marginBottom: '32px'}}>
-               Pathgen operates on a credit-based model. Some endpoints are free, while others consume credits based on processing complexity.
+               Pathgen is a dual-structure SaaS. The <strong>Free Tier</strong> provides core data access, while <strong>Pro</strong> unlocks the AI engine and full automation.
             </p>
-            <div className="card" style={{padding: '0', borderRadius: '16px', overflow: 'hidden', border: '1px solid #E5E7EB'}}>
+            
+            <div className="card" style={{padding: '0', borderRadius: '16px', overflow: 'hidden', border: '1px solid #E5E7EB', marginBottom: '48px'}}>
                <table style={{width: '100%', borderCollapse: 'collapse'}}>
                   <thead>
                      <tr style={{background: '#F9FAFB'}}>
-                        <th style={{padding: '16px 24px', textAlign: 'left', fontSize: '0.75rem', color: '#6B7280'}}>ENDPOINT TYPE</th>
-                        <th style={{padding: '16px 24px', textAlign: 'left', fontSize: '0.75rem', color: '#6B7280'}}>COST</th>
+                        <th style={{padding: '16px 24px', textAlign: 'left', fontSize: '0.75rem', color: '#6B7280'}}>CAPABILITY</th>
+                        <th style={{padding: '16px 24px', textAlign: 'center', fontSize: '0.75rem', color: '#6B7280'}}>FREE</th>
+                        <th style={{padding: '16px 24px', textAlign: 'center', fontSize: '0.75rem', color: '#6B7280'}}>PRO</th>
                      </tr>
                   </thead>
                   <tbody>
                      <tr style={{borderTop: '1px solid #F3F4F6', background: '#fff'}}>
-                        <td style={{padding: '16px 24px'}}>Free Data & Lookup</td>
-                        <td style={{padding: '16px 24px', fontWeight: 700, color: '#10B981'}}>FREE</td>
+                        <td style={{padding: '16px 24px'}}>Core Replay Parsing</td>
+                        <td style={{padding: '16px 24px', textAlign: 'center'}}>✅ YES</td>
+                        <td style={{padding: '16px 24px', textAlign: 'center'}}>✅ YES</td>
                      </tr>
                      <tr style={{borderTop: '1px solid #F3F4F6', background: '#fff'}}>
-                        <td style={{padding: '16px 24px'}}>Replay Summaries</td>
-                        <td style={{padding: '16px 24px', fontWeight: 700}}>5-10 Credits</td>
+                        <td style={{padding: '16px 24px'}}>Gemini AI Intelligence Layer</td>
+                        <td style={{padding: '16px 24px', textAlign: 'center', opacity: 0.3}}>❌ LOCKED</td>
+                        <td style={{padding: '16px 24px', textAlign: 'center'}}>💎 UNLOCKED</td>
                      </tr>
                      <tr style={{borderTop: '1px solid #F3F4F6', background: '#fff'}}>
-                        <td style={{padding: '16px 24px'}}>Full Analysis & Exclusive Data</td>
-                        <td style={{padding: '16px 24px', fontWeight: 700}}>20-50 Credits</td>
+                        <td style={{padding: '16px 24px', fontWeight: 600}}>Real-time Webhooks (Push)</td>
+                        <td style={{padding: '16px 24px', textAlign: 'center', opacity: 0.3}}>❌ DISABLED</td>
+                        <td style={{padding: '16px 24px', textAlign: 'center'}}>💎 UNLOCKED</td>
                      </tr>
-                      <tr style={{borderTop: '1px solid #F3F4F6', background: '#F9FAFB'}}>
-                         <td style={{padding: '16px 24px', fontWeight: 600}}>24h Map Pass (Unlimited Tiles)</td>
-                         <td style={{padding: '16px 24px', fontWeight: 700, color: '#2563EB'}}>30 Credits</td>
-                      </tr>
+                     <tr style={{borderTop: '1px solid #F3F4F6', background: '#fff'}}>
+                        <td style={{padding: '16px 24px'}}>Rate limits</td>
+                        <td style={{padding: '16px 24px', textAlign: 'center'}}>10 req/m</td>
+                        <td style={{padding: '16px 24px', textAlign: 'center'}}>100+ req/m</td>
+                     </tr>
                   </tbody>
                </table>
+            </div>
+         </section>
+
+         <section id="webhooks" style={{paddingTop: '80px', marginBottom: '120px', borderTop: '1px solid #F3F4F6', scrollMarginTop: '48px'}}>
+            <h2 style={{fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '24px'}}>Webhooks (Pro Only)</h2>
+            <p style={{fontSize: '1.1rem', color: '#4B5563', lineHeight: 1.6, marginBottom: '32px'}}>
+               Webhooks allow your application to receive real-time notifications when events happen in the Fortnite ecosystem or your parsing tasks complete.
+            </p>
+            <div className="card" style={{background: '#F8FAFC', border: 'none', padding: '32px', borderRadius: '24px'}}>
+               <h3 style={{fontSize: '1.1rem', fontWeight: 700, marginBottom: '16px'}}>Signature Verification</h3>
+               <p style={{fontSize: '0.95rem', color: '#64748B', lineHeight: 1.6}}>
+                  Each webhook request includes a <code>Pathgen-Signature</code> header. Use your webhook secret to compute the HMAC-SHA256 hash and verify that the request originated from our edge cluster.
+               </p>
             </div>
          </section>
           <section id="map-integration" style={{paddingTop: '80px', marginBottom: '120px', borderTop: '1px solid #F3F4F6', scrollMarginTop: '48px'}}>
@@ -441,13 +461,13 @@ export default function Docs() {
                             <span style={{
                                padding: '4px 10px', 
                                borderRadius: '6px', 
-                               background: '#F3F4F6', 
-                               color: '#000', 
+                               background: ep.status === 'beta' ? '#FEF3C7' : '#F3F4F6', 
+                               color: ep.status === 'beta' ? '#92400E' : '#000', 
                                fontSize: '0.75rem', 
                                fontWeight: 800
-                            }}>{ep.method}</span>
+                            }}>{ep.status === 'beta' ? 'BETA' : ep.method}</span>
                             <span style={{fontFamily: 'JetBrains Mono', fontSize: '1rem', fontWeight: 600, color: '#111827'}}>{ep.path}</span>
-                            {ep.credits && (
+                            {(ep.credits !== undefined && ep.credits !== null && String(ep.credits) !== '0') && (
                               <span style={{marginLeft: 'auto', background: '#000', color: '#fff', padding: '4px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700}}>
                                  {ep.credits} Credits
                               </span>

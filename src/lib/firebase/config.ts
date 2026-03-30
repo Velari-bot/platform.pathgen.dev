@@ -29,17 +29,31 @@ if (hasValidConfig) {
         console.error("Firebase init failed:", e);
         // Fallback to mock on init failure
         app = { name: "fallback" } as any;
-        firestore = {} as any;
+        firestore = { name: "mock-app", type: 'firestore-mock' } as any;
         auth = { onAuthStateChanged: (cb: any) => cb(null) } as any;
     }
 } else {
     console.warn("Firebase config missing. Using mock/offline mode.");
     app = { name: "mock-app" } as any;
-    firestore = { type: 'firestore-mock' } as any;
+    firestore = { name: "mock-app", type: 'firestore-mock' } as any;
     auth = { 
-        onAuthStateChanged: (cb: any) => cb(null),
+        name: "mock-app",
+        app: app,
+        onAuthStateChanged: (cb: any) => {
+            const isMockLoggedIn = typeof window !== 'undefined' && localStorage.getItem('mock_user_logged_in') === 'true';
+            if (isMockLoggedIn) {
+                cb({ email: 'aiden@pathgen.dev', displayName: 'Aiden Bender', uid: 'mock-uid-123', emailVerified: true } as any);
+            } else {
+                cb(null);
+            }
+            return () => {};
+        },
         currentUser: null,
-        signOut: () => Promise.resolve()
+        signOut: () => {
+            if (typeof window !== 'undefined') localStorage.removeItem('mock_user_logged_in');
+            window.location.reload(); // Refresh to clear context
+            return Promise.resolve();
+        }
     } as any;
 }
 
