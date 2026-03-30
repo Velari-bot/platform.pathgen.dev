@@ -47,7 +47,8 @@ export default function ApiExplorer() {
       });
       
       const queryString = queryParams.toString();
-      const url = `https://api.pathgen.dev${finalPath}${queryString ? `?${queryString}` : ''}`;
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.pathgen.dev";
+      const url = `${baseUrl}${finalPath}${queryString ? `?${queryString}` : ''}`;
       
       const options: RequestInit = {
         method: selectedEndpoint.method,
@@ -168,8 +169,8 @@ export default function ApiExplorer() {
                   <div style={{padding: '0 24px', background: 'white', borderRight: '1px solid #E5E7EB', fontWeight: 800, fontSize: '0.9rem', display: 'flex', alignItems: 'center', color: '#111827'}}>
                      {selectedEndpoint.method}
                   </div>
-                  <div style={{padding: '0 24px', flex: 1, color: '#4B5563', fontSize: '0.9rem', fontFamily: 'JetBrains Mono', display: 'flex', alignItems: 'center', letterSpacing: '-0.01em'}}>
-                     https://api.pathgen.dev{selectedEndpoint.path}
+                  <div style={{padding: '0 24px', flex: 1, color: '#4B5563', fontSize: '0.9rem', fontFamily: 'JetBrains Mono', display: 'flex', alignItems: 'center', letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                     {process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.pathgen.dev"}{selectedEndpoint.path}
                   </div>
                </div>
                <button 
