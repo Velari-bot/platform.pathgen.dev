@@ -222,7 +222,7 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      <div style={{marginTop: 'auto', padding: '16px', background: 'rgba(217, 119, 87, 0.05)', borderRadius: '12px', border: '1px solid rgba(217, 119, 87, 0.1)'}}>
+      <a href="https://status.pathgen.dev" target="_blank" style={{marginTop: 'auto', padding: '16px', background: 'rgba(217, 119, 87, 0.05)', borderRadius: '12px', border: '1px solid rgba(217, 119, 87, 0.1)', textDecoration: 'none', display: 'block'}} className="pop-out-hover">
          <div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px'}}>
             <div style={{width: '6px', height: '6px', borderRadius: '50%', background: '#10B981'}}></div>
             <span style={{fontSize: '0.75rem', fontWeight: 600, color: '#111827'}}>Operational</span>
@@ -233,7 +233,7 @@ export default function Sidebar() {
          <div style={{fontSize: '0.65rem', color: '#6B6A68', fontWeight: 500}}>
             API Latency: {latency}ms
          </div>
-      </div>
+      </a>
     </aside>
   );
 }

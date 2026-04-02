@@ -118,84 +118,42 @@ export default function LandingClient({ defaultIsRegistering = false }: { defaul
 
   const footerLinks = [
     {
-      title: 'Products',
+      title: 'Product',
       links: [
         { name: 'Pathgen API', href: '/docs' },
-        { name: 'Pathgen SDK', href: '/docs' },
-        { name: 'Enterprise', href: '/support' },
-        { name: 'Max plan', href: '/pricing' },
-        { name: 'Team plan', href: '/pricing' },
         { name: 'Pricing', href: '/pricing' },
-        { name: 'Log in', href: '/' }
-      ]
-    },
-    {
-      title: 'Solutions',
-      links: [
-        { name: 'AI agents', href: '/docs#ai' },
-        { name: 'Code Security', href: '/docs#security' },
-        { name: 'Telemedicine', href: '/tutorials' },
-        { name: 'Education', href: '/tutorials' },
-        { name: 'Government', href: '/support' }
-      ]
-    },
-    {
-      title: 'Resources',
-      links: [
-        { name: 'Blog', href: '/docs' },
-        { name: 'Community', href: '/' },
-        { name: 'Status', href: '/status' },
-        { name: 'Tutorials', href: '/tutorials' },
-        { name: 'Use cases', href: '/quickstart' }
-      ]
-    },
-    {
-      title: 'Help',
-      links: [
-        { name: 'Support center', href: '/support' },
-        { name: 'Contact us', href: '/support' },
         { name: 'Documentation', href: '/docs' },
-        { name: 'API Reference', href: '/docs#reference' }
+        { name: 'Quickstart', href: '/quickstart' },
+        { name: 'Status', href: 'https://status.pathgen.dev' }
+      ]
+    },
+    {
+      title: 'Developers',
+      links: [
+        { name: 'API Reference', href: '/docs#reference' },
+        { name: 'Tutorials', href: '/tutorials' },
+        { name: 'Blog', href: '/blog' },
+        { name: 'Community', href: 'https://discord.gg/3zQEdVWHpg' }
+      ]
+    },
+    {
+      title: 'Support',
+      links: [
+        { name: 'Support Hub', href: '/support' },
+        { name: 'Contact Us', href: '/support' },
+        { name: 'Enterprise', href: '/support' }
+      ]
+    },
+    {
+      title: 'Legal',
+      links: [
+        { name: 'Terms of Service', href: '/terms' },
+        { name: 'Privacy Policy', href: '/privacy' },
+        { name: 'Usage Policy', href: '/usage-policy' }
       ]
     }
   ];
 
-  const secondaryFooterLinks = [
-    {
-      title: 'Features',
-      links: [
-        { name: 'Replay Parsing', href: '/docs' },
-        { name: 'Movement Telemetry', href: '/docs' },
-        { name: 'AI Analytics', href: '/docs' },
-        { name: 'Stats Engine', href: '/docs' }
-      ]
-    },
-    {
-      title: 'Models',
-      links: [
-        { name: 'Pathgen V2', href: '/docs' },
-        { name: 'Pathgen Lite', href: '/docs' },
-        { name: 'Vison (Alpha)', href: '/docs' }
-      ]
-    },
-    {
-       title: 'Company',
-       links: [
-         { name: 'About Pathgen', href: '/docs' },
-         { name: 'Our Mission', href: '/docs' },
-         { name: 'Research', href: '/docs' }
-       ]
-    },
-    {
-       title: 'Terms and policies',
-       links: [
-         { name: 'Privacy choices', href: '/privacy' },
-         { name: 'Privacy policy', href: '/privacy' },
-         { name: 'Terms of service', href: '/terms' },
-         { name: 'Usage policy', href: '/usage-policy' }
-       ]
-    }
-  ];
 
   return (
     <div className="fade-in" style={{
@@ -470,18 +428,6 @@ export default function LandingClient({ defaultIsRegistering = false }: { defaul
                            {col.links.map((link) => (
                              <Link key={link.name} href={link.href} style={{fontSize: '0.85rem', color: '#fff', textDecoration: 'none', opacity: 0.9}} onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')} onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.9')}>
                                 {link.name}
-                             </Link>
-                           ))}
-                        </div>
-                    </div>
-                  ))}
-                   {secondaryFooterLinks.map((col) => (
-                    <div key={col.title}>
-                        <div style={{fontSize: '0.9rem', color: '#6B6A68', marginBottom: '24px', fontWeight: 500}}>{col.title}</div>
-                        <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
-                           {col.links.map((link) => (
-                             <Link key={typeof link === 'string' ? link : link.name} href={typeof link === 'string' ? '#' : link.href} style={{fontSize: '0.85rem', color: '#fff', textDecoration: 'none', opacity: 0.9}} onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')} onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.9')}>
-                                {typeof link === 'string' ? link : link.name}
                              </Link>
                            ))}
                         </div>

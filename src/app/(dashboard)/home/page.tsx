@@ -218,12 +218,12 @@ export default function Overview() {
       {/* Stats Grid */}
       <div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '48px'}}>
         {[
-          { label: 'Active Keys', value: stats.activeKeys, icon: <KeyIcon size={20} />, trend: 'Stable' },
-          { label: 'API Requests', value: stats.apiRequests, icon: <Zap size={20} />, trend: 'Live' },
-          { label: 'Avg Latency', value: stats.latency, icon: <Activity size={20} />, trend: '~realtime' },
-          { label: 'System Uptime', value: stats.uptime, icon: <Shield size={20} />, trend: 'Healthy' },
+          { label: 'Active Keys', value: stats.activeKeys, icon: <KeyIcon size={20} />, trend: 'Stable', href: '/keys' },
+          { label: 'API Requests', value: stats.apiRequests, icon: <Zap size={20} />, trend: 'Live', href: '/usage' },
+          { label: 'Avg Latency', value: stats.latency, icon: <Activity size={20} />, trend: '~realtime', href: '/usage' },
+          { label: 'System Uptime', value: stats.uptime, icon: <Shield size={20} />, trend: 'Healthy', href: 'https://status.pathgen.dev' },
         ].map((stat, i) => (
-          <div key={i} style={{padding: '32px', background: '#fff', borderRadius: '24px', border: '1px solid var(--border-color)', boxShadow: '0 4px 20px rgba(0,0,0,0.02)'}} className="active-scale">
+          <a key={i} href={stat.href} target={stat.href.startsWith('http') ? '_blank' : undefined} style={{padding: '32px', background: '#fff', borderRadius: '24px', border: '1px solid var(--border-color)', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', textDecoration: 'none', color: 'inherit'}} className="active-scale pop-out-hover">
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px'}}>
                <div style={{width: '40px', height: '40px', borderRadius: '12px', background: 'var(--bg-sidebar)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-primary)'}}>
                   {stat.icon}
@@ -232,7 +232,7 @@ export default function Overview() {
             </div>
             <div style={{fontSize: '2.25rem', fontWeight: 600, marginBottom: '2px', letterSpacing: '-0.02em', color: 'var(--text-primary)'}}>{stat.value}</div>
             <div style={{fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 500}}>{stat.label}</div>
-          </div>
+          </a>
         ))}
       </div>
 

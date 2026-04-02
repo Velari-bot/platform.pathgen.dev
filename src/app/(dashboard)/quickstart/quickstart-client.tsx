@@ -119,7 +119,7 @@ export default function QuickstartClient() {
          <div style={{display: 'flex', gap: '40px'}}>
             <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
                <span style={{fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-secondary)'}}>RESOURCES</span>
-               <Link href="/docs" style={{color: 'var(--text-primary)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600}}>System Status</Link>
+               <a href="https://status.pathgen.dev" target="_blank" style={{color: 'var(--text-primary)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600}}>System Status</a>
                <Link href="/docs" style={{color: 'var(--text-primary)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600}}>Changelog</Link>
             </div>
             <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>

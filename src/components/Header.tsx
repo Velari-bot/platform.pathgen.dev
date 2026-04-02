@@ -287,8 +287,8 @@ export default function Header() {
               ) : (
                  <>
                    <h2 style={{fontSize: '1.5rem', fontWeight: 600, marginBottom: '12px'}}>Send Feedback</h2>
-                   <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '32px'}}>
-                      Tell us what&apos;s on your mind. We read every single message.
+                   <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '32px', lineHeight: 1.6}}>
+                      Tell us what&apos;s on your mind. Before reporting a <strong>bug</strong>, please check our <a href="https://status.pathgen.dev" target="_blank" style={{color: 'var(--accent-primary)', fontWeight: 600, textDecoration: 'none'}}>System Status</a>.
                    </p>
                    
                    <div style={{marginBottom: '24px'}}>
