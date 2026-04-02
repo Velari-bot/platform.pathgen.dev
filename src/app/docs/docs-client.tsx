@@ -1,315 +1,574 @@
 "use client"
-// Syncing v1.2.9 - Force Reload Trigger
-import { useState, useEffect, useRef } from 'react';
-import { Shield, CreditCard, Box, Terminal, AlertTriangle, Clock, History, Zap, Check, Map, Coins, HardDrive, Lock, Globe, Database, Cpu, Activity, Layout, HeartPulse, Braces } from 'lucide-react';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import Link from 'next/link';
+import { 
+  Terminal, Search, Copy, ChevronRight, Check, BookOpen, 
+  Code, Command, AlertTriangle, Shield, Zap, Globe, 
+  Lock, Key, HelpCircle, Layers, Cpu, Database, ChevronLeft,
+  Activity, Map as MapIcon, History, Info, ExternalLink
+} from 'lucide-react';
 import CopyButton from '@/components/CopyButton';
 import { ENDPOINTS_DATA } from '@/data/endpoints';
+import { ERROR_CODES, FAQ_DATA, SCHEMA_REFERENCE, CREDIT_PACKS, RATE_LIMITS } from '@/data/docs_content';
+import { useAuth } from '@/lib/firebase/auth-context';
 
 export default function DocsClient() {
-  const [activeSection, setActiveSection] = useState('overview');
+  const { user } = useAuth();
+  const backUrl = user ? '/home' : '/';
+  
+  const [activeCategory, setActiveCategory] = useState('getting-started');
+  const [activeSection, setActiveSection] = useState('intro');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [copiedPage, setCopiedPage] = useState(false);
+  
   const observer = useRef<IntersectionObserver | null>(null);
 
-  useEffect(() => {
-    const scrollContainer = document.querySelector('.content-area');
-    
-    const handleIntersect = (entries: IntersectionObserverEntry[]) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.1) {
-          setActiveSection(entry.target.id);
-        }
-      });
-    };
-
-    observer.current = new IntersectionObserver(handleIntersect, {
-      root: scrollContainer,
-      rootMargin: '-10% 0px -80% 0px',
-      threshold: [0, 0.1]
-    });
-
-    const sections = document.querySelectorAll('section[id]');
-    sections.forEach((section) => observer.current?.observe(section));
-
-    return () => observer.current?.disconnect();
-  }, []);
-
-  const groups = [
-    { 
-      section: "Platform Essentials", 
-      items: [
-        { id: 'overview', title: 'Architecture Overview', icon: <Globe size={18} /> },
-        { id: 'auth', title: 'Authentication & Rates', icon: <Lock size={18} /> },
-      ]
-    },
-    ...ENDPOINTS_DATA.map((section, idx) => {
-      const title = section.title.replace(/^[0-9.]+\s+/, '');
-      let icon = <Terminal size={18} />;
-      if (title.includes('Infrastructure')) icon = <Activity size={18} />;
-      if (title.includes('Metadata')) icon = <Database size={18} />;
-      if (title.includes('Intelligence')) icon = <Cpu size={18} />;
-      if (title.includes('Replay')) icon = <History size={18} />;
-      if (title.includes('Visualization')) icon = <Map size={18} />;
-      if (title.includes('AI Coaching')) icon = <Zap size={18} />;
-      if (title.includes('Billing')) icon = <CreditCard size={18} />;
-      if (title.includes('Automation')) icon = <Zap size={18} />;
-
-      return {
-        section: title.toUpperCase(),
-        items: [
-          { id: `section-${idx}`, title: title, icon }
-        ]
-      };
-    })
+  const categories = [
+    { id: 'getting-started', name: 'Getting Started', icon: <BookOpen size={16} /> },
+    { id: 'endpoints', name: 'API Reference', icon: <Terminal size={16} /> },
+    { id: 'schema', name: 'Response Schema', icon: <Database size={16} /> },
+    { id: 'faq', name: 'FAQ & Help', icon: <HelpCircle size={16} /> },
+    { id: 'advanced', name: 'Advanced', icon: <Layers size={16} /> },
   ];
 
+  const tocItems = useMemo(() => {
+    if (activeCategory === 'getting-started') {
+      return [
+        { id: 'intro', title: 'Introduction' },
+        { id: 'getting-started-core', title: 'Getting Started' },
+        { id: 'error-codes', title: 'Error Codes' },
+        { id: 'rate-limits', title: 'Rate Limits' }
+      ];
+    }
+    if (activeCategory === 'endpoints') {
+      return ENDPOINTS_DATA.map((s, i) => ({ id: `section-${i+1}`, title: s.title }));
+    }
+    if (activeCategory === 'schema') {
+       return SCHEMA_REFERENCE.map(s => ({ id: `schema-${s.section}`, title: s.section.replace('_', ' ').toUpperCase() }));
+    }
+    if (activeCategory === 'faq') {
+       return [{ id: 'faq-section', title: 'Frequently Asked Questions' }, { id: 'changelog', title: 'Changelog' }];
+    }
+    if (activeCategory === 'advanced') {
+       return [{ id: 'map-tiles', title: 'Map and Tiles' }, { id: 'sdks', title: 'SDKs & Libraries' }];
+    }
+    return [];
+  }, [activeCategory]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = Array.from(document.querySelectorAll('section[id]'));
+      if (sections.length === 0) return;
+
+      // We want to find the LAST section that has its top above the 200px mark
+      let current = sections[0].id;
+      for (const section of sections) {
+        if (section.getBoundingClientRect().top <= 200) {
+          current = section.id;
+        } else {
+          break;
+        }
+      }
+      
+      if (current !== activeSection) {
+        setActiveSection(current);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [activeSection, activeCategory, searchQuery]);
+
   const scrollToSection = (id: string) => {
-     setActiveSection(id);
-     const element = document.getElementById(id);
-     if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-     }
+    setActiveSection(id);
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
   };
 
   return (
-    <div className="fade-in" style={{display: 'flex', gap: '64px', minHeight: '100vh', paddingBottom: '120px'}}>
+    <div style={{ background: '#FAF9F6', minHeight: '100vh', color: '#1A1A1A', fontFamily: 'Inter, sans-serif' }}>
       
-      {/* Documentation Navigation */}
+      {/* Search Header */}
       <div style={{
-         width: '280px', position: 'sticky', top: '24px', 
-         height: 'calc(100vh - 150px)', overflowY: 'auto',
-         paddingRight: '12px', scrollbarWidth: 'none'
-      }} className="docs-sidebar">
-         <div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '32px', paddingLeft: '16px'}}>
-            <div style={{width: '8px', height: '8px', borderRadius: '50%', background: '#10B981', boxShadow: '0 0 10px #10B981'}}></div>
-            <h4 style={{fontSize: '0.7rem', fontWeight: 900, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.1em'}}>v1.2.9 Technical Docs</h4>
-         </div>
-         
-         <nav style={{display: 'flex', flexDirection: 'column', gap: '32px'}}>
-            {groups.map((group) => (
-              <div key={group.section}>
-                <div style={{fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-secondary)', letterSpacing: '0.05em', marginBottom: '12px', paddingLeft: '16px'}}>{group.section}</div>
-                <div style={{display: 'flex', flexDirection: 'column', gap: '4px'}}>
-                   {group.items.map((item) => (
-                    <a 
-                      key={item.id}
-                      href={`#${item.id}`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        scrollToSection(item.id);
-                      }}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        padding: '12px 16px',
-                        borderRadius: '12px',
-                        fontSize: '0.9rem',
-                        textDecoration: 'none',
-                        color: activeSection === item.id ? 'var(--text-primary)' : 'var(--text-secondary)',
-                        background: activeSection === item.id ? 'var(--bg-sidebar)' : 'transparent',
-                        fontWeight: activeSection === item.id ? 700 : 500,
-                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                        cursor: 'pointer',
-                        borderLeft: activeSection === item.id ? '3px solid var(--accent-primary)' : '3px solid transparent',
-                        paddingLeft: activeSection === item.id ? '13px' : '16px'
-                      }}
-                      className="active-scale"
-                    >
-                      <span style={{color: activeSection === item.id ? 'var(--accent-primary)' : 'inherit'}}>
-                        {item.icon}
-                      </span>
-                      <span style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.85rem'}}>
-                        {item.title}
-                      </span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            ))}
-         </nav>
+        position: 'sticky', top: 0, zIndex: 100, background: 'rgba(250, 249, 246, 0.95)', 
+        backdropFilter: 'blur(12px)', borderBottom: '1px solid #EEECE7', height: '64px',
+        display: 'flex', alignItems: 'center', padding: '0 32px'
+      }}>
+        <div style={{display: 'flex', alignItems: 'center', gap: '20px', marginRight: '48px'}}>
+           <Link href={backUrl} style={{display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none', color: '#6B6A68', fontSize: '0.85rem', fontWeight: 600}}>
+              <ChevronLeft size={16} /> {user ? 'Dashboard' : 'Home'}
+           </Link>
+           <div style={{width: '1px', height: '24px', background: '#EEECE7'}} />
+           <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+              <img src="/Pathgen Platform.png" alt="Pathgen Logo" style={{height: '24px', width: 'auto', borderRadius: '6px'}} />
+              <span style={{fontWeight: 800, fontSize: '1rem', letterSpacing: '-0.02em'}}>Pathgen Docs</span>
+           </div>
+        </div>
+
+        <nav style={{display: 'flex', gap: '4px', flex: 1}}>
+          {categories.map(cat => (
+            <button key={cat.id} onClick={() => { setActiveCategory(cat.id); setSearchQuery(''); }}
+              style={{
+                padding: '8px 16px', borderRadius: '8px', border: 'none',
+                background: activeCategory === cat.id ? 'rgba(0,0,0,0.05)' : 'transparent',
+                color: activeCategory === cat.id ? '#000' : '#6B6A68',
+                fontSize: '0.85rem', fontWeight: activeCategory === cat.id ? 700 : 500,
+                cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '8px'
+              }}
+            >
+              {cat.name}
+            </button>
+          ))}
+        </nav>
+
+        <div style={{position: 'relative', width: '300px'}}>
+           <Search size={14} style={{position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF'}} />
+           <input type="text" placeholder="Search API..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+             style={{ width: '100%', padding: '8px 12px 8px 36px', borderRadius: '10px', border: '1px solid #EEECE7', background: '#fff', fontSize: '0.85rem', outline: 'none' }}
+           />
+        </div>
       </div>
 
-      {/* Content */}
-      <div style={{flex: 1, maxWidth: '1000px'}}>
-         
-         <section id="overview" style={{paddingTop: '0', marginBottom: '100px', scrollMarginTop: '48px'}}>
-            <div style={{marginBottom: '48px'}}>
-               <span style={{fontSize: '0.65rem', fontWeight: 900, background: 'rgba(217, 119, 87, 0.05)', color: '#D97757', padding: '6px 12px', borderRadius: '100px', letterSpacing: '0.1em'}}>SYSTEM OVERVIEW</span>
-            </div>
-            <h1 style={{fontSize: '4rem', fontWeight: 900, letterSpacing: '-0.04em', marginBottom: '32px', lineHeight: 1.0, color: '#111827'}}>
-               The PathGen Engine.
-            </h1>
-            <p style={{fontSize: '1.1rem', color: '#4B5563', lineHeight: 1.7, marginBottom: '40px', maxWidth: '800px'}}>
-               PathGen provides the infrastructure for high-performance Fortnite applications. We abstract the complexity of raw replay streams and Epic Games service logic into a unified, high-speed API layer. All game assets are mirrored to our globally distributed CDN for near-zero latency.
-            </p>
-            
-            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px'}}>
-               <div style={{background: '#fff', border: '1px solid #F3F4F6', padding: '32px', borderRadius: '24px', boxShadow: '0 4px 12px rgba(0,0,0,0.01)'}}>
-                  <div style={{width: '40px', height: '40px', background: 'rgba(217, 119, 87, 0.05)', color: '#D97757', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px'}}>
-                    <Braces size={20} />
-                  </div>
-                  <h3 style={{fontSize: '1.2rem', fontWeight: 700, marginBottom: '8px'}}>Unified JSON Output</h3>
-                  <p style={{fontSize: '0.9rem', color: '#6B7280', margin: 0, lineHeight: 1.6}}>Our fuser engine normalizes data from Fortnite-API and Epic Games into a consistent, predictable schema.</p>
-               </div>
-               <div style={{background: '#fff', border: '1px solid #F3F4F6', padding: '32px', borderRadius: '24px', boxShadow: '0 4px 12px rgba(0,0,0,0.01)'}}>
-                  <div style={{width: '40px', height: '40px', background: 'rgba(217, 119, 87, 0.05)', color: '#D97757', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px'}}>
-                    <Cpu size={20} />
-                  </div>
-                  <h3 style={{fontSize: '1.2rem', fontWeight: 700, marginBottom: '8px'}}>High-Speed Processing</h3>
-                  <p style={{fontSize: '0.9rem', color: '#6B7280', margin: 0, lineHeight: 1.6}}>Replay binary parsing is offloaded to a dedicated edge engine, returning full telemetry results in seconds.</p>
-               </div>
-            </div>
-         </section>
+      <div style={{display: 'grid', gridTemplateColumns: 'minmax(240px, 280px) 1fr minmax(200px, 260px)', maxWidth: '1600px', margin: '0 auto'}}>
+        
+        {/* Navigation Sidebar */}
+        <aside style={{ position: 'sticky', top: '64px', height: 'calc(100vh - 64px)', padding: '32px 16px', borderRight: '1px solid #EEECE7', overflowY: 'auto' }}>
+           <div style={{fontSize: '11px', fontWeight: 800, color: '#9CA3AF', letterSpacing: '0.1em', marginBottom: '16px', paddingLeft: '16px'}}>
+              {activeCategory.toUpperCase().replace('-', ' ')}
+           </div>
+           <div style={{display: 'flex', flexDirection: 'column', gap: '2px'}}>
+              {tocItems.map(item => (
+                <button key={item.id} onClick={() => scrollToSection(item.id)}
+                  style={{
+                    padding: '10px 16px', borderRadius: '10px', border: 'none', textAlign: 'left', fontSize: '0.9rem', cursor: 'pointer',
+                    background: activeSection === item.id ? 'rgba(0,0,0,0.05)' : 'transparent',
+                    color: activeSection === item.id ? '#000' : '#6B6A68', fontWeight: activeSection === item.id ? 700 : 500,
+                    width: '100%', outline: 'none'
+                  }}
+                >
+                  {item.title}
+                </button>
+              ))}
+           </div>
+        </aside>
 
-         <section id="auth" style={{paddingTop: '100px', marginBottom: '100px', borderTop: '1px solid #F3F4F6', scrollMarginTop: '48px'}}>
-            <h2 style={{fontSize: '2.5rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '24px', color: '#111827', display: 'flex', alignItems: 'center', gap: '16px'}}>
-               <Lock size={32} /> Authentication
-            </h2>
-            <p style={{fontSize: '1rem', color: '#4B5563', lineHeight: 1.7, marginBottom: '40px'}}>
-               All requests must include your API key in the <code>Authorization</code> header using the <code>Bearer</code> scheme. You can generate keys in your Account Settings.
-            </p>
-            
-            <div style={{background: '#111827', color: '#fff', padding: '32px', borderRadius: '24px', position: 'relative', marginBottom: '64px', border: '1px solid #1F2937'}}>
-               <div style={{fontSize: '0.7rem', fontWeight: 900, color: '#9CA3AF', marginBottom: '12px', letterSpacing: '0.1em'}}>CURL EXAMPLE</div>
-               <div style={{fontFamily: 'JetBrains Mono', fontSize: '0.95rem', lineHeight: 1.6}}>
-                  curl -X GET https://api.pathgen.dev/v1/health \<br/>
-                  &nbsp;&nbsp;-H &quot;Authorization: Bearer rs_your_key_here&quot;
-               </div>
-               <div style={{position: 'absolute', top: '32px', right: '32px'}}>
-                  <CopyButton text={`curl -X GET https://api.pathgen.dev/v1/health -H "Authorization: Bearer rs_your_key_here"`} color="#9CA3AF" />
-               </div>
-            </div>
+        {/* Content Area */}
+        <main style={{padding: '48px 64px 120px'}}>
+           
+           <div className="fade-in">
+              {searchQuery ? (
+                <div style={{marginBottom: '64px'}}>
+                   <h2 style={{fontSize: '2rem', fontWeight: 800, marginBottom: '32px'}}>Search Results for &quot;{searchQuery}&quot;</h2>
+                   <div style={{display: 'flex', flexDirection: 'column', gap: '24px'}}>
+                      {(() => {
+                        const lowQuery = searchQuery.toLowerCase();
+                        const results: any[] = [];
+                        
+                        // Search Static Sections
+                        const staticSections = [
+                          { title: 'Introduction', desc: 'Overview of Pathgen API and core features.', cat: 'getting-started', id: 'intro' },
+                          { title: 'Getting Started', desc: 'Base URL, Authentication, and Credits.', cat: 'getting-started', id: 'getting-started-core' },
+                          { title: 'Error Codes', desc: 'Directory of platform errors and handling.', cat: 'getting-started', id: 'error-codes' },
+                          { title: 'Rate Limits', desc: 'Request thresholds and tier limits.', cat: 'getting-started', id: 'rate-limits' },
+                          { title: 'Map and Tiles', desc: 'Coordinate systems and Leaflet integration.', cat: 'advanced', id: 'map-tiles' },
+                          { title: 'SDKs & Libraries', desc: 'Code examples for JavaScript and Python.', cat: 'advanced', id: 'sdks' }
+                        ];
+                        staticSections.forEach(s => {
+                          if (s.title.toLowerCase().includes(lowQuery) || s.desc.toLowerCase().includes(lowQuery)) {
+                            results.push({ type: 'Guide', title: s.title, desc: s.desc, cat: s.cat, id: s.id });
+                          }
+                        });
 
-            <div style={{borderRadius: '24px', border: '1px solid #F3F4F6', overflow: 'hidden', background: '#fff'}}>
-               <table style={{width: '100%', borderCollapse: 'collapse'}}>
-                  <thead>
-                     <tr style={{background: '#F9FAFB', borderBottom: '1px solid #F3F4F6', textAlign: 'left'}}>
-                        <th style={{padding: '20px 24px', fontSize: '0.85rem', fontWeight: 700}}>Feature Package</th>
-                        <th style={{padding: '20px 24px', fontSize: '0.85rem', fontWeight: 700}}>Free Tier</th>
-                        <th style={{padding: '20px 24px', fontSize: '0.85rem', fontWeight: 700}}>Pro Tier</th>
-                     </tr>
-                  </thead>
-                  <tbody>
-                     {[
-                        { f: 'Replay Data & Discovery', free: 'Included', pro: 'Included' },
-                        { f: 'Refill Credit Pricing', free: 'Standard Rate', pro: '25% Discount' },
-                        { f: 'Gemini AI Intelligence', free: 'N/A', pro: 'Full Access' },
-                        { f: 'Rate Limit (Burst)', free: '60 req/min', pro: '2,000 req/min' },
-                        { f: 'Webhooks & Automation', free: 'N/A', pro: 'Unlimited' }
-                     ].map((row, i) => (
-                        <tr key={i} style={{borderBottom: '1px solid #F9FAFB'}}>
-                           <td style={{padding: '18px 24px', fontSize: '0.9rem', fontWeight: 600, color: '#374151'}}>{row.f}</td>
-                           <td style={{padding: '18px 24px', fontSize: '0.9rem', color: '#6B7280'}}>{row.free}</td>
-                           <td style={{padding: '18px 24px', fontSize: '0.9rem', fontWeight: 700, color: '#D97757'}}>{row.pro}</td>
-                        </tr>
-                     ))}
-                  </tbody>
-               </table>
-            </div>
-         </section>
+                        // Search Endpoints
+                        ENDPOINTS_DATA.forEach(s => {
+                          if (s.title.toLowerCase().includes(lowQuery)) {
+                             results.push({ type: 'Category', title: s.title, desc: `API endpoints for ${s.title}.`, cat: 'endpoints', id: `section-${ENDPOINTS_DATA.indexOf(s)+1}` });
+                          }
+                          s.endpoints.forEach(ep => {
+                            if (ep.path.toLowerCase().includes(lowQuery) || ep.description.toLowerCase().includes(lowQuery)) {
+                              results.push({ type: 'Endpoint', title: ep.path, desc: ep.description, cat: 'endpoints', id: `section-${ENDPOINTS_DATA.indexOf(s)+1}` });
+                            }
+                          });
+                        });
 
-         {/* DYNAMIC SECTIONS FOR ALL 50+ ENDPOINTS */}
-         {ENDPOINTS_DATA.map((section, sIdx) => (
-            <section key={sIdx} id={`section-${sIdx}`} style={{paddingTop: '100px', marginBottom: '100px', borderTop: '1px solid #F3F4F6', scrollMarginTop: '48px'}}>
-               <div style={{marginBottom: '40px'}}>
-                  <h2 style={{fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '8px', color: '#111827'}}>{section.title}</h2>
-                  <p style={{fontSize: '1rem', color: '#6B7280'}}>Functional endpoints for {section.title.split('. ')[1].toLowerCase()}.</p>
-               </div>
+                        // Search FAQ
+                        FAQ_DATA.forEach(cat => {
+                          cat.items.forEach(item => {
+                            if (item.q.toLowerCase().includes(lowQuery) || item.a.toLowerCase().includes(lowQuery)) {
+                              results.push({ type: 'FAQ', title: item.q, desc: item.a, cat: 'faq', id: 'faq-section' });
+                            }
+                          });
+                        });
 
-               <div style={{display: 'flex', flexDirection: 'column', gap: '32px'}}>
-                  {section.endpoints.map((ep, eIdx) => (
-                     <div key={eIdx} style={{background: '#fff', border: '1.5px solid #F3F4F6', borderRadius: '24px', overflow: 'hidden'}}>
-                        {/* Summary Header */}
-                        <div style={{padding: '24px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', borderBottom: '1px solid #F3F4F6'}}>
-                           <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
-                              <span style={{
-                                 fontFamily: 'JetBrains Mono', fontWeight: 800, fontSize: '0.75rem', padding: '6px 10px', borderRadius: '8px',
-                                 background: ep.method === 'GET' ? 'rgba(16, 185, 129, 0.05)' : ep.method === 'POST' ? 'rgba(37, 99, 235, 0.05)' : 'rgba(220, 38, 38, 0.05)',
-                                 color: ep.method === 'GET' ? '#10B981' : ep.method === 'POST' ? '#2563EB' : '#DC2626'
-                              }}>{ep.method}</span>
-                              <code style={{fontSize: '1rem', fontWeight: 700, color: '#111827', background: 'transparent', padding: 0}}>{ep.path}</code>
-                           </div>
-                           <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
-                              {ep.tier === 'pro' && (
-                                <span style={{fontSize: '0.65rem', fontWeight: 900, background: 'rgba(217, 119, 87, 0.05)', color: '#D97757', padding: '4px 10px', borderRadius: '6px', border: '1px solid rgba(217, 119, 87, 0.1)'}}>PRO</span>
-                              )}
-                              {ep.credits && (
-                                <span style={{fontSize: '0.75rem', fontWeight: 700, color: '#9CA3AF', fontFamily: 'JetBrains Mono'}}>{ep.credits} Credits</span>
-                              )}
-                           </div>
-                        </div>
+                        // Search Schema
+                        SCHEMA_REFERENCE.forEach(s => {
+                          s.items.forEach(item => {
+                            if (item.field.toLowerCase().includes(lowQuery) || item.desc.toLowerCase().includes(lowQuery)) {
+                              results.push({ type: 'Schema', title: item.field, desc: item.desc, cat: 'schema', id: `schema-${s.section}` });
+                            }
+                          });
+                        });
 
-                        {/* Details Body */}
-                        <div style={{padding: '32px', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '48px'}}>
-                           <div>
-                              <div style={{fontSize: '0.65rem', fontWeight: 900, color: '#9CA3AF', marginBottom: '12px', letterSpacing: '0.1em'}}>DESCRIPTION</div>
-                              <p style={{fontSize: '0.95rem', color: '#4B5563', lineHeight: 1.6, marginBottom: '24px'}}>{ep.description}</p>
-                              
-                              {ep.parameters && ep.parameters.length > 0 && (
-                                <>
-                                  <div style={{fontSize: '0.65rem', fontWeight: 900, color: '#9CA3AF', marginBottom: '16px', letterSpacing: '0.1em'}}>PARAMETERS</div>
-                                  <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
-                                     {ep.parameters.map((p, pIdx) => (
-                                        <div key={pIdx} style={{display: 'flex', alignItems: 'flex-start', gap: '12px', paddingBottom: '12px', borderBottom: '1px solid #F9FAFB'}}>
-                                           <div style={{display: 'flex', flexDirection: 'column', gap: '2px', minWidth: '100px'}}>
-                                              <code style={{fontSize: '0.8rem', fontWeight: 700, color: '#111827', background: 'transparent', padding: 0}}>{p.name}</code>
-                                              <span style={{fontSize: '0.65rem', fontWeight: 600, color: p.required ? '#EF4444' : '#9CA3AF'}}>{p.required ? 'REQUIRED' : 'OPTIONAL'}</span>
-                                           </div>
-                                           <p style={{fontSize: '0.85rem', color: '#6B7280', margin: 0, lineHeight: 1.5}}>{p.description}</p>
-                                        </div>
-                                     ))}
+                        if (results.length === 0) return <div style={{color: '#9CA3AF', fontSize: '1.1rem'}}>No results found.</div>;
+
+                        return results.map((r, i) => (
+                          <button key={i} onClick={() => { setActiveCategory(r.cat); setSearchQuery(''); setTimeout(() => scrollToSection(r.id), 100); }}
+                            style={{
+                              padding: '24px', background: '#fff', border: '1px solid #EEECE7', borderRadius: '20px', textAlign: 'left', cursor: 'pointer',
+                              display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', outline: 'none'
+                            }}
+                            className="pop-out-hover"
+                          >
+                             <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+                                <span style={{fontSize: '10px', fontWeight: 900, background: 'rgba(217,119,87,0.1)', color: '#D97757', padding: '2px 8px', borderRadius: '4px'}}>{r.type.toUpperCase()}</span>
+                                <div style={{fontWeight: 800, fontSize: '1rem'}}>{r.title}</div>
+                             </div>
+                             <p style={{fontSize: '0.9rem', color: '#6B6A68', margin: 0, lineClamp: 2}}>{r.desc}</p>
+                          </button>
+                        ));
+                      })()}
+                   </div>
+                </div>
+              ) : (
+                <>
+              {/* Common Page Header */}
+              <div style={{marginBottom: '64px'}}>
+                 <div style={{display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: 800, color: '#9CA3AF', marginBottom: '16px'}}>
+                    PATHGEN <ChevronRight size={12} /> {activeCategory.toUpperCase()}
+                 </div>
+                 <h1 style={{fontSize: '3.5rem', fontWeight: 900, letterSpacing: '-0.06em', marginBottom: '20px', lineHeight: 1.1}}>
+                    {activeCategory === 'endpoints' ? 'API Reference' : 'Pathgen API Documentation'}
+                 </h1>
+                 <p style={{fontSize: '1.25rem', color: '#6B6A68', lineHeight: 1.6, maxWidth: '800px'}}>
+                    Everything you need to build on top of Fortnite&apos;s data layer. High-fidelity telemetry, player intelligence, and AI-powered strategy.
+                 </p>
+              </div>
+
+              {activeCategory === 'getting-started' && (
+                <>
+                  <section id="intro" style={{marginBottom: '100px'}}>
+                    <h2 style={{fontSize: '2rem', fontWeight: 800, marginBottom: '24px'}}>Introduction</h2>
+                    <p style={{fontSize: '1.1rem', color: '#6B6A68', lineHeight: 1.7, marginBottom: '32px'}}>
+                       Pathgen is a Fortnite data API that gives developers access to replay parsing, player stats, AI coaching, tournament analytics, and game metadata through a single API key and credit system. Some endpoints are free with no key required, while professional-grade endpoints utilize credits. 
+                       <Link href="/quickstart" style={{color: '#D97757', fontWeight: 600, marginLeft: '8px'}}>Jump to Quickstart &rarr;</Link>
+                    </p>
+                  </section>
+
+                  <section id="getting-started-core" style={{marginBottom: '100px'}}>
+                    <h2 style={{fontSize: '2rem', fontWeight: 800, marginBottom: '24px'}}>Getting Started</h2>
+                    <div style={{display: 'flex', flexDirection: 'column', gap: '48px'}}>
+                       <div>
+                          <h4 style={{fontWeight: 800, marginBottom: '12px'}}>Base URL</h4>
+                          <code style={{padding: '12px 20px', display: 'block', background: '#fff', border: '1px solid #EEECE7', borderRadius: '12px', fontSize: '1rem', fontWeight: 700}}>api.pathgen.dev/v1</code>
+                       </div>
+                       <div>
+                          <h4 style={{fontWeight: 800, marginBottom: '12px'}}>Authentication</h4>
+                          <p style={{color: '#6B6A68', marginBottom: '16px'}}>Paid endpoints require an API key passed as a Bearer token in the <code>Authorization</code> header. Free public data endpoints require no key.</p>
+                          <div style={{background: '#111827', color: '#fff', padding: '24px', borderRadius: '16px', fontFamily: 'JetBrains Mono', fontSize: '0.9rem'}}>
+                             Authorization: Bearer rs_your_key_here
+                          </div>
+                          <p style={{fontSize: '0.85rem', marginTop: '12px', color: '#9CA3AF'}}>Get your key at <Link href="/keys" style={{color: '#D97757'}}>platform.pathgen.dev/keys</Link></p>
+                       </div>
+                       <div>
+                          <h4 style={{fontWeight: 800, marginBottom: '12px'}}>Credits</h4>
+                          <p style={{color: '#6B6A68', marginBottom: '24px'}}>Credits are purchased in packs. Charges only occur on successful (200 OK) responses. Failed parses or server errors are never billed.</p>
+                          <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px'}}>
+                             {CREDIT_PACKS.map(p => (
+                               <div key={p.name} style={{padding: '24px', background: '#fff', border: '1px solid #EEECE7', borderRadius: '16px'}}>
+                                  <div style={{fontSize: '0.8rem', fontWeight: 800, color: '#9CA3AF', marginBottom: '8px'}}>{p.name.toUpperCase()}</div>
+                                  <div style={{fontSize: '1.5rem', fontWeight: 900}}>{p.price}</div>
+                                  <div style={{fontSize: '0.9rem', color: '#6B6A68', marginTop: '4px'}}>{p.credits} Credits</div>
+                                </div>
+                             ))}
+                          </div>
+                       </div>
+                       <div>
+                          <h4 style={{fontWeight: 800, marginBottom: '12px'}}>Request Format</h4>
+                          <p style={{color: '#6B6A68', marginBottom: '16px'}}>Replay endpoints use <code>multipart/form-data</code> with the file in a field called <code>replay</code>. All other endpoints use JSON or Query Params.</p>
+                       </div>
+                       <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px'}}>
+                          <div>
+                            <h5 style={{fontSize: '0.75rem', fontWeight: 900, color: '#9CA3AF', marginBottom: '12px'}}>SUCCESS RESPONSE</h5>
+                            <div style={{background: '#111827', padding: '20px', borderRadius: '12px', fontSize: '0.85rem', color: '#fff', fontFamily: 'JetBrains Mono'}}>
+                               {`{
+  "credits_used": 20,
+  "credits_remaining": 1430,
+  "data": { ... }
+}`}
+                            </div>
+                          </div>
+                          <div>
+                            <h5 style={{fontSize: '0.75rem', fontWeight: 900, color: '#9CA3AF', marginBottom: '12px'}}>ERROR RESPONSE</h5>
+                            <div style={{background: '#111827', padding: '20px', borderRadius: '12px', fontSize: '0.85rem', color: '#fff', fontFamily: 'JetBrains Mono'}}>
+                               {`{
+  "error": true,
+  "code": "INVALID_KEY",
+  "message": "The provided key is invalid."
+}`}
+                            </div>
+                          </div>
+                       </div>
+                    </div>
+                  </section>
+
+                  <section id="error-codes" style={{marginBottom: '100px'}}>
+                    <h2 style={{fontSize: '2rem', fontWeight: 800, marginBottom: '24px'}}>Error Codes</h2>
+                    <div style={{background: '#fff', border: '1px solid #EEECE7', borderRadius: '24px', overflow: 'hidden'}}>
+                       <table style={{width: '100%', borderCollapse: 'collapse', textAlign: 'left'}}>
+                          <thead style={{background: '#F9FAFB', borderBottom: '1px solid #EEECE7'}}>
+                             <tr>
+                                <th style={{padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800}}>Code</th>
+                                <th style={{padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800}}>Status</th>
+                                <th style={{padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800}}>Cause & Handling</th>
+                             </tr>
+                          </thead>
+                          <tbody>
+                             {ERROR_CODES.map(err => (
+                               <tr key={err.code} style={{borderBottom: '1px solid #F9FAFB'}}>
+                                  <td style={{padding: '16px 24px', fontWeight: 700}}><code style={{background: '#FEF2F2', color: '#991B1B', border: 'none'}}>{err.code}</code></td>
+                                  <td style={{padding: '16px 24px', color: '#6B6A68'}}>{err.status}</td>
+                                  <td style={{padding: '16px 24px'}}>
+                                     <div style={{fontSize: '0.9rem', fontWeight: 600}}>{err.cause}</div>
+                                     <div style={{fontSize: '0.8rem', color: '#9CA3AF'}}>{err.handle}</div>
+                                  </td>
+                               </tr>
+                             ))}
+                          </tbody>
+                       </table>
+                    </div>
+                  </section>
+
+                  <section id="rate-limits" style={{marginBottom: '100px'}}>
+                    <h2 style={{fontSize: '2rem', fontWeight: 800, marginBottom: '24px'}}>Rate Limits</h2>
+                    <div style={{background: '#fff', border: '1px solid #EEECE7', borderRadius: '24px', overflow: 'hidden'}}>
+                       <table style={{width: '100%', borderCollapse: 'collapse', textAlign: 'left'}}>
+                          <thead style={{background: '#F9FAFB', borderBottom: '1px solid #EEECE7'}}>
+                             <tr>
+                                <th style={{padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800}}>Tier / Endpoint</th>
+                                <th style={{padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800}}>Limit</th>
+                                <th style={{padding: '16px 24px', fontSize: '0.8rem', fontWeight: 800}}>Scope</th>
+                             </tr>
+                          </thead>
+                          <tbody>
+                             {RATE_LIMITS.map(rl => (
+                               <tr key={rl.tier} style={{borderBottom: '1px solid #F9FAFB'}}>
+                                  <td style={{padding: '16px 24px', fontWeight: 700}}>{rl.tier}</td>
+                                  <td style={{padding: '16px 24px', fontWeight: 700, color: '#D97757'}}>{rl.limit}</td>
+                                  <td style={{padding: '16px 24px', color: '#6B6A68'}}>{rl.scope}</td>
+                               </tr>
+                             ))}
+                          </tbody>
+                       </table>
+                    </div>
+                  </section>
+                </>
+              )}
+
+              {activeCategory === 'endpoints' && ENDPOINTS_DATA.map((s, sIdx) => (
+                <section key={s.title} id={`section-${sIdx+1}`} style={{marginBottom: '100px', scrollMarginTop: '100px'}}>
+                   <div style={{marginBottom: '32px', borderBottom: '1px solid #EEECE7', paddingBottom: '24px'}}>
+                      <h2 style={{fontSize: '2.5rem', fontWeight: 800, letterSpacing: '-0.04em'}}>{s.title}</h2>
+                      <p style={{fontSize: '1.1rem', color: '#6B6A68', marginTop: '8px'}}>{s.description}</p>
+                   </div>
+                   <div style={{display: 'flex', flexDirection: 'column', gap: '32px'}}>
+                      {s.endpoints.map(ep => (
+                <section key={`${ep.method}-${ep.path}`} id={`${ep.method}-${ep.path}`} style={{background: '#fff', border: '1px solid #EEECE7', borderRadius: '24px', overflow: 'hidden', scrollMarginTop: '100px'}}>
+                            <div style={{padding: '20px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #F9FAFB'}}>
+                               <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
+                                  <span style={{fontSize: '10px', fontWeight: 900, padding: '4px 8px', borderRadius: '6px', background: ep.method === 'GET' ? '#ecfdf5' : '#eff6ff', color: ep.method === 'GET' ? '#059669' : '#2563eb'}}>{ep.method}</span>
+                                  <code style={{fontSize: '1rem', fontWeight: 800, color: '#000', background: 'transparent'}}>{ep.path}</code>
+                               </div>
+                               <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+                                  {ep.credits && <span style={{fontSize: '13px', fontWeight: 700, color: '#D97757', border: '1px solid rgba(217,119,87,0.2)', padding: '4px 10px', borderRadius: '8px', background: 'rgba(217,119,87,0.05)'}}>{ep.credits} Credits</span>}
+                               </div>
+                            </div>
+                            <div style={{padding: '32px', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '48px'}}>
+                               <div>
+                                  <h6 style={{fontSize: '11px', fontWeight: 900, color: '#9CA3AF', marginBottom: '12px', letterSpacing: '0.05em'}}>DESCRIPTION</h6>
+                                  <p style={{fontSize: '1rem', color: '#4B5563', lineHeight: 1.6}}>{ep.description}</p>
+                                  {ep.parameters && (
+                                     <div style={{marginTop: '24px'}}>
+                                        <h6 style={{fontSize: '11px', fontWeight: 900, color: '#9CA3AF', marginBottom: '12px', letterSpacing: '0.05em'}}>PARAMETERS</h6>
+                                        {ep.parameters.map(p => (
+                                          <div key={p.name} style={{display: 'flex', gap: '12px', marginBottom: '12px', paddingBottom: '12px', borderBottom: '1px solid #F9FAFB'}}>
+                                             <div style={{minWidth: '100px'}}><code style={{fontSize: '13px', fontWeight: 800}}>{p.name}</code></div>
+                                             <div style={{fontSize: '13px', color: '#6B6A68'}}>{p.description}</div>
+                                          </div>
+                                        ))}
+                                     </div>
+                                  )}
+                               </div>
+                               <div>
+                                  <h6 style={{fontSize: '11px', fontWeight: 900, color: '#9CA3AF', marginBottom: '12px', letterSpacing: '0.05em'}}>RESPONSE PREVIEW</h6>
+                                  <div style={{background: '#111827', padding: '24px', borderRadius: '16px', position: 'relative'}}>
+                                     <pre style={{margin: 0, padding: 0, fontSize: '13px', color: '#fff', fontFamily: 'JetBrains Mono', lineHeight: 1.5}}>
+                                        {(() => { try { return JSON.stringify(JSON.parse(ep.response || '{}'), null, 2); } catch { return ep.response; }})()}
+                                     </pre>
                                   </div>
-                                </>
-                              )}
-                           </div>
+                               </div>
+                            </div>
+                         </section>
+                      ))}
+                   </div>
+                </section>
+              ))}
 
-                           <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
-                              <div style={{fontSize: '0.65rem', fontWeight: 900, color: '#9CA3AF', letterSpacing: '0.1em'}}>RESPONSE JSON</div>
-                              <div style={{background: '#F9FAFB', border: '1px solid #F3F4F6', borderRadius: '16px', padding: '24px', position: 'relative'}}>
-                                 <pre style={{margin: 0, background: 'transparent', color: '#374151', fontSize: '0.85rem', padding: 0, whiteSpace: 'pre-wrap', fontFamily: 'JetBrains Mono'}}>
-                                    {(() => {
-                                      try {
-                                        const parsed = JSON.parse(ep.response || '{}');
-                                        return JSON.stringify(parsed, null, 2);
-                                      } catch (e) {
-                                        return ep.response || '{}';
-                                      }
-                                    })()}
-                                 </pre>
-                                 <div style={{position: 'absolute', top: '16px', right: '16px'}}>
-                                    <CopyButton text={ep.response || ''} color="#9CA3AF" />
-                                 </div>
-                              </div>
-                           </div>
+              {activeCategory === 'schema' && (
+                <div style={{display: 'flex', flexDirection: 'column', gap: '80px'}}>
+                   {SCHEMA_REFERENCE.map(s => (
+                     <section key={s.section} id={`schema-${s.section}`} style={{scrollMarginTop: '100px'}}>
+                        <h2 style={{fontSize: '2rem', fontWeight: 800, marginBottom: '24px', borderBottom: '1px solid #EEECE7', paddingBottom: '16px'}}>{s.section.replace('_', ' ').toUpperCase()}</h2>
+                        <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
+                           {s.items.map(item => (
+                             <div key={item.field} style={{display: 'grid', gridTemplateColumns: 'minmax(200px, 250px) 1fr', gap: '32px', padding: '20px', background: '#fff', border: '1px solid #EEECE7', borderRadius: '16px'}}>
+                                <div>
+                                   <code style={{fontSize: '14px', fontWeight: 800, color: '#D97757'}}>{item.field}</code>
+                                   <div style={{fontSize: '11px', fontWeight: 700, color: '#9CA3AF', marginTop: '4px'}}>{item.type.toUpperCase()}</div>
+                                </div>
+                                <div style={{fontSize: '14px', color: '#6B6A68', lineHeight: 1.5}}>
+                                   {item.desc}
+                                   <div style={{marginTop: '8px', fontSize: '12px', fontFamily: 'JetBrains Mono'}}>Example: <span style={{color: '#000'}}>{item.example}</span></div>
+                                </div>
+                             </div>
+                           ))}
                         </div>
-                     </div>
-                  ))}
-               </div>
-            </section>
-         ))}
+                     </section>
+                   ))}
+                </div>
+              )}
 
-         {/* GOVERNANCE */}
-         <section id="governance" style={{paddingTop: '100px', marginBottom: '120px', borderTop: '1px solid #F3F4F6', scrollMarginTop: '48px'}}>
-            <h2 style={{fontSize: '2.5rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '24px', color: '#111827', display: 'flex', alignItems: 'center', gap: '16px'}}>
-               <AlertTriangle size={32} /> Error Handling
-            </h2>
-            <p style={{fontSize: '1rem', color: '#4B5563', lineHeight: 1.7, marginBottom: '32px'}}>
-               PathGen uses standard HTTP status codes. All errors return a JSON object containing an <code>error</code> type and a descriptive <code>message</code>.
-            </p>
-            
-            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px'}}>
-               {[
-                  { code: '401 Unauthorized', msg: 'Missing or invalid API key.' },
-                  { code: '402 Payment Required', msg: 'Zero credit balance.' },
-                  { code: '403 Forbidden', msg: 'Tier mismatch or Direct IP access detected.' },
-                  { code: '429 Rate Limit', msg: 'Burst threshold exceeded.' }
-               ].map((err, i) => (
-                  <div key={i} style={{padding: '24px', background: '#FEF2F2', border: '1px solid #FEE2E2', borderRadius: '20px'}}>
-                     <div style={{fontSize: '1.1rem', fontWeight: 700, color: '#991B1B', marginBottom: '4px'}}>{err.code}</div>
-                     <p style={{fontSize: '0.9rem', color: '#B91C1C', margin: 0}}>{err.msg}</p>
-                  </div>
-               ))}
-            </div>
-         </section>
+              {activeCategory === 'faq' && (
+                <>
+                  <section id="faq-section" style={{marginBottom: '100px', scrollMarginTop: '100px'}}>
+                    <h2 style={{fontSize: '2.5rem', fontWeight: 800, marginBottom: '40px'}}>Frequently Asked Questions</h2>
+                    <div style={{display: 'flex', flexDirection: 'column', gap: '48px'}}>
+                       {FAQ_DATA.map(cat => (
+                         <div key={cat.category}>
+                            <h3 style={{fontSize: '1.25rem', fontWeight: 800, color: '#D97757', marginBottom: '24px', letterSpacing: '0.02em'}}>{cat.category.toUpperCase()}</h3>
+                            <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
+                               {cat.items.map(f => (
+                                 <div key={f.q} style={{padding: '32px', background: '#fff', border: '1px solid #EEECE7', borderRadius: '24px'}}>
+                                    <h4 style={{fontSize: '1.1rem', fontWeight: 800, marginBottom: '12px'}}>{f.q}</h4>
+                                    <p style={{fontSize: '1rem', color: '#6B6A68', lineHeight: 1.6}}>{f.a}</p>
+                                 </div>
+                               ))}
+                            </div>
+                         </div>
+                       ))}
+                    </div>
+                  </section>
+                  <section id="changelog" style={{marginBottom: '100px', scrollMarginTop: '100px'}}>
+                    <h2 style={{fontSize: '2.5rem', fontWeight: 800, marginBottom: '32px'}}>Changelog</h2>
+                    <div style={{background: '#fff', border: '1px solid #EEECE7', borderRadius: '24px', padding: '40px'}}>
+                       <div style={{display: 'flex', gap: '24px', borderLeft: '2px solid #D97757', paddingLeft: '32px'}}>
+                          <div>
+                             <div style={{fontSize: '1.25rem', fontWeight: 900}}>v1.0.0</div>
+                             <div style={{fontSize: '0.85rem', color: '#9CA3AF', marginBottom: '16px'}}>Released March 2024</div>
+                             <ul style={{fontSize: '0.95rem', color: '#6B6A68', lineHeight: 1.8}}>
+                                <li>Initial production rollout of the Pathgen Platform.</li>
+                                <li>50+ endpoints across fused metadata, replay parsing, and AI intelligence.</li>
+                                <li>Full Gemini 2.0 Flash integration for tactical coaching.</li>
+                                <li>Support for high-fidelity replay ingestion up to 50MB.</li>
+                             </ul>
+                          </div>
+                       </div>
+                    </div>
+                  </section>
+                </>
+              )}
+
+              {activeCategory === 'advanced' && (
+                <div style={{display: 'flex', flexDirection: 'column', gap: '100px'}}>
+                  <section id="map-tiles" style={{scrollMarginTop: '100px'}}>
+                    <h2 style={{fontSize: '2.5rem', fontWeight: 800, marginBottom: '24px'}}>Map and Tiles</h2>
+                    <p style={{fontSize: '1.1rem', color: '#6B6A68', lineHeight: 1.7, marginBottom: '40px'}}>
+                       Pathgen provides current-season map tiles for high-fidelity visualization using Leaflet.js. Use the following coordinate system to map replay data (X, Y) to pixel space.
+                    </p>
+                    <div style={{background: '#fff', border: '1px solid #EEECE7', borderRadius: '24px', padding: '40px', marginBottom: '40px'}}>
+                       <h4 style={{fontWeight: 800, marginBottom: '16px'}}>Leaflet Implementation</h4>
+                       <pre style={{background: '#111827', color: '#fff', padding: '24px', borderRadius: '16px', fontSize: '0.85rem', lineHeight: 1.6, overflowX: 'auto'}}>
+                          {`<!-- Include Leaflet CSS/JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<div id="map" style="height: 600px; background: #000;"></div>
+
+<script>
+  const map = L.map('map', {
+    crs: L.CRS.Simple, // Use Simple CRS for game coordinates
+    minZoom: -3
+  });
+
+  const bounds = [[0, 0], [2048, 2048]]; // 2K tile-space
+  const image = L.imageOverlay('https://tiles.pathgen.dev/current/map.jpg', bounds).addTo(map);
+  
+  // Coordinate conversion helper
+  function toLatLng(worldX, worldY) {
+    const scale = 2048 / 250000; // Map world-units to pixels
+    const px = (worldX + 125000) * scale;
+    const py = (worldY + 125000) * scale;
+    return [2048 - py, px]; // Invert Y for Leaflet
+  }
+
+  const pos = toLatLng(15420, -42500);
+  L.marker(pos).addTo(map).bindPopup("Match Location");
+  map.setView([1024, 1024], -1);
+</script>`}
+                       </pre>
+                    </div>
+                  </section>
+
+                  <section id="sdks" style={{scrollMarginTop: '100px'}}>
+                    <h2 style={{fontSize: '2.5rem', fontWeight: 800, marginBottom: '24px'}}>SDKs & Libraries</h2>
+                    <p style={{fontSize: '1.1rem', color: '#6B6A68', lineHeight: 1.7, marginBottom: '40px'}}>
+                       While official packages for Node.js and Python are in development, you can call the API using standard HTTP libraries.
+                    </p>
+                    <div style={{display: 'flex', flexDirection: 'column', gap: '32px'}}>
+                       {[
+                         { lang: 'JavaScript (Fetch)', code: `const response = await fetch('https://api.pathgen.dev/v1/replay/stats', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer YOUR_KEY' },\n  body: formData\n});` },
+                         { lang: 'Python (Requests)', code: `import requests\nresp = requests.post('https://api.pathgen.dev/v1/replay/stats', \n  headers={'Authorization': 'Bearer YOUR_KEY'}, \n  files={'replay': open('match.replay', 'rb')})` },
+                         { lang: 'cURL', code: `curl -X POST https://api.pathgen.dev/v1/replay/stats \\\n  -H "Authorization: Bearer YOUR_KEY" \\\n  -F "replay=@match.replay"` }
+                       ].map(sdk => (
+                         <div key={sdk.lang} style={{background: '#fff', border: '1px solid #EEECE7', borderRadius: '20px', padding: '24px'}}>
+                            <div style={{fontSize: '0.9rem', fontWeight: 800, marginBottom: '12px'}}>{sdk.lang}</div>
+                            <pre style={{background: '#F9FAFB', padding: '16px', borderRadius: '12px', fontSize: '0.85rem', fontFamily: 'JetBrains Mono', color: '#D97757'}}>
+                               {sdk.code}
+                            </pre>
+                         </div>
+                       ))}
+                    </div>
+                  </section>
+                </div>
+              )}
+                </>
+              )}
+           </div>
+        </main>
+
+        {/* TOC Sidebar */}
+        <aside style={{ position: 'sticky', top: '64px', height: 'calc(100vh - 64px)', padding: '32px 24px', borderLeft: '1px solid #EEECE7' }}>
+           <div style={{fontSize: '12px', fontWeight: 800, color: '#000', marginBottom: '20px'}}>On this page</div>
+           <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
+              {tocItems.map(item => (
+                <button key={item.id} onClick={() => scrollToSection(item.id)}
+                  style={{
+                    border: 'none', background: 'transparent', padding: 0, textAlign: 'left', fontSize: '0.8rem', cursor: 'pointer', outline: 'none',
+                    color: activeSection === item.id ? '#000' : '#9CA3AF', fontWeight: activeSection === item.id ? 700 : 500,
+                    display: 'flex', alignItems: 'center', gap: '8px'
+                  }}
+                >
+                  <div style={{width: '2px', height: '14px', background: activeSection === item.id ? '#D97757' : 'transparent'}} />
+                  {item.title}
+                </button>
+              ))}
+           </div>
+        </aside>
+
       </div>
     </div>
   );

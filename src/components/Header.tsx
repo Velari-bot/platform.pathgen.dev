@@ -243,96 +243,105 @@ export default function Header() {
          </div>
       </div>
 
-      {/* Feedback Modal */}
-      {isFeedbackOpen && (
-        <div style={{
-          position: 'fixed',
-          top: 0, 
-          left: '0', 
-          width: '100vw', 
-          height: '100vh',
-          background: 'rgba(255, 255, 255, 0.4)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 99999,
-          pointerEvents: 'all'
-        }}>
-          <div className="fade-in" style={{
-            width: '100%', maxWidth: '480px',
-            background: '#fff', borderRadius: '24px',
-            padding: '48px', position: 'relative',
-            boxShadow: '0 20px 80px rgba(0,0,0,0.1)',
-            border: '1px solid var(--border-color)'
+      {isFeedbackOpen && typeof document !== 'undefined' && (
+        require('react-dom').createPortal(
+          <div style={{
+            position: 'fixed',
+            top: 0, 
+            left: 0, 
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.2)', // Slightly darker for better contrast
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            zIndex: 100000,
+            pointerEvents: 'all',
+            padding: '24px' // Padding for small screens
           }}>
-            <button onClick={() => setIsFeedbackOpen(false)} style={{position: 'absolute', top: '24px', right: '24px', background: 'transparent', border: 'none', cursor: 'pointer'}}>
-               <X size={24} color="var(--text-secondary)" />
-            </button>
-            
-            {feedbackSent ? (
-               <div style={{textAlign: 'center', padding: '20px 0'}}>
-                 <div style={{width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(217, 119, 87, 0.1)', color: 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px'}}>
-                    <CheckCircle2 size={32} />
+            <div className="fade-in" style={{
+              width: '100%', maxWidth: '480px',
+              background: '#fff', borderRadius: '24px',
+              padding: '48px', position: 'relative',
+              boxShadow: '0 20px 80px rgba(0,0,0,0.1)',
+              border: '1px solid var(--border-color)',
+              margin: 'auto' // Secondary insurance for centering
+            }}>
+              <button 
+                onClick={() => setIsFeedbackOpen(false)} 
+                style={{position: 'absolute', top: '24px', right: '24px', background: 'transparent', border: 'none', cursor: 'pointer', padding: '8px'}}
+              >
+                 <X size={24} color="var(--text-secondary)" />
+              </button>
+              
+              {feedbackSent ? (
+                 <div style={{textAlign: 'center', padding: '20px 0'}}>
+                   <div style={{width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(217, 119, 87, 0.1)', color: 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px'}}>
+                      <CheckCircle2 size={32} />
+                   </div>
+                   <h2 style={{fontSize: '1.25rem', fontWeight: 600, marginBottom: '8px'}}>Feedback Sent</h2>
+                   <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>
+                      Thank you for helping us improve Pathgen.
+                   </p>
                  </div>
-                 <h2 style={{fontSize: '1.25rem', fontWeight: 600, marginBottom: '8px'}}>Feedback Sent</h2>
-                 <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>
-                    Thank you for helping us improve Pathgen.
-                 </p>
-               </div>
-            ) : (
-               <>
-                 <h2 style={{fontSize: '1.5rem', fontWeight: 600, marginBottom: '12px'}}>Send Feedback</h2>
-                 <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '32px'}}>
-                    Tell us what&apos;s on your mind. We read every single message.
-                 </p>
-                 
-                 <div style={{marginBottom: '24px'}}>
-                    <label style={{display: 'block', fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', letterSpacing: '0.05em'}}>MESSAGE</label>
-                    <textarea 
-                      value={feedbackText}
-                      onChange={(e) => setFeedbackText(e.target.value)}
-                      autoFocus
-                      placeholder="Found a bug? Have a feature request? Let us know..." 
-                      style={{
-                         width: '100%', 
-                         height: '140px', 
-                         padding: '16px', 
-                         borderRadius: '16px', 
-                         border: '1px solid var(--border-color)', 
-                         fontSize: '0.95rem', 
-                         outline: 'none',
-                         resize: 'none',
-                         fontFamily: 'inherit',
-                         lineHeight: 1.6,
-                         background: '#fff'
-                      }}
-                    />
-                  </div>
-
-                 <button 
-                   onClick={handleSendFeedback}
-                   disabled={!feedbackText.trim()}
-                   style={{
-                     width: '100%', 
-                     background: feedbackText.trim() ? 'var(--accent-primary)' : 'var(--bg-sidebar)', 
-                     color: feedbackText.trim() ? '#fff' : 'var(--text-secondary)', 
-                     padding: '14px', 
-                     borderRadius: '12px', 
-                     fontWeight: 600, 
-                     border: 'none', 
-                     cursor: feedbackText.trim() ? 'pointer' : 'not-allowed',
-                     display: 'flex',
-                     alignItems: 'center',
-                     justifyContent: 'center',
-                     gap: '10px',
-                     transition: 'all 0.2s'
-                   }}
-                 >
-                    <Send size={16} />
-                    Submit Feedback
-                 </button>
-               </>
-            )}
-          </div>
-        </div>
+              ) : (
+                 <>
+                   <h2 style={{fontSize: '1.5rem', fontWeight: 600, marginBottom: '12px'}}>Send Feedback</h2>
+                   <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '32px'}}>
+                      Tell us what&apos;s on your mind. We read every single message.
+                   </p>
+                   
+                   <div style={{marginBottom: '24px'}}>
+                      <label style={{display: 'block', fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', letterSpacing: '0.05em'}}>MESSAGE</label>
+                      <textarea 
+                        value={feedbackText}
+                        onChange={(e) => setFeedbackText(e.target.value)}
+                        autoFocus
+                        placeholder="Found a bug? Have a feature request? Let us know..." 
+                        style={{
+                           width: '100%', 
+                           height: '140px', 
+                           padding: '16px', 
+                           borderRadius: '16px', 
+                           border: '1px solid var(--border-color)', 
+                           fontSize: '0.95rem', 
+                           outline: 'none',
+                           resize: 'none',
+                           fontFamily: 'inherit',
+                           lineHeight: 1.6,
+                           background: '#fff'
+                        }}
+                      />
+                    </div>
+  
+                   <button 
+                     onClick={handleSendFeedback}
+                     disabled={!feedbackText.trim()}
+                     style={{
+                       width: '100%', 
+                       background: feedbackText.trim() ? 'var(--accent-primary)' : 'var(--bg-sidebar)', 
+                       color: feedbackText.trim() ? '#fff' : 'var(--text-secondary)', 
+                       padding: '14px', 
+                       borderRadius: '12px', 
+                       fontWeight: 600, 
+                       border: 'none', 
+                       cursor: feedbackText.trim() ? 'pointer' : 'not-allowed',
+                       display: 'flex',
+                       alignItems: 'center',
+                       justifyContent: 'center',
+                       gap: '10px',
+                       transition: 'all 0.2s'
+                     }}
+                   >
+                      <Send size={16} />
+                      Submit Feedback
+                   </button>
+                 </>
+              )}
+            </div>
+          </div>,
+          document.body
+        )
       )}
     </header>
   );

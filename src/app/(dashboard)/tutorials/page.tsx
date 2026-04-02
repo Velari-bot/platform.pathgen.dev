@@ -62,7 +62,7 @@ export default function Tutorials() {
         },
         {
           title: "Execute the Parse Request",
-          desc: "Send a POST request to our parsing engine. We recommend using cURL for testing or our official SDK for production.",
+          desc: "Send a POST request to our parsing engine. We recommend using cURL for testing or a standard HTTP library for your application.",
           code: `curl -X POST https://api.pathgen.dev/v1/replay/parse \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
@@ -125,8 +125,8 @@ export default function Tutorials() {
         },
         {
           title: "Convert to Map Pixels",
-          desc: "Use our coordinate transform utility to convert Fortnite world space units into map pixel coordinates.",
-          code: `const pixelPos = pathgen.utils.worldToMap(loc.x, loc.y);`,
+          desc: "Use a coordinate transform helper to convert Fortnite world space units into map pixel coordinates based on our Map Tiles documentation.",
+          code: `const pixelPos = toLatLng(loc.x, loc.y);`,
           language: "javascript"
         },
         {
@@ -254,27 +254,6 @@ export default function Tutorials() {
           ))}
         </div>
 
-        <div style={{
-          marginTop: '100px', padding: '64px', borderRadius: '40px', 
-          background: '#000', color: '#fff', position: 'relative', overflow: 'hidden'
-        }}>
-           <div style={{position: 'relative', zIndex: 2}}>
-              <h3 style={{fontSize: '2rem', fontWeight: 900, marginBottom: '16px'}}>Move faster with our SDK</h3>
-              <p style={{fontSize: '1.1rem', opacity: 0.7, maxWidth: '600px', lineHeight: 1.6, marginBottom: '32px'}}>
-                Skip the boilerplate and use our official libraries for Node.js, Python, and Go. Ready to go for production.
-              </p>
-              <div style={{display: 'flex', gap: '16px'}}>
-                 <button style={{padding: '16px 32px', borderRadius: '14px', background: '#D97757', color: '#fff', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer'}} className="pop-out-hover active-scale">
-                    Get NPM Package
-                 </button>
-                 <button style={{padding: '16px 32px', borderRadius: '14px', background: 'rgba(255,255,255,0.1)', color: '#fff', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer'}} className="pop-out-hover active-scale">
-                    View on GitHub
-                 </button>
-              </div>
-           </div>
-           {/* Abstract BG Decor */}
-           <div style={{position: 'absolute', bottom: '-50px', right: '-50px', width: '300px', height: '300px', background: 'rgba(217, 119, 87, 0.2)', filter: 'blur(80px)', borderRadius: '50%'}}></div>
-        </div>
       </div>
     );
   }

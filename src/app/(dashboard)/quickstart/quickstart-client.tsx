@@ -6,12 +6,7 @@ import CopyButton from '@/components/CopyButton';
 export default function QuickstartClient() {
 
   return (
-    <div className="fade-in" style={{paddingBottom: '160px', maxWidth: '1000px', margin: '12vh auto 0'}}>
-      
-      <Link href="/docs" style={{display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 700, marginBottom: '48px'}} className="active-scale">
-         <ArrowLeft size={16} />
-         Back to Documentation
-      </Link>
+    <div className="fade-in" style={{paddingBottom: '160px', maxWidth: '1000px', margin: '0 auto'}}>
 
       <div style={{marginBottom: '80px'}}>
          <div style={{width: '64px', height: '64px', borderRadius: '18px', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '32px', boxShadow: '0 8px 30px rgba(0,0,0,0.1)'}}>
@@ -82,22 +77,16 @@ export default function QuickstartClient() {
          <div style={{display: 'flex', gap: '48px'}}>
             <div style={{width: '40px', height: '40px', borderRadius: '12px', background: 'var(--bg-sidebar)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', fontWeight: 900, flexShrink: 0, border: '1px solid var(--border-color)'}}>3</div>
             <div style={{flex: 1}}>
-               <h3 style={{fontSize: '1.75rem', fontWeight: 900, marginBottom: '16px', letterSpacing: '-0.02em'}}>Integrate our SDKs</h3>
+               <h3 style={{fontSize: '1.75rem', fontWeight: 900, marginBottom: '16px', letterSpacing: '-0.02em'}}>Explore the API</h3>
                <p style={{fontSize: '1.1rem', color: 'var(--text-secondary)', marginBottom: '32px', lineHeight: 1.6}}>
-                  Raw HTTP is great for testing, but PathGen SDKs for Node.js and Python handle rate-limiting and cache-invalidation automatically.
+                  Now that you&apos;ve made your first call, dive into our interactive explorer to test every endpoint in the PathGen ecosystem.
                </p>
-               <div style={{display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px'}}>
-                  <div style={{padding: '24px', background: '#fff', border: '1px solid var(--border-color)', borderRadius: '20px'}} className="pop-out-hover border-button-hover active-scale">
-                     <Code size={20} color="#D97757" style={{marginBottom: '12px'}} />
-                     <div style={{fontWeight: 800, fontSize: '1rem', marginBottom: '4px'}}>pathgen-node</div>
-                     <div style={{fontSize: '0.8rem', color: 'var(--text-secondary)'}}>npm install @pathgen/sdk</div>
-                  </div>
-                  <div style={{padding: '24px', background: '#fff', border: '1px solid var(--border-color)', borderRadius: '20px'}} className="pop-out-hover border-button-hover active-scale">
-                     <Database size={20} color="#D97757" style={{marginBottom: '12px'}} />
-                     <div style={{fontWeight: 800, fontSize: '1rem', marginBottom: '4px'}}>pathgen-py</div>
-                     <div style={{fontSize: '0.8rem', color: 'var(--text-secondary)'}}>pip install pathgen-sdk</div>
-                  </div>
-               </div>
+               <Link href="/explorer" style={{textDecoration: 'none'}}>
+                  <button style={{padding: '14px 28px', background: '#000', color: '#fff', borderRadius: '14px', border: 'none', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px'}} className="pop-out-hover active-scale">
+                     <Terminal size={18} />
+                     Open API Explorer
+                  </button>
+               </Link>
             </div>
          </div>
 
@@ -135,7 +124,7 @@ export default function QuickstartClient() {
             </div>
             <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
                <span style={{fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-secondary)'}}>COMMUNITY</span>
-               <Link href="https://discord.gg/pathgen" style={{color: 'var(--text-primary)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600}}>Discord Server</Link>
+               <Link href="https://discord.gg/3zQEdVWHpg" target="_blank" style={{color: 'var(--text-primary)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600}}>Discord Server</Link>
                <Link href="https://github.com/pathgen" style={{color: 'var(--text-primary)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600}}>GitHub</Link>
             </div>
          </div>

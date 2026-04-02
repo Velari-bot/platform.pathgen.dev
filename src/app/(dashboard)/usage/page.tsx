@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react';
-import { ArrowUpRight, ArrowDownRight, Zap, BarChart3 } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Zap, BarChart3, Info } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { firestore } from '@/lib/firebase/config';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { useAuth } from '@/lib/firebase/auth-context';
@@ -38,7 +39,7 @@ export default function Usage() {
 
   const [stats, setStats] = useState<UsageStat[]>([]);
   const [endpoints, setEndpoints] = useState<EndpointMetric[]>([]);
-  const [chartData, setChartData] = useState<{h: number, date: string}[]>([]);
+  const [chartData, setChartData] = useState<{name: string, requests: number, cost: number, credits: number}[]>([]);
 
   useEffect(() => {
     if (!user?.email || !currentOrg) return;
@@ -56,7 +57,16 @@ export default function Usage() {
             { path: "/v1/game/map", calls: 320, avgTime: "4ms", cost: "$3.20", percentage: 25 },
             { path: "/v1/ai/analyze", calls: 80, avgTime: "140ms", cost: "$22.50", percentage: 10 }
          ]);
-         setChartData(Array.from({length: 12}).map((_, i) => ({ h: Math.random() * 80 + 20, date: `${i+1}:00` })));
+         
+         const is30 = timeRange === '30d';
+         const is24h = timeRange === '24h';
+         const mockLen = is24h ? 24 : (is30 ? 30 : 7);
+         setChartData(Array.from({length: mockLen}).map((_, i) => ({ 
+           name: is24h ? `${i}:00` : (is30 ? `Day ${i+1}` : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i % 7]),
+           requests: Math.floor(Math.random() * 500) + 100, 
+           cost: Math.random() * 5 + 1,
+           credits: Math.floor(Math.random() * 500) + 100
+         })));
          return;
       }
       try {
@@ -144,19 +154,46 @@ export default function Usage() {
         setEndpoints(endpointList);
 
         // Chart Data (Volume per day/hour)
-        const volumeMap: Record<string, number> = {};
+        const volumeMap: Record<string, { requests: number, cost: number, credits: number }> = {};
+        
+        // Initialize map with all dates in the range to avoid gaps
+        if (timeRange === '24h') {
+          for (let i = 23; i >= 0; i--) {
+            const d = new Date(now);
+            d.setHours(now.getHours() - i, 0, 0, 0);
+            const label = d.getHours() + ":00";
+            volumeMap[label] = { requests: 0, cost: 0, credits: 0 };
+          }
+        } else {
+          const days = timeRange === '7d' ? 7 : 30;
+          for (let i = days - 1; i >= 0; i--) {
+            const d = new Date(now);
+            d.setDate(now.getDate() - i);
+            const label = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+            volumeMap[label] = { requests: 0, cost: 0, credits: 0 };
+          }
+        }
+
         currentDocs.forEach(d => {
           const date = d.timestamp?.toDate();
+          if (!date) return;
           const label = timeRange === '24h' 
             ? date.getHours() + ":00" 
             : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-          volumeMap[label] = (volumeMap[label] || 0) + 1;
+          if (volumeMap[label]) {
+            volumeMap[label].requests++;
+            const costVal = (d.usdCost || (d.credits ? d.credits * 0.01 : 0));
+            volumeMap[label].cost += costVal;
+            volumeMap[label].credits += (d.credits || 0);
+          }
         });
 
-        const chartArr = Object.entries(volumeMap).map(([date, v]) => ({
-           h: (v / Math.max(...Object.values(volumeMap), 1)) * 100,
-           date
-        })).reverse();
+        const chartArr = Object.entries(volumeMap).map(([name, data]) => ({
+           name,
+           requests: data.requests,
+           cost: data.cost,
+           credits: data.credits
+        }));
         setChartData(chartArr);
 
       } catch (e) {
@@ -215,20 +252,72 @@ export default function Usage() {
                </div>
             </div>
             
-            <div style={{height: '300px', width: '100%', display: 'flex', alignItems: 'flex-end', gap: '12px', padding: '0 8px'}}>
-               {chartData.length === 0 && Array.from({length: 14}).map((_, i) => (
-                   <div key={i} style={{flex: 1, height: '10%', background: 'var(--bg-sidebar)', borderRadius: '6px 6px 0 0', opacity: 0.3}}></div>
-               ))}
-               {chartData.map((d, i) => (
-                 <div key={i} style={{
-                    flex: 1, height: `${Math.max(10, d.h)}%`, background: i === chartData.length-1 ? 'var(--accent-primary)' : 'var(--bg-sidebar)', 
-                    borderRadius: '6px 6px 0 0', transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
-                 }}></div>
-               ))}
+            <div style={{height: '350px', width: '100%', marginTop: '20px'}}>
+               <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
+                     <XAxis 
+                       dataKey="name" 
+                       axisLine={false} 
+                       tickLine={false} 
+                       tick={{fontSize: 11, fontWeight: 700, fill: 'var(--text-secondary)'}}
+                       dy={10} 
+                     />
+                     <YAxis 
+                       axisLine={false} 
+                       tickLine={false} 
+                       tick={{fontSize: 11, fontWeight: 700, fill: 'var(--text-secondary)'}} 
+                       dx={-10}
+                     />
+                     <Tooltip 
+                        content={({ active, payload, label }) => {
+                          if (active && payload && payload.length) {
+                            return (
+                              <div style={{
+                                background: '#fff', 
+                                padding: '16px', 
+                                border: '1px solid var(--border-color)', 
+                                borderRadius: '12px', 
+                                boxShadow: '0 10px 40px rgba(0,0,0,0.1)'
+                              }}>
+                                <p style={{margin: '0 0 8px 0', fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)'}}>{label}</p>
+                                <div style={{display: 'flex', flexDirection: 'column', gap: '4px'}}>
+                                  <div style={{display: 'flex', justifyContent: 'space-between', gap: '24px'}}>
+                                    <span style={{fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600}}>Requests:</span>
+                                    <span style={{fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 700}}>{payload[0].value}</span>
+                                  </div>
+                                  <div style={{display: 'flex', justifyContent: 'space-between', gap: '24px'}}>
+                                    <span style={{fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600}}>Spent:</span>
+                                    <span style={{fontSize: '0.8rem', color: '#10B981', fontWeight: 800}}>${(payload[0].payload.cost || 0).toFixed(2)}</span>
+                                  </div>
+                                  {payload[0].payload.credits > 0 && (
+                                    <div style={{display: 'flex', justifyContent: 'space-between', gap: '24px'}}>
+                                      <span style={{fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600}}>Credits:</span>
+                                      <span style={{fontSize: '0.8rem', color: 'var(--accent-primary)', fontWeight: 800}}>{payload[0].payload.credits.toLocaleString()}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
+                        cursor={{fill: 'rgba(0,0,0,0.02)'}}
+                     />
+                     <Bar dataKey="requests" radius={[6, 6, 0, 0]} barSize={timeRange === '30d' ? 20 : 40}>
+                        {chartData.map((entry, index) => (
+                           <Cell key={`cell-${index}`} fill={index === chartData.length - 1 ? 'var(--accent-primary)' : 'var(--bg-sidebar)'} />
+                        ))}
+                     </Bar>
+                  </BarChart>
+               </ResponsiveContainer>
             </div>
-            <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '24px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 600}}>
-               <span>PAST ${timeRange.toUpperCase()}</span>
-               <span>TODAY</span>
+            <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '32px', borderTop: '1px solid var(--border-color)', paddingTop: '24px', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 700}}>
+               <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                  <Info size={14} />
+                  <span>TOTAL PERIOD: {stats[3]?.value} CONSUMED</span>
+               </div>
+               <span>{timeRange === '24h' ? 'PAST 24 HOURS' : `LAST ${timeRange.toUpperCase()}`}</span>
             </div>
          </div>
 

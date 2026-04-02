@@ -438,15 +438,26 @@ export default function LandingClient({ defaultIsRegistering = false }: { defaul
                     <span style={{fontSize: '1.5rem', fontWeight: 500, color: '#fff'}}>Pathgen</span>
                   </div>
                   
-                  <div>
-                     <div style={{fontSize: '0.85rem', fontWeight: 600, color: '#fff', marginBottom: '8px', textTransform: 'uppercase'}}>BY PATHGEN</div>
-                     <div style={{fontSize: '0.8rem', color: '#6B6A68', marginBottom: '32px'}}>© 2026 PATHGEN AI CORE</div>
+                  <div style={{display: 'flex', flexDirection: 'column', gap: '24px'}}>
+                     <div style={{display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1rem', color: '#888', fontWeight: 500}}>
+                        Developed By 
+                        <a href="https://x.com/WrenchDevelops" target="_blank" style={{
+                           display: 'flex', alignItems: 'center', gap: '8px', color: '#fff', textDecoration: 'none'
+                        }} className="pop-out-hover">
+                           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.045 4.126H5.078z"/>
+                           </svg>
+                           WrenchDevelops
+                        </a>
+                     </div>
+                     
                      <div style={{display: 'flex', gap: '20px', color: '#6B6A68'}}>
-                        <Globe size={18} style={{cursor: 'pointer'}} />
-                        <MessageSquare size={18} style={{cursor: 'pointer'}} />
+                        <a href="https://x.com/WrenchDevelops" target="_blank" style={{color: 'inherit'}} className="pop-out-hover"><Globe size={18} /></a>
+                        <a href="https://discord.gg/3zQEdVWHpg" target="_blank" style={{color: 'inherit'}} className="pop-out-hover"><MessageSquare size={18} /></a>
                         <Mail size={18} style={{cursor: 'pointer'}} />
                         <Lock size={18} style={{cursor: 'pointer'}} />
                      </div>
+                     <div style={{fontSize: '0.8rem', color: '#444'}}>© 2026 PATHGEN AI CORE</div>
                   </div>
                </div>
 

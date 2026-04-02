@@ -30,6 +30,7 @@ export default function Overview() {
   });
   const [activities, setActivities] = useState<ActivityLog[]>([]);
   const [chartData, setChartData] = useState<{name: string, requests: number}[]>([]);
+  const [timeRange, setTimeRange] = useState(7);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,24 +38,34 @@ export default function Overview() {
       
       // Pathgen Mock Mode
       if (!firestore) {
-         setProfileName('Developer');
+         setProfileName('Aiden');
+         const is30 = timeRange === 30;
          setStats({
-          activeKeys: 2,
-          apiRequests: "1.2k",
-          uptime: "99.99%",
-          latency: "84ms"
+          activeKeys: 1,
+          apiRequests: is30 ? "4.8k" : "1.5k",
+          uptime: "100.00%",
+          latency: is30 ? "5822ms" : "5911ms"
         });
         setActivities([
-          { id: '1', action: 'Account Active', target: 'Pathgen Console', time: 'Now', status: 'success' },
-          { id: '2', action: 'API Key Created', target: 'Default App', time: '2m ago', status: 'success' }
+          { id: '1', action: 'GET /map/tiles', target: '/map/tiles', time: '04:08 PM', status: 'success' },
+          { id: '2', action: 'GET /map/config', target: '/map/config', time: '04:02 PM', status: 'success' },
+          { id: '3', action: 'GET /map/tiles', target: '/map/tiles', time: '09:46 PM', status: 'success' },
+          { id: '4', action: 'GET /balance', target: '/balance', time: '09:46 PM', status: 'success' },
+          { id: '5', action: 'GET /usage', target: '/usage', time: '09:45 PM', status: 'success' }
         ]);
-        setChartData([
-          { name: 'Mon', requests: 120 },
-          { name: 'Tue', requests: 450 },
-          { name: 'Wed', requests: 300 },
-          { name: 'Thu', requests: 800 },
-          { name: 'Fri', requests: 1200 }
-        ]);
+        
+        const mockChart = is30 
+          ? Array.from({length: 30}).map((_, i) => ({ name: `Day ${i+1}`, requests: Math.floor(Math.random() * 1000) + 500 }))
+          : [
+            { name: 'Mar 26', requests: 400 },
+            { name: 'Mar 27', requests: 1200 },
+            { name: 'Mar 28', requests: 900 },
+            { name: 'Mar 29', requests: 1500 },
+            { name: 'Mar 30', requests: 800 },
+            { name: 'Mar 31', requests: 600 },
+            { name: 'Apr 01', requests: 1100 }
+          ];
+        setChartData(mockChart);
         setIsLoading(false);
         return;
       }
@@ -73,11 +84,11 @@ export default function Overview() {
         const activeKeysCount = keysSnapshot.size;
 
         // 3. Fetch Activities for metrics and chart (Filtered by Org)
-        const sevenDaysAgo = new Timestamp(Timestamp.now().seconds - 7 * 24 * 60 * 60, 0);
+        const rangeTimestamp = new Timestamp(Timestamp.now().seconds - timeRange * 24 * 60 * 60, 0);
         const activityQAll = query(
           collection(firestore!, "activities"), 
           where("orgId", "==", currentOrg.id),
-          where("timestamp", ">=", sevenDaysAgo),
+          where("timestamp", ">=", rangeTimestamp),
           orderBy("timestamp", "desc")
         );
         const activitySnapshotAll = await getDocs(activityQAll);
@@ -101,8 +112,8 @@ export default function Overview() {
           if (date) dailyData[date] = (dailyData[date] || 0) + 1;
         });
 
-        // Format chart data (ensure last 7 days exist)
-        const formattedChart = Object.keys(dailyData).reverse().map(date => ({
+        // Format chart data (ensure results are sorted by date)
+        const formattedChart = Object.keys(dailyData).sort((a, b) => new Date(a).getTime() - new Date(b).getTime()).map(date => ({
           name: date,
           requests: dailyData[date]
         }));
@@ -145,7 +156,7 @@ export default function Overview() {
     };
 
     fetchData();
-  }, [userEmail, currentOrg]);
+  }, [userEmail, currentOrg, timeRange]);
 
   if (isLoading) {
     return (
@@ -167,8 +178,40 @@ export default function Overview() {
           <p style={{color: 'var(--text-secondary)', fontSize: '0.95rem', fontWeight: 400}}>Here&apos;s what&apos;s happening with your API integrations today.</p>
         </div>
         <div style={{display: 'flex', gap: '12px', background: 'var(--bg-sidebar)', padding: '6px', borderRadius: '12px', border: '1px solid var(--border-color)'}}>
-           <button style={{padding: '8px 16px', borderRadius: '8px', border: 'none', background: '#fff', fontSize: '0.85rem', fontWeight: 700, boxShadow: '0 2px 8px rgba(0,0,0,0.05)', cursor: 'pointer'}}>Last 7 days</button>
-           <button style={{padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'transparent', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer'}}>Last 30 days</button>
+           <button 
+             onClick={() => setTimeRange(7)}
+             style={{
+               padding: '8px 16px', 
+               borderRadius: '8px', 
+               border: 'none', 
+               background: timeRange === 7 ? '#fff' : 'transparent', 
+               fontSize: '0.85rem', 
+               fontWeight: timeRange === 7 ? 700 : 500, 
+               boxShadow: timeRange === 7 ? '0 2px 8px rgba(0,0,0,0.05)' : 'none', 
+               color: timeRange === 7 ? 'var(--text-primary)' : 'var(--text-secondary)',
+               cursor: 'pointer',
+               transition: 'all 0.2s ease'
+             }}
+           >
+             Last 7 days
+           </button>
+           <button 
+             onClick={() => setTimeRange(30)}
+             style={{
+               padding: '8px 16px', 
+               borderRadius: '8px', 
+               border: 'none', 
+               background: timeRange === 30 ? '#fff' : 'transparent', 
+               fontSize: '0.85rem', 
+               fontWeight: timeRange === 30 ? 700 : 500, 
+               boxShadow: timeRange === 30 ? '0 2px 8px rgba(0,0,0,0.05)' : 'none', 
+               color: timeRange === 30 ? 'var(--text-primary)' : 'var(--text-secondary)',
+               cursor: 'pointer',
+               transition: 'all 0.2s ease'
+             }}
+           >
+             Last 30 days
+           </button>
         </div>
       </div>
 
