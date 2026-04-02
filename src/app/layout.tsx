@@ -72,6 +72,11 @@ export const metadata: Metadata = {
     email: false,
     address: false,
     telephone: false
+  },
+  icons: {
+    icon: '/Pathgen Platform.png',
+    shortcut: '/Pathgen Platform.png',
+    apple: '/Pathgen Platform.png',
   }
 }
 
