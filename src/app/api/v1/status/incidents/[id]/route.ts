@@ -1,54 +1,54 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminDb } from '@/lib/firebase/admin';
 
-export const dynamic = 'force-dynamic';
-
-const ADMIN_SECRET = process.env.ADMIN_INTERNAL_SECRET || 'pathgen_admin_secret_2026';
-
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const authHeader = req.headers.get('authorization');
-  
-  if (authHeader !== `Bearer ${ADMIN_SECRET}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const body = await req.json();
-    const docRef = adminDb.collection('incidents').doc(id);
-    const docSnap = await docRef.get();
+    const adminToken = req.headers.get('x-admin-token');
+    if (adminToken !== process.env.ADMIN_INTERNAL_SECRET) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    if (!docSnap.exists()) {
+    const { message, status } = await req.json();
+    const docId = params.id;
+    const now = new Date().toISOString();
+
+    const docRef = adminDb.collection('status_incidents').doc(docId);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
       return NextResponse.json({ error: 'Incident not found' }, { status: 404 });
     }
 
-    const currentData = docSnap.data();
-    const updates = [...(currentData?.updates || [])];
+    const currentData = doc.data();
+    const updatePayload: any = {
+      updates: [
+        ...(currentData?.updates || []),
+        { timestamp: now, message }
+      ]
+    };
 
-    if (body.update) {
-      const { timestamp, message } = body.update;
-      if (timestamp && message) {
-        updates.push({ timestamp, message });
+    if (status) {
+      updatePayload.status = status;
+      if (status === 'resolved') {
+        updatePayload.resolved_at = now;
+        const start = new Date(currentData?.started_at);
+        const diffMs = new Date(now).getTime() - start.getTime();
+        updatePayload.duration_minutes = Math.round(diffMs / 60000);
       }
     }
 
-    const patchData: any = {
-      ...body,
-      updates
-    };
-    
-    // Remove individual 'update' if it was part of the body
-    delete patchData.update;
+    await docRef.update(updatePayload);
 
-    await docRef.update(patchData);
-    
-    return NextResponse.json({ 
-      id,
+    return NextResponse.json({
+      id: docId,
       ...currentData,
-      ...patchData 
+      ...updatePayload
     });
   } catch (error) {
     console.error('Failed to update incident:', error);
-    return NextResponse.json({ error: 'Failed to update incident' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

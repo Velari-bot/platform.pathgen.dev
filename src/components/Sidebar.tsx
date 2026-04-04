@@ -60,7 +60,8 @@ export default function Sidebar() {
 
   const navItems = [
     { section: "PLATFORM", items: [
-      { name: "Home", icon: <LayoutDashboard size={18} />, path: "/home" }
+      { name: "Home", icon: <LayoutDashboard size={18} />, path: "/home" },
+      { name: "Game Info", icon: <Globe size={18} />, path: "/info" }
     ]},
     { section: "DASHBOARD", items: [
       { name: "Apps", icon: <LayoutDashboard size={18} />, path: "/apps" },

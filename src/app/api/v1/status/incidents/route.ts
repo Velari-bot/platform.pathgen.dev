@@ -1,18 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminDb } from '@/lib/firebase/admin';
 
-export const dynamic = 'force-dynamic';
-
-const ADMIN_SECRET = process.env.ADMIN_INTERNAL_SECRET || 'pathgen_admin_secret_2026';
-
 export async function GET() {
   try {
-    const snap = await adminDb
-      .collection('incidents')
+    const snapshot = await adminDb
+      .collection('status_incidents')
       .orderBy('started_at', 'desc')
+      .limit(50)
       .get();
 
-    const incidents = snap.docs.map(doc => ({
+    const incidents = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
@@ -20,43 +17,44 @@ export async function GET() {
     return NextResponse.json({ incidents });
   } catch (error) {
     console.error('Failed to fetch incidents:', error);
-    return NextResponse.json({ error: 'Failed to fetch incidents' }, { status: 500 });
+    return NextResponse.json({ incidents: [] });
   }
 }
 
 export async function POST(req: NextRequest) {
-  const authHeader = req.headers.get('authorization');
-  
-  if (authHeader !== `Bearer ${ADMIN_SECRET}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
-    const body = await req.json();
-    const { title, status, severity, components_affected, started_at } = body;
-
-    if (!title || !status || !severity || !components_affected || !started_at) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    const adminToken = req.headers.get('x-admin-token');
+    if (adminToken !== process.env.ADMIN_INTERNAL_SECRET) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const newIncident = {
+    const { title, severity, components_affected, message } = await req.json();
+    const now = new Date().toISOString();
+
+    const incidentData = {
       title,
-      status,
-      severity,
-      components_affected,
-      started_at,
-      updates: body.updates || [],
-      created_at: new Date().toISOString()
+      status: 'investigating',
+      severity: severity || 'minor',
+      components_affected: components_affected || [],
+      started_at: now,
+      resolved_at: null,
+      duration_minutes: null,
+      updates: [
+        {
+          timestamp: now,
+          message: message || 'Investigating reported issues.'
+        }
+      ]
     };
 
-    const docRef = await adminDb.collection('incidents').add(newIncident);
+    const docRef = await adminDb.collection('status_incidents').add(incidentData);
     
-    return NextResponse.json({ 
-      id: docRef.id, 
-      ...newIncident 
-    }, { status: 201 });
+    return NextResponse.json({
+      id: docRef.id,
+      ...incidentData
+    });
   } catch (error) {
     console.error('Failed to create incident:', error);
-    return NextResponse.json({ error: 'Failed to create incident' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
