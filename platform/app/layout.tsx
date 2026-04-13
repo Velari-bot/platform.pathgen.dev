@@ -1,18 +1,12 @@
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import CloudflareAnalytics from "../components/CloudflareAnalytics";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 import { AuthProvider } from "@/lib/auth-context";
+
+export const metadata = {
+  title: "PathGen Developer Platform",
+  description: "Professional-grade Fortnite replay parsing, real-time telemetry, and advanced analytics for developers.",
+};
 
 export default function RootLayout({
   children,
@@ -20,11 +14,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
+    <html lang="en" className="h-full">
+      <body className="min-h-full flex flex-col" style={{ margin: 0, padding: 0 }}>
         <AuthProvider>
           {children}
         </AuthProvider>

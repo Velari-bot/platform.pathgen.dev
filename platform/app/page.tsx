@@ -1,181 +1,448 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Shield, Zap, BarChart3, ArrowRight, CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Zap, Shield, BarChart3 } from "lucide-react";
+
+/* ── Tiny Win2k window chrome component ─────────────────── */
+function Win2kWindow({
+  title,
+  children,
+  className = "",
+  icon,
+}: {
+  title: string;
+  children: React.ReactNode;
+  className?: string;
+  icon?: React.ReactNode;
+}) {
+  return (
+    <div className={`win-window ${className}`} style={{ fontFamily: "Verdana, Tahoma, Arial, sans-serif" }}>
+      {/* Title bar */}
+      <div className="win-titlebar" style={{ gap: 6 }}>
+        {icon && <span style={{ marginRight: 4 }}>{icon}</span>}
+        <span className="flex-1" style={{ fontSize: 11 }}>{title}</span>
+        {/* Window control buttons */}
+        <div style={{ display: "flex", gap: 2, marginLeft: 4 }}>
+          {["_", "□", "×"].map((btn, i) => (
+            <span
+              key={i}
+              className="win-raised"
+              style={{
+                width: 16,
+                height: 14,
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 9,
+                fontWeight: "bold",
+                cursor: "pointer",
+                color: "#000",
+                flexShrink: 0,
+              }}
+            >
+              {btn}
+            </span>
+          ))}
+        </div>
+      </div>
+      {/* Content area */}
+      <div style={{ padding: 8 }}>{children}</div>
+    </div>
+  );
+}
+
+/* ── Retro icon blobs ─────────────────────────────────────── */
+function PixelIcon({ children }: { children: React.ReactNode }) {
+  return (
+    <span
+      className="win-sunken"
+      style={{
+        display: "inline-flex",
+        width: 32,
+        height: 32,
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 4,
+        fontSize: 18,
+      }}
+    >
+      {children}
+    </span>
+  );
+}
 
 export default function LandingPage() {
   return (
-    <div className="flex-1 w-full overflow-hidden">
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-6 md:px-12 max-w-7xl mx-auto text-center">
-        {/* Background Glows */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-primary/10 blur-[120px] rounded-full -z-10" />
-        <div className="absolute top-40 right-10 w-64 h-64 bg-accent/10 blur-[100px] rounded-full -z-10" />
-        
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs font-semibold mb-6">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-            </span>
-            Next-Gen Fortnite Data Infrastructure
-          </div>
-          
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 glow-text">
-            Build the future of <br />
-            <span className="gradient-text">Competitive Fortnite</span>
-          </h1>
-          
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-            PathGen provides professional-grade replay parsing, real-time player telemetry, 
-            and advanced analytics for developers and teams.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="rounded-full px-8 h-12 text-base bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20" render={<Link href="/signup" />}>
-              Get Started for Free <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-            <Button size="lg" variant="outline" className="rounded-full px-8 h-12 text-base glass hover:bg-glass-border" render={<Link href="/docs" />}>
-              View Documentation
-            </Button>
-          </div>
-        </motion.div>
+    <div className="win-desktop" style={{ minHeight: "100vh" }}>
 
-        {/* Hero Visual (Placeholder for now) */}
-        <motion.div
-          className="mt-20 relative px-4"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-        >
-          <div className="glass-card aspect-video max-w-5xl mx-auto flex items-center justify-center overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10" />
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-8 w-full opacity-40">
-               {[...Array(12)].map((_, i) => (
-                 <div key={i} className="h-32 bg-primary/5 rounded-lg border border-primary/10 animate-pulse" />
-               ))}
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center z-20">
-               <div className="text-center">
-                  <div className="text-primary text-sm font-mono mb-2">TELEMETRY_STREAM_CONNECTED</div>
-                  <div className="text-4xl font-mono text-white">rs_35402b9d...</div>
-               </div>
-            </div>
-          </div>
-        </motion.div>
-      </section>
+      {/* ── Marquee announcement bar ───────────────────────── */}
+      <div className="win-marquee-bar">
+        <span className="win-scroll">
+          ★ WELCOME TO PATHGEN.DEV — PROFESSIONAL FORTNITE DATA INFRASTRUCTURE ★&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          NEW: WASM REPLAY PARSER v2.4 NOW AVAILABLE &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          ★ 10,000 FREE CREDITS FOR NEW USERS — SIGN UP TODAY ★&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          BEST VIEWED IN INTERNET EXPLORER 5.0 AT 800×600 RESOLUTION
+        </span>
+      </div>
 
-      {/* Features Grid */}
-      <section className="py-24 px-6 md:px-12 max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Powerful Features</h2>
-          <p className="text-muted-foreground">Everything you need to build top-tier Fortnite applications.</p>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            { 
-              title: "Lightning Fast Parsing", 
-              desc: "Extract every detail from Fortnite replays in milliseconds using our optimized WASM parser.",
-              icon: Zap
-            },
-            { 
-              title: "Bank-Grade Security", 
-              desc: "Secure API key management and encrypted data transmission keep your data safe.",
-              icon: Shield
-            },
-            { 
-              title: "Deep Analytics", 
-              desc: "Get insights on player movement, build patterns, and combat efficiency out of the box.",
-              icon: BarChart3
-            }
-          ].map((f, i) => (
-            <motion.div
-              key={i}
-              whileHover={{ y: -5 }}
-              transition={{ type: "spring", stiffness: 300 }}
+      {/* ── Desktop area – full window layout ──────────────── */}
+      <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: 12 }}>
+
+        {/* ── MAIN WINDOW ─────────────────────────────────── */}
+        <Win2kWindow
+          title="PathGen Developer Platform - Microsoft Internet Explorer"
+          icon={<span style={{ fontSize: 12 }}>🌐</span>}
+        >
+          {/* IE toolbar simulation */}
+          <div
+            className="win-raised"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              padding: "2px 4px",
+              marginBottom: 6,
+              fontSize: 11,
+            }}
+          >
+            {["◀ Back", "▶ Forward", "✕ Stop", "↻ Refresh", "🏠 Home"].map((btn) => (
+              <button key={btn} className="win-btn" style={{ padding: "2px 8px", minWidth: "auto", fontSize: 10 }}>
+                {btn}
+              </button>
+            ))}
+            <span style={{ marginLeft: 8, fontSize: 10, color: "#444" }}>Address:</span>
+            <div
+              className="win-sunken"
+              style={{ flex: 1, padding: "1px 6px", fontSize: 10, color: "#0000ee" }}
             >
-              <Card className="glass-card border-white/5 h-full overflow-hidden group">
-                <CardHeader>
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                    <f.icon className="h-6 w-6 text-primary" />
+              https://platform.pathgen.dev/
+            </div>
+            <button className="win-btn" style={{ padding: "2px 10px", fontSize: 10 }}>
+              Go
+            </button>
+          </div>
+
+          {/* Page header / hero */}
+          <div
+            style={{
+              background: "linear-gradient(180deg, #000080 0%, #1084d0 100%)",
+              padding: "20px 24px",
+              textAlign: "center",
+              color: "#ffffff",
+              marginBottom: 12,
+            }}
+          >
+            <div style={{ fontSize: 10, fontWeight: "bold", letterSpacing: 3, color: "#ffff00", marginBottom: 6 }}>
+              ★ NEXT-GENERATION FORTNITE DATA INFRASTRUCTURE ★
+            </div>
+            <div
+              style={{
+                fontSize: 32,
+                fontWeight: "bold",
+                fontFamily: "Impact, Arial Black, sans-serif",
+                letterSpacing: 2,
+                textShadow: "2px 2px 0px #000040",
+                lineHeight: 1.1,
+              }}
+            >
+              PathGen<span style={{ color: "#ffff00" }}>.</span>dev
+            </div>
+            <div style={{ fontSize: 12, marginTop: 8, color: "#c8e4ff" }}>
+              Build the Future of Competitive Fortnite
+            </div>
+
+            <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 16, flexWrap: "wrap" }}>
+              <Link href="/signup" className="win-btn-primary" style={{ padding: "6px 24px", fontSize: 12, fontWeight: "bold" }}>
+                ✓ Get Started FREE
+              </Link>
+              <Link href="/docs" className="win-btn" style={{ padding: "6px 20px", fontSize: 12 }}>
+                📄 View Documentation
+              </Link>
+            </div>
+
+            {/* Fake status readout */}
+            <div
+              className="win-sunken"
+              style={{
+                display: "inline-block",
+                marginTop: 16,
+                padding: "4px 16px",
+                background: "#000",
+                color: "#00ff00",
+                fontFamily: "Courier New, monospace",
+                fontSize: 11,
+              }}
+            >
+              <span>TELEMETRY_STREAM: </span>
+              <span style={{ color: "#ffff00" }}>CONNECTED</span>
+              <span className="win-blink" style={{ color: "#00ff00" }}> ▌</span>
+              &nbsp;&nbsp;SESSION_ID: rs_35402b9d...
+            </div>
+          </div>
+
+          {/* ── FEATURES SECTION ─────────────────────────── */}
+          <div className="win-groupbox" style={{ marginBottom: 12 }}>
+            <div
+              style={{
+                fontSize: 10,
+                fontWeight: "bold",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+                marginBottom: 10,
+                borderBottom: "1px solid #808080",
+                paddingBottom: 4,
+                color: "#000080",
+              }}
+            >
+              ⚙ Powerful Features
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 8 }}>
+              {[
+                {
+                  icon: "⚡",
+                  title: "Lightning Fast Parsing",
+                  desc: "Extract every detail from Fortnite replays in milliseconds using our optimized WASM parser.",
+                  badge: "NEW!",
+                },
+                {
+                  icon: "🔒",
+                  title: "Bank-Grade Security",
+                  desc: "Secure API key management and encrypted data transmission keep your data safe.",
+                  badge: "",
+                },
+                {
+                  icon: "📊",
+                  title: "Deep Analytics",
+                  desc: "Get insights on player movement, build patterns, and combat efficiency out of the box.",
+                  badge: "HOT",
+                },
+              ].map((f) => (
+                <div key={f.title} className="win-raised" style={{ padding: 10 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                    <PixelIcon>{f.icon}</PixelIcon>
+                    {f.badge && (
+                      <span
+                        style={{
+                          background: "#ff0000",
+                          color: "#fff",
+                          fontSize: 9,
+                          fontWeight: "bold",
+                          padding: "1px 5px",
+                        }}
+                      >
+                        {f.badge}
+                      </span>
+                    )}
                   </div>
-                  <CardTitle>{f.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section className="py-24 px-6 md:px-12 max-w-7xl mx-auto border-t border-white/5">
-         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Simple Credit-Based Pricing</h2>
-          <p className="text-muted-foreground">No monthly fees. Only pay for what you use.</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            { name: "Starter", credits: "10,000", price: "$10", features: ["Full API Access", "Standard Parsing", "Community Support"] },
-            { name: "Pro", credits: "60,000", price: "$50", features: ["10k Bonus Credits", "Priority Processing", "Email Support"], recommended: true },
-            { name: "Elite", credits: "150,000", price: "$100", features: ["50k Bonus Credits", "Dedicated Infrastructure", "Direct Developer Support"] }
-          ].map((p, i) => (
-            <Card key={i} className={`glass-card relative overflow-hidden ${p.recommended ? 'ring-2 ring-primary border-transparent' : 'border-white/5'}`}>
-              {p.recommended && (
-                <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-3 py-1 rounded-bl-lg">
-                  POPULAR
+                  <div style={{ fontWeight: "bold", fontSize: 11, marginBottom: 4, color: "#000080" }}>
+                    {f.title}
+                  </div>
+                  <div style={{ fontSize: 10, color: "#333", lineHeight: 1.5 }}>{f.desc}</div>
                 </div>
-              )}
-              <CardHeader>
-                <CardTitle className="text-xl">{p.name}</CardTitle>
-                <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-4xl font-bold tracking-tight">{p.price}</span>
-                  <span className="text-muted-foreground">/one-time</span>
-                </div>
-                <CardDescription className="mt-2 text-primary font-medium">
-                  {p.credits} Credits Included
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3 mb-8">
-                  {p.features.map((f, j) => (
-                    <li key={j} className="flex items-center gap-3 text-sm text-muted-foreground">
-                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Button className={`w-full rounded-xl ${p.recommended ? 'bg-primary' : 'variant-outline bg-white/5 hover:bg-white/10'}`} render={<Link href="/signup" />}>
-                   Purchase Pack
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
+              ))}
+            </div>
+          </div>
 
-      {/* CTA Footer */}
-      <section className="py-24 px-6 text-center relative">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-        <h2 className="text-3xl font-bold mb-6">Ready to start building?</h2>
-        <Button size="lg" className="rounded-full px-12 h-14 text-lg bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/40" render={<Link href="/signup" />}>
-          Join PathGen Platform
-        </Button>
-        <div className="mt-12 text-sm text-muted-foreground opacity-50">
-           © 2026 PathGen.dev • Built for the Fortnite Developer Community
+          {/* ── PRICING SECTION ──────────────────────────── */}
+          <div className="win-groupbox" style={{ marginBottom: 12 }}>
+            <div
+              style={{
+                fontSize: 10,
+                fontWeight: "bold",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+                marginBottom: 10,
+                borderBottom: "1px solid #808080",
+                paddingBottom: 4,
+                color: "#000080",
+              }}
+            >
+              💰 Credit Pack Pricing — No Monthly Fees!
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 8 }}>
+              {[
+                {
+                  name: "Starter Pack",
+                  credits: "10,000",
+                  price: "$10",
+                  features: ["Full API Access", "Standard Parsing", "Community Support"],
+                  popular: false,
+                  color: "#d4d0c8",
+                },
+                {
+                  name: "Pro Pack",
+                  credits: "60,000",
+                  price: "$50",
+                  features: ["10k Bonus Credits", "Priority Processing", "Email Support"],
+                  popular: true,
+                  color: "#e8f4ff",
+                },
+                {
+                  name: "Elite Pack",
+                  credits: "150,000",
+                  price: "$100",
+                  features: ["50k Bonus Credits", "Dedicated Infrastructure", "Developer Support"],
+                  popular: false,
+                  color: "#d4d0c8",
+                },
+              ].map((p) => (
+                <div
+                  key={p.name}
+                  className="win-raised"
+                  style={{
+                    padding: 10,
+                    background: p.popular ? "#e8f4ff" : "#d4d0c8",
+                    position: "relative",
+                  }}
+                >
+                  {p.popular && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        right: 0,
+                        background: "#ff8800",
+                        color: "#fff",
+                        fontSize: 9,
+                        fontWeight: "bold",
+                        padding: "2px 8px",
+                      }}
+                    >
+                      ★ MOST POPULAR
+                    </div>
+                  )}
+                  <div style={{ fontWeight: "bold", fontSize: 12, color: "#000080", marginBottom: 4, marginTop: p.popular ? 14 : 0 }}>
+                    {p.name}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 24,
+                      fontWeight: "bold",
+                      fontFamily: "Impact, sans-serif",
+                      color: "#000080",
+                      lineHeight: 1,
+                    }}
+                  >
+                    {p.price}
+                  </div>
+                  <div style={{ fontSize: 10, color: "#008000", fontWeight: "bold", marginBottom: 8 }}>
+                    {p.credits} Credits
+                  </div>
+                  <div className="win-divider" style={{ marginBottom: 8 }} />
+                  <ul style={{ listStyle: "none", padding: 0, margin: "0 0 10px 0" }}>
+                    {p.features.map((f) => (
+                      <li key={f} style={{ fontSize: 10, color: "#333", marginBottom: 3 }}>
+                        <span style={{ color: "#008000", fontWeight: "bold" }}>✓</span> {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    href="/signup"
+                    className="win-btn"
+                    style={{
+                      display: "block",
+                      textAlign: "center",
+                      padding: "4px 8px",
+                      fontSize: 10,
+                      fontWeight: "bold",
+                      background: p.popular ? "#000080" : "#d4d0c8",
+                      color: p.popular ? "#ffffff" : "#000000",
+                      border: p.popular
+                        ? "2px outset #4040ff"
+                        : undefined,
+                    }}
+                  >
+                    Purchase Pack →
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── CTA SECTION ──────────────────────────────── */}
+          <div
+            className="win-sunken"
+            style={{
+              padding: 16,
+              textAlign: "center",
+              background: "#000080",
+              marginBottom: 8,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 14,
+                fontWeight: "bold",
+                color: "#ffffff",
+                fontFamily: "Impact, Arial Black, sans-serif",
+                letterSpacing: 1,
+                marginBottom: 12,
+              }}
+            >
+              🚀 Ready to Start Building?
+            </div>
+            <Link
+              href="/signup"
+              className="win-btn-primary"
+              style={{ padding: "8px 32px", fontSize: 13, fontWeight: "bold", letterSpacing: 1 }}
+            >
+              ★ JOIN PATHGEN PLATFORM ★
+            </Link>
+          </div>
+
+          {/* ── Status bar ───────────────────────────────── */}
+          <div className="win-statusbar" style={{ marginTop: 4 }}>
+            <span>✅ Done</span>
+            <span style={{ borderLeft: "1px solid #808080", borderRight: "1px solid #fff", padding: "0 8px" }}>
+              🌐 Internet
+            </span>
+            <span>© 2026 PathGen.dev — Built for the Fortnite Developer Community</span>
+          </div>
+        </Win2kWindow>
+
+        {/* ── Taskbar ───────────────────────────────────── */}
+        <div
+          className="win-raised"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "2px 6px",
+            minHeight: 28,
+          }}
+        >
+          <button
+            className="win-raised"
+            style={{
+              padding: "2px 10px",
+              fontWeight: "bold",
+              fontSize: 11,
+              background: "linear-gradient(180deg, #1084d0, #000080)",
+              color: "#fff",
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
+            <span style={{ fontSize: 14 }}>⊞</span> Start
+          </button>
+          <div className="win-divider" style={{ width: 1, height: 20, borderTop: "none", borderLeft: "1px solid #808080", borderRight: "1px solid #fff", borderBottom: "none" }} />
+          <button
+            className="win-sunken"
+            style={{ padding: "2px 10px", fontSize: 10, display: "flex", alignItems: "center", gap: 4 }}
+          >
+            🌐 PathGen Platform
+          </button>
+          <div style={{ flex: 1 }} />
+          <div
+            className="win-sunken"
+            style={{ padding: "2px 8px", fontSize: 10, fontFamily: "Courier New, monospace" }}
+          >
+            {new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
+          </div>
         </div>
-      </section>
+
+      </div>
     </div>
   );
 }
