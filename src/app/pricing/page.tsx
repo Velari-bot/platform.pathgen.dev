@@ -89,7 +89,7 @@ export default function PricingPage() {
        }}>
           <Link href="/" style={{display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none'}}>
              <Image 
-               src="/Pathgen Base Platform logo.png" 
+               src="/logo.png" 
                alt="Pathgen Logo" 
                width={44} 
                height={44} 

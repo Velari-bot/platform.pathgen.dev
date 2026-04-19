@@ -113,7 +113,7 @@ export default function Sidebar() {
              }} className="border-button-hover active-scale">
              <div style={{display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden'}}>
                  <Image 
-                   src="/Pathgen Base Platform logo.png" 
+                   src="/logo.png" 
                    alt="Pathgen Logo" 
                    width={32} 
                    height={32} 

@@ -251,7 +251,7 @@ export default function ReplayGuidePost() {
             padding: '0 40px',
          }}>
             <Link href="/blog" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-               <Image src="/Pathgen Base Platform logo.png" alt="Pathgen Logo" width={44} height={44} style={{ objectFit: 'contain' }} />
+               <Image src="/logo.png" alt="Pathgen Logo" width={44} height={44} style={{ objectFit: 'contain' }} />
                <span style={{ fontSize: '1.1rem', fontWeight: 600, color: '#111111' }}>Pathgen Blog</span>
             </Link>
             <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>

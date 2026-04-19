@@ -178,7 +178,7 @@ export default function LandingClient({ defaultIsRegistering = false }: { defaul
        }}>
           <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
              <Image 
-               src="/Pathgen Base Platform logo.png" 
+               src="/logo.png" 
                alt="Pathgen Logo" 
                width={44} 
                height={44} 
@@ -389,7 +389,7 @@ export default function LandingClient({ defaultIsRegistering = false }: { defaul
                <div style={{flex: '1 0 300px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '300px'}}>
                   <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
                     <Image 
-                      src="/Pathgen Base Platform logo.png" 
+                      src="/logo.png" 
                       alt="Pathgen Logo" 
                       width={44} 
                       height={44} 

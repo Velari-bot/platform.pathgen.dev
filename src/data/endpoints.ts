@@ -7,7 +7,7 @@ export interface Endpoint {
   exampleRequest?: string;
   response?: string;
   useCase?: string;
-  status?: 'alpha' | 'beta' | 'coming-soon' | 'free' | 'paid' | 'fused' | 'pro';
+  status?: 'alpha' | 'beta' | 'coming-soon' | 'free' | 'paid' | 'fused' | 'pro' | 'premium';
   tier: 'free' | 'pro' | 'internal';
 }
 
@@ -19,238 +19,377 @@ export interface Section {
 
 export const ENDPOINTS_DATA: Section[] = [
   {
-    title: "1. Core Parsing & Replay Endpoints",
-    description: "Typically used for standard match processing.",
+    title: "1. Account & Billing",
+    description: "Endpoints for managing your credits, API keys, and profile.",
     endpoints: [
-      { 
-        method: 'POST', 
-        path: '/v1/replay/parse', 
-        description: 'Main Entry. Full statistical extraction.', 
-        credits: 20, 
-        tier: 'free',
-        response: '{"match_id": "8b5922fb", "overview": {"duration": 1240, "map": "Helios"}, "combat": {"kills": 8, "damage": 1450}}' 
-      },
-      { 
-        method: 'POST', 
-        path: '/v1/replay/stats', 
-        description: 'Summary stats only (no events/scoreboard).', 
-        credits: 5, 
-        tier: 'free',
-        response: '{"kills": 8, "accuracy": 0.34, "damage_done": 1450}' 
-      },
-      { 
-        method: 'POST', 
-        path: '/v1/replay/scoreboard', 
-        description: 'Full 100-player lobby scoreboard only.', 
-        credits: 8, 
-        tier: 'free',
-        response: '{"scoreboard": [{"rank": 1, "name": "Ninja", "kills": 12}, {"rank": 2, "name": "Aiden", "kills": 5}]}' 
-      },
-      { 
-        method: 'POST', 
-        path: '/v1/replay/movement', 
-        description: 'Locational data and distances (foot/vehicle/sky).', 
-        credits: 8, 
-        tier: 'free',
-        response: '{"total_dist": 8450, "foot_dist": 6200, "vehicle_dist": 2250, "heatmap_points": [[100, 200], [150, 250]]}' 
-      },
-      { 
-        method: 'POST', 
-        path: '/v1/replay/weapons', 
-        description: 'Deep dive into weapon handle performance.', 
-        credits: 8, 
-        tier: 'free',
-        response: '{"weapons": [{"name": "Assault Rifle", "hits": 45, "misses": 110, "accuracy": 0.29}, {"name": "Pump Shotgun", "hits": 12, "misses": 4, "accuracy": 0.75}]}' 
-      },
-      { 
-        method: 'POST', 
-        path: '/v1/replay/events', 
-        description: 'Elimination feed and key match events.', 
-        credits: 10, 
-        tier: 'free',
-        response: '{"events": [{"t": 120, "type": "kill", "victim": "Player_1"}, {"t": 450, "type": "zone_move", "phase": 3}]}' 
-      },
-      { 
-        method: 'POST', 
-        path: '/v1/replay/drop-analysis', 
-        description: 'Land-site scoring and optimization metrics.', 
-        credits: 15, 
-        tier: 'free',
-        response: '{"drop_site": "Tilted Towers", "drop_score": 92, "contest_count": 4}' 
-      },
-      { 
-        method: 'POST', 
-        path: '/v1/replay/rotation-score', 
-        description: 'High Precision. Storm zone rotation grading.', 
-        credits: 25, 
-        tier: 'pro',
-        response: '{"rotation_score": 88, "efficiency": 0.94, "narrative": "Elite pathing through mid-game."}' 
-      },
-      { 
-        method: 'POST', 
-        path: '/v1/replay/match-info', 
-        description: 'Metadata lookup for a server-side match ID.', 
-        credits: 5, 
-        tier: 'free',
-        response: '{"server_id": "NAE_12345", "version": "v29.10", "timestamp": "2024-03-20T12:00:00Z"}' 
-      },
-      { 
-        method: 'POST', 
-        path: '/v1/replay/download-and-parse', 
-        description: 'Automated fetch from Epic servers + Parse.', 
-        credits: 25, 
-        tier: 'pro',
-        response: '{"status": "queued", "job_id": "job_9988", "estimated_wait": "15s"}' 
-      },
-    ]
-  },
-  {
-    title: "2. AI Coaching & Analytics",
-    description: "Premium endpoints powered by Gemini 2.5 Flash.",
-    endpoints: [
-      { 
-        method: 'POST', 
-        path: '/v1/ai/analyze', 
-        description: 'Match summary, strengths/weaknesses.', 
-        credits: 15, 
-        tier: 'pro',
-        response: '{"summary": "Aggressive early game, but failed to rotate early enough in Zone 5.", "strengths": ["Shotgun Aim"], "weaknesses": ["Late game rotations"]}' 
-      },
-      { 
-        method: 'POST', 
-        path: '/v1/ai/coach', 
-        description: 'Deep tactical review (Early/Mid/Late game).', 
-        credits: 30, 
-        tier: 'pro',
-        response: '{"early_game": "Clean drop. Avoided unnecessary fights.", "mid_game": "Good positioning near loot drops.", "late_game": "You held the low ground too long."}' 
-      },
-      { 
-        method: 'POST', 
-        path: '/v1/ai/session-coach', 
-        description: 'Multi-match trend analysis (Up to 6 files).', 
-        credits: 50, 
-        tier: 'pro',
-        response: '{"trends": ["Consistent drop success", "Decreasing accuracy in long sessions"]}' 
-      },
-      { 
-        method: 'POST', 
-        path: '/v1/ai/weapon-coach', 
-        description: 'Aim & Loadout critique based on weapon data.', 
-        credits: 20, 
-        tier: 'pro',
-        response: '{"weapon_critique": "Your Sniper lead time is slightly off. Recommending a higher sensitivity."}' 
-      },
-      { 
-        method: 'POST', 
-        path: '/v1/ai/drop-recommend', 
-        description: 'Dynamic landing recommendation via AI.', 
-        credits: 20, 
-        tier: 'pro',
-        response: '{"recommend_site": "Pleasant Park", "reasoning": "High loot density with low contest rate based on recent match history."}' 
-      },
-      { 
-        method: 'POST', 
-        path: '/v1/ai/opponent-scout', 
-        description: 'Playstyle & threat analysis on a specific player.', 
-        credits: 25, 
-        tier: 'pro',
-        response: '{"player_style": "W-Keyer", "threat_level": "High", "common_loadout": "Pump + SMG"}' 
-      },
-      { 
-        method: 'POST', 
-        path: '/v1/ai/rotation-review', 
-        description: 'Narrative explanation of rotation performance.', 
-        credits: 15, 
-        tier: 'pro',
-        response: '{"rotation_notes": "The path through the valley was risky but paid off. Next time try the ridge."}' 
-      },
-    ]
-  },
-  {
-    title: "3. Account, Auth & Billing",
-    description: "System-level management.",
-    endpoints: [
-      { 
-        method: 'POST', 
-        path: '/v1/auth/login', 
-        description: 'Secure token exchange.', 
-        credits: 0, 
-        tier: 'free',
-        response: '{"token": "pg_jwt_...", "expires": "2024-04-20T12:00:00Z"}' 
-      },
-      { 
-        method: 'POST', 
-        path: '/v1/auth/register', 
-        description: 'New user onboarding.', 
-        credits: 0, 
-        tier: 'free',
-        response: '{"user_id": "usr_123", "status": "active"}' 
-      },
       { 
         method: 'GET', 
         path: '/v1/account/me', 
-        description: 'Current profile and credit balance.', 
+        description: 'Full profile (balance, tier, stats)', 
         credits: 0, 
         tier: 'free',
+        status: 'free',
         response: '{"id": "usr_123", "email": "dev@pathgen.dev", "credits": 1450, "tier": "Pro"}' 
+      },
+      { 
+        method: 'GET', 
+        path: '/v1/account/balance', 
+        description: 'Current credit balance only', 
+        credits: 0, 
+        tier: 'free',
+        status: 'free',
+        response: '{"credits": 1450}' 
+      },
+      { 
+        method: 'GET', 
+        path: '/v1/account/keys', 
+        description: 'List all active API keys', 
+        credits: 0, 
+        tier: 'free',
+        status: 'free',
+        response: '{"keys": [{"id": "key_1", "prefix": "pg_live_", "created_at": "..."}]}' 
+      },
+      { 
+        method: 'POST', 
+        path: '/v1/account/keys', 
+        description: 'Generate a new RS (secure) key', 
+        credits: 0, 
+        tier: 'free',
+        status: 'free',
+        response: '{"key": "pg_live_xxxxxxxxxxxx", "id": "key_2"}' 
+      },
+      { 
+        method: 'DELETE', 
+        path: '/v1/account/keys/{id}', 
+        description: 'Revoke an existing key', 
+        credits: 0, 
+        tier: 'free',
+        status: 'free',
+        response: '{"success": true}' 
+      },
+      { 
+        method: 'GET', 
+        path: '/v1/billing/history', 
+        description: 'Transaction & top-up history', 
+        credits: 0, 
+        tier: 'free',
+        status: 'free',
+        response: '{"history": [{"id": "tx_1", "amount": 1000, "status": "success"}]}' 
       },
       { 
         method: 'POST', 
         path: '/v1/billing/topup', 
-        description: 'Credit purchase via Stripe.', 
+        description: 'Generate Stripe Checkout for credits', 
         credits: 0, 
         tier: 'free',
+        status: 'free',
         response: '{"url": "https://checkout.stripe.com/..."}' 
-      },
-      { 
-        method: 'GET', 
-        path: '/v1/epic/auth-url', 
-        description: 'Get Epic Games OAuth login link.', 
-        credits: 0, 
-        tier: 'free',
-        response: '{"url": "https://epicgames.com/id/authorize?..."}' 
-      },
-      { 
-        method: 'POST', 
-        path: '/v1/epic/connect', 
-        description: 'Finalize Epic account linking.', 
-        credits: 0, 
-        tier: 'free',
-        response: '{"connected": true, "epic_id": "4b3...", "display_name": "Ninja"}' 
       },
     ]
   },
   {
-    title: "4. System & Infrastructure",
-    description: "Health and diagnostics.",
+    title: "2. Game World Intelligence",
+    description: "High-fidelity data pulled from the live Fortnite environment.",
     endpoints: [
       { 
         method: 'GET', 
-        path: '/health', 
-        description: 'Basic system uptime check.', 
-        tier: 'free',
-        response: '{"status": "ok", "uptime": "45d 12h"}' 
+        path: '/v1/game/stats', 
+        description: 'Premium Unified Stats (Merged FnAPI + Osirion)', 
+        credits: 5, 
+        tier: 'pro',
+        status: 'premium',
+        response: '{"stats": {"br": {"wins": 150, "kills": 4500}}}' 
       },
       { 
         method: 'GET', 
-        path: '/health/detailed', 
-        description: 'DB, R2, and Epic API heartbeat check.', 
+        path: '/v1/game/stats/br/v2', 
+        description: 'Standard BR stats lookup', 
+        credits: 2, 
         tier: 'free',
-        response: '{"database": "healthy", "storage": "healthy", "epic_api": "healthy"}' 
+        response: '{"wins": 150, "kills": 4500}' 
       },
       { 
         method: 'GET', 
-        path: '/metrics', 
-        description: 'Prometheus metrics for monitoring.', 
+        path: '/v1/game/lookup', 
+        description: 'Simple player existence check', 
+        credits: 2, 
         tier: 'free',
-        response: '# HELP api_requests_total ...' 
+        response: '{"exists": true, "id": "4b3..."}' 
       },
       { 
         method: 'GET', 
-        path: '/v1/spec', 
-        description: 'Full OpenAPI / Swagger documentation.', 
+        path: '/v1/game/ranked', 
+        description: 'Ranked history & current progression', 
+        credits: 5, 
+        tier: 'pro',
+        response: '{"rank": "Champion", "progression": 45}' 
+      },
+      { 
+        method: 'GET', 
+        path: '/v1/game/map', 
+        description: 'Map metadata & POI coordinates', 
+        credits: 0, 
         tier: 'free',
-        response: '{"openapi": "3.0.0", "info": {...}}' 
+        status: 'free',
+        response: '{"poi": [{"name": "Reckless Railways", "x": 100, "y": 200}]}' 
+      },
+      { 
+        method: 'GET', 
+        path: '/v1/game/tiles/{z}/{x}/{y}', 
+        description: '24h Pass for high-res map tiles', 
+        credits: 30, 
+        tier: 'pro',
+        response: '{"tile_url": "..."}' 
+      },
+      { 
+        method: 'GET', 
+        path: '/v1/game/shop', 
+        description: 'Fused item shop data', 
+        credits: 1, 
+        tier: 'free',
+        response: '{"featured": [...]}' 
+      },
+      { 
+        method: 'GET', 
+        path: '/v1/game/news', 
+        description: 'Game news & updates feed', 
+        credits: 1, 
+        tier: 'free',
+        response: '{"news": [...]}' 
+      },
+      { 
+        method: 'GET', 
+        path: '/v1/game/weapons', 
+        description: 'Current loot pool & weapon stats', 
+        credits: 1, 
+        tier: 'free',
+        response: '{"weapons": [...]}' 
+      },
+      { 
+        method: 'GET', 
+        path: '/v1/game/playlists', 
+        description: 'Active game modes & LTMs', 
+        credits: 1, 
+        tier: 'free',
+        response: '{"playlists": [...]}' 
+      },
+    ]
+  },
+  {
+    title: "3. Replay & Match Analysis",
+    description: "Upload a .replay file for deep-dive extraction.",
+    endpoints: [
+      { 
+        method: 'POST', 
+        path: '/v1/replay/parse', 
+        description: 'Full match JSON payload', 
+        credits: 20, 
+        tier: 'free',
+        response: '{"match_id": "8b5922fb", "overview": {...}}' 
+      },
+      { 
+        method: 'POST', 
+        path: '/v1/replay/stats', 
+        description: 'Lightweight scoreboard & combat stats', 
+        credits: 5, 
+        tier: 'free',
+        response: '{"kills": 8, "accuracy": 0.34}' 
+      },
+      { 
+        method: 'POST', 
+        path: '/v1/replay/movement', 
+        description: 'Rotation paths & coordinate logs', 
+        credits: 8, 
+        tier: 'free',
+        response: '{"path": [[100, 200], [150, 250]]}' 
+      },
+      { 
+        method: 'POST', 
+        path: '/v1/replay/weapons', 
+        description: 'Weapon-by-weapon performance audit', 
+        credits: 8, 
+        tier: 'free',
+        response: '{"weapons": [...]}' 
+      },
+      { 
+        method: 'POST', 
+        path: '/v1/replay/events', 
+        description: 'Full elimination feed & timestamp events', 
+        credits: 10, 
+        tier: 'free',
+        response: '{"events": [...]}' 
+      },
+      { 
+        method: 'POST', 
+        path: '/v1/replay/drop-analysis', 
+        description: 'Bus route assessment & drop efficiency', 
+        credits: 15, 
+        tier: 'free',
+        response: '{"drop_site": "Tilted Towers", "efficiency": 0.92}' 
+      },
+      { 
+        method: 'POST', 
+        path: '/v1/replay/rotation-score', 
+        description: 'Zone survival & storm-edge efficiency', 
+        credits: 25, 
+        tier: 'pro',
+        response: '{"rotation_score": 88}' 
+      },
+      { 
+        method: 'POST', 
+        path: '/v1/replay/opponents', 
+        description: 'Skill assessment of every player in your lobby', 
+        credits: 30, 
+        tier: 'pro',
+        response: '{"opponents": [...]}' 
+      },
+      { 
+        method: 'POST', 
+        path: '/v1/replay/match-info', 
+        description: 'Manifest for server-side match IDs', 
+        credits: 5, 
+        tier: 'free',
+        response: '{"server_id": "NAE_12345"}' 
+      },
+    ]
+  },
+  {
+    title: "4. Session & AI Coaching (Beta)",
+    description: "Advanced endpoints requiring the requireBeta flag.",
+    endpoints: [
+      { 
+        method: 'POST', 
+        path: '/v1/session/analyze', 
+        description: 'Multi-match session summary', 
+        credits: 50, 
+        tier: 'pro',
+        status: 'beta',
+        response: '{"summary": "Consistent performance..."}' 
+      },
+      { 
+        method: 'POST', 
+        path: '/v1/session/auto-analyze', 
+        description: 'Auto-fetch tournament history from Epic', 
+        credits: 75, 
+        tier: 'pro',
+        status: 'beta',
+        response: '{"status": "queued"}' 
+      },
+      { 
+        method: 'POST', 
+        path: '/v1/ai/coach', 
+        description: 'Deep AI gameplay critique (Vertex AI)', 
+        credits: 30, 
+        tier: 'pro',
+        status: 'beta',
+        response: '{"early_game": "..."}' 
+      },
+      { 
+        method: 'POST', 
+        path: '/v1/ai/weapon-coach', 
+        description: 'AI loadout optimization advice', 
+        credits: 20, 
+        tier: 'pro',
+        status: 'beta',
+        response: '{"advice": "..."}' 
+      },
+      { 
+        method: 'POST', 
+        path: '/v1/ai/opponent-scout', 
+        description: 'AI scouting report on rival players', 
+        credits: 25, 
+        tier: 'pro',
+        status: 'beta',
+        response: '{"playstyle": "W-Keyer"}' 
+      },
+      { 
+        method: 'POST', 
+        path: '/v1/ai/rotation-review', 
+        description: 'AI feedback on zone strategy', 
+        credits: 15, 
+        tier: 'pro',
+        status: 'beta',
+        response: '{"notes": "..."}' 
+      },
+    ]
+  },
+  {
+    title: "5. Enhanced Intelligence",
+    description: "Data visualization and comparison utilities.",
+    endpoints: [
+      { 
+        method: 'POST', 
+        path: '/v1/replay/enhanced/heatmap', 
+        description: 'Map density grid of movements/kills', 
+        credits: 15, 
+        tier: 'pro',
+        response: '{"heatmap": [...]}' 
+      },
+      { 
+        method: 'POST', 
+        path: '/v1/replay/enhanced/timeline', 
+        description: 'Unified event feed (Storm/Kills/Movement)', 
+        credits: 10, 
+        tier: 'free',
+        response: '{"timeline": [...]}' 
+      },
+      { 
+        method: 'POST', 
+        path: '/v1/replay/enhanced/compare', 
+        description: 'Side-by-side comparison of two replays', 
+        credits: 25, 
+        tier: 'pro',
+        response: '{"comparison": {...}}' 
+      },
+      { 
+        method: 'POST', 
+        path: '/v1/replay/enhanced/clutch', 
+        description: 'Detects peak-performance clutch moments', 
+        credits: 20, 
+        tier: 'pro',
+        response: '{"clutch_moments": [...]}' 
+      },
+    ]
+  },
+  {
+    title: "6. Integrations & Authentication",
+    description: "Account connectivity and auth flow.",
+    endpoints: [
+      { 
+        method: 'POST', 
+        path: '/v1/auth/register', 
+        description: 'New account sign up (+100 Credits)', 
+        credits: 0, 
+        tier: 'free',
+        status: 'free',
+        response: '{"status": "active"}' 
+      },
+      { 
+        method: 'POST', 
+        path: '/v1/auth/login', 
+        description: 'Exchange credentials for JWT', 
+        credits: 0, 
+        tier: 'free',
+        status: 'free',
+        response: '{"token": "..."}' 
+      },
+      { 
+        method: 'POST', 
+        path: '/v1/epic/connect', 
+        description: 'Link your Epic Games account', 
+        credits: 0, 
+        tier: 'free',
+        status: 'free',
+        response: '{"connected": true}' 
+      },
+      { 
+        method: 'GET', 
+        path: '/v1/epic/status', 
+        description: 'Verify Epic OAuth connection status', 
+        credits: 0, 
+        tier: 'free',
+        status: 'free',
+        response: '{"connected": true}' 
       },
     ]
   }

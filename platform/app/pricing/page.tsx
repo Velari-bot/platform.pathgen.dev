@@ -48,10 +48,10 @@ const packs = [
 
 const costs = [
   { endpoint: "/v1/replay/parse", desc: "Core binary extraction", cost: 20, tier: "Free" },
-  { endpoint: "/v1/ai/analyze", desc: "Gemini Tactical Coaching", cost: 15, tier: "Pro Only" },
-  { endpoint: "/v1/replay/enhanced/heatmap", desc: "Density Grid Generation", cost: 25, tier: "Pro Only" },
-  { endpoint: "/v1/game/stats", desc: "Fused Career Statistics", cost: 5, tier: "Free" },
-  { endpoint: "/v1/game/shop", desc: "Item Shop (R2 Mirror)", cost: 2, tier: "Free" },
+  { endpoint: "/v1/ai/coach", desc: "Deep AI Tactical Coaching", cost: 30, tier: "Pro Only" },
+  { endpoint: "/v1/game/stats", desc: "Unified Career Statistics", cost: 5, tier: "Pro" },
+  { endpoint: "/v1/replay/enhanced/heatmap", desc: "Density Grid Generation", cost: 15, tier: "Pro Only" },
+  { endpoint: "/v1/game/shop", desc: "Fused Item Shop Data", cost: 1, tier: "Free" },
 ];
 
 export default function PricingPage() {

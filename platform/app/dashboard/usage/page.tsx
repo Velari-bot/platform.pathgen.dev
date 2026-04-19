@@ -3,28 +3,15 @@
 import { motion } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { 
-  BarChart, 
-  PieChart, 
-  Activity, 
-  Terminal, 
-  ExternalLink,
-  ChevronRight,
-  TrendingUp,
-  Database,
-  Search,
-  BookOpen,
-  ArrowRight
-} from "lucide-react";
 import { UsageChart } from "@/components/usage-chart";
 import { Badge } from "@/components/ui/badge";
 
 const usageByEndpoint = [
-  { endpoint: "/v1/replay/parse", calls: 12402, credits: 62010, pct: 60 },
-  { endpoint: "/v1/session/stream", calls: 2101, credits: 25212, pct: 24 },
-  { endpoint: "/v1/replay/meta", calls: 842, credits: 842, pct: 8 },
-  { endpoint: "/v1/game/ranked", calls: 104, credits: 104, pct: 4 },
-  { endpoint: "/v1/auth/verify", calls: 41, credits: 0, pct: 4 },
+  { endpoint: "/v1/replay/parse", calls: 12402, credits: 62010, pct: 60, errorRate: "0.04%" },
+  { endpoint: "/v1/game/stats", calls: 2101, credits: 10505, pct: 24, errorRate: "0.12%" },
+  { endpoint: "/v1/ai/coach", calls: 842, credits: 25260, pct: 12, errorRate: "0.25%" },
+  { endpoint: "/v1/game/ranked", calls: 104, credits: 520, pct: 2, errorRate: "0.00%" },
+  { endpoint: "/v1/auth/login", calls: 41, credits: 0, pct: 2, errorRate: "0.08%" },
 ];
 
 export default function UsagePage() {
@@ -126,7 +113,7 @@ export default function UsagePage() {
                      <TableCell className="text-xs font-bold">{u.calls.toLocaleString()}</TableCell>
                      <TableCell className="text-xs font-bold text-emerald-400">{u.credits.toLocaleString()} Cr</TableCell>
                      <TableCell className="pr-6 text-right font-mono text-rose-500/60 text-xs">
-                       {(Math.random() * 0.5).toFixed(2)}%
+                       {u.errorRate}
                      </TableCell>
                   </TableRow>
                 ))}

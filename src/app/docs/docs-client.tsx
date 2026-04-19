@@ -101,7 +101,7 @@ export default function DocsClient() {
            </Link>
            <div style={{width: '1px', height: '24px', background: '#EEECE7'}} />
            <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-              <img src="/Pathgen Platform.png" alt="Pathgen Logo" style={{height: '24px', width: 'auto', borderRadius: '6px'}} />
+              <img src="/logo.png" alt="Pathgen Logo" style={{height: '24px', width: 'auto', borderRadius: '6px'}} />
               <span style={{fontWeight: 800, fontSize: '1rem', letterSpacing: '-0.02em'}}>Pathgen Docs</span>
            </div>
         </div>

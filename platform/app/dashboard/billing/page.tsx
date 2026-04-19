@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
 import { useAuth } from "@/hooks/useAuth";
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 const transactions = [
@@ -46,8 +46,9 @@ function BillingContent() {
       const { url, error } = await resp.json();
       if (error) throw new Error(error);
       window.location.href = url;
-    } catch (e: any) {
-      alert(e.message);
+    } catch (e) {
+      const error = e as Error;
+      alert(error.message);
       setIsProcessing(null);
     }
   };
