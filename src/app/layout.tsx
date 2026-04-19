@@ -74,10 +74,10 @@ export const metadata: Metadata = {
     telephone: false
   },
   icons: {
-    icon: '/Pathgen Platform.png',
-    shortcut: '/Pathgen Platform.png',
-    apple: '/Pathgen Platform.png',
-  }
+    icon: '/icon.png',
+    shortcut: '/favicon.ico',
+    apple: '/apple-icon.png',
+  },
 }
 
 export default function RootLayout({

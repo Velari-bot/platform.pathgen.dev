@@ -3,8 +3,9 @@ import { adminDb } from '@/lib/firebase/admin';
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id: docId } = await params;
   try {
     const adminToken = req.headers.get('x-admin-token');
     if (adminToken !== process.env.ADMIN_INTERNAL_SECRET) {
@@ -12,7 +13,6 @@ export async function PATCH(
     }
 
     const { message, status } = await req.json();
-    const docId = params.id;
     const now = new Date().toISOString();
 
     const docRef = adminDb.collection('status_incidents').doc(docId);

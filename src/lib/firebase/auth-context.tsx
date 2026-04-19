@@ -77,8 +77,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (loading) return;
 
-    const publicPaths = ['/', '/map-demo', '/privacy', '/terms', '/usage-policy'];
-    const isPublicPath = publicPaths.includes(pathname);
+    const isPublicPath = pathname === '/' || 
+                        pathname === '/pricing' || 
+                        pathname === '/docs' || 
+                        pathname === '/status' || 
+                        pathname === '/signup' || 
+                        pathname === '/login' || 
+                        pathname === '/privacy' || 
+                        pathname === '/terms' || 
+                        pathname === '/usage-policy' || 
+                        pathname === '/blog' || 
+                        pathname === '/map-demo' ||
+                        pathname?.startsWith('/blog/') || 
+                        pathname?.startsWith('/docs/');
     
     if (!user && !isPublicPath) {
       router.push('/');

@@ -1,111 +1,65 @@
-# PathGen API Documentation
+# Pathgen API v1.2.6 Service Map
+
+This is the full **Pathgen API v1.2.6 Service Map**. It includes all public, private, and experimental endpoints currently active on the server.
+
+> [!NOTE]
+> **Authentication**: All endpoints (except public health) require an `Authorization: Bearer <token>` header. Match-related endpoints deduct credits from the user's Firestore profile automatically.
 
 ---
 
-### **1. Authentication & Global Routes**
-All `/v1` routes require your API Key in the `X-API-Key` or `Authorization: Bearer` header.
-- **`GET /health`**: Primary health check. **Cost: Free**.
-- **`GET /health/detailed`**: Full system status (DB, Storage, External APIs). **Cost: Free**.
-- **`GET /metrics`**: Prometheus-compatible system metrics. Supports `?format=json`. **Cost: Free**.
-- **`GET /v1/game/ping`**: Network latency and timestamp test. **Cost: Free**.
-
----
-
-### **2. Game World Data** (`/v1/game/*`)
-| Endpoint | Method | Cost | Description |
-| :--- | :--- | :--- | :--- |
-| `/v1/game/map` | GET | **Free** | URLs for raw high-res Fortnite maps. |
-| `/v1/game/map/config` | GET | **Free** | Leaflet.js configuration (bounds, POIs). |
-| `/v1/game/map/tiles` | GET | **60 Credits**| Full list of tile URLs (36h unlimited pass). |
-| `/v1/game/news` | GET | **Free** | Latest game news and patch notes. |
-| `/v1/game/playlists` | GET | **Free** | Current active game modes and LTMs. |
-| `/v1/game/weapons` | GET | **Free** | List of current weapon pool. |
-
-**Example Search Response (`GET /v1/game/cosmetics/search?name=Aura`):**
-```json
-{
-  "status": 200,
-  "data": { "id": "CID_386_Athena_Commando_F_StreetFighter", "name": "Aura", "rarity": "Uncommon" }
-}
-```
-
----
-
-### **3. Player Statistics** (`/v1/game/*`)
-| Endpoint | Method | Cost | Description |
-| :--- | :--- | :--- | :--- |
-| `/v1/game/lookup` | GET | **Free** | Map names to Account IDs. |
-| `/v1/game/ranked` | GET | **Free** | Current rank, progress, and leaderboard. |
-| `/v1/game/stats` | GET | **Free** | Lifetime and seasonal K/D, Wins, Matches. |
-
-**Example Stats Response (`GET /v1/game/stats?name=Ninja`):**
-```json
-{
-  "status": 200,
-  "data": { "account": { "name": "Ninja" }, "stats": { "br": { "kd": 8.42, "wins": 7500 } } }
-}
-```
-
----
-
-### **4. Replay Parsing** (`/v1/replay/*`)
-All parser routes require a `.replay` file upload in the `replay` field (Multipart).
-| Endpoint | Method | Cost | Return Data |
-| :--- | :--- | :--- | :--- |
-| `/v1/replay/parse` | POST | **20 Credits** | Full recursive parse of all data. |
-| `/v1/replay/stats` | POST | **5 Credits** | Quick combat & building summary. |
-| `/v1/replay/scoreboard`| POST | **8 Credits** | Full lobby listing (Name, Kills, Rank). |
-| `/v1/replay/movement` | POST | **8 Credits** | Drop location and movement heatmap. |
-| `/v1/replay/events` | POST | **10 Credits** | Full chronological kill-feed. |
-| `/v1/replay/drop-analysis`| POST | **15 Credits**| Drop efficiency score and competition. |
-
----
-
-### **5. Account & Keys** (`/v1/account/*`)
-| Endpoint | Method | Cost | Description |
-| :--- | :--- | :--- | :--- |
-| `/v1/account/balance` | GET | **Free** | Your current credit balance. |
-| `/v1/account/keys` | GET | **Free** | List all your active API keys. |
-| `/v1/account/keys` | POST | **Free** | Generate a new `rs_` API key. |
-| `/v1/account/keys/:id` | DELETE | **Free** | Revoke an existing API key. |
-| `/v1/account/usage` | GET | **Free** | Total request count lifetime. |
-
----
-
-### **6. Billing** (`/v1/billing/*`)
-- **`GET /v1/billing/history`**: Records of all credit purchases. **Cost: Free**.
-- **`POST /v1/billing/checkout`**: Generates a Stripe checkout URL for credit packs. **Cost: Free**.
-- **`POST /v1/billing/webhook`**: System endpoint for processing Stripe payments.
-
----
-
-### **7. Admin Logs** (`/logs/*`)
-*Requires Admin privileges (Secret required in config).*
-- **`GET /logs/requests`**: Paginated history of all API requests.
-- **`GET /logs/errors`**: Trace logs for failed parses or 500 errors.
-- **`GET /logs/live`**: Server-Sent Events (SSE) stream for live traffic monitoring.
-
-#### **Request Log Structure:**
-```json
-{
-  "id": "req_5502",
-  "endpoint": "POST /v1/replay/parse",
-  "status": 200,
-  "credits_used": 20,
-  "duration_ms": 1102,
-  "timestamp": "2026-03-27T13:42:00Z"
-}
-```
-
----
-
-### **8. AI Analysis & Coaching** (`/v1/ai/*`)
-Leverage Gemini 2.0 Flash reasoning for deep tactical match analysis.
+### ╼ CORE PARSING & REPLAY ENDPOINTS ╾
+*Typically used for standard match processing.*
 
 | Endpoint | Method | Cost | Description |
-| :--- | :--- | :--- | :--- |
-| `/v1/ai/coach` | POST | **30 Credits** | Comprehensive single-match tactical breakdown. |
-| `/v1/ai/session-coach`| POST | **50 Credits** | Multi-match analysis for tournament pattern recognition. |
-| `/v1/ai/weapon-coach` | POST | **20 Credits** | Mastery report comparing equip counts to actual damage. |
-| `/v1/ai/drop-recommend`| POST | **20 Credits** | Survival-based landing advice for specific bus routes. |
-| `/v1/ai/opponent-scout`| POST | **25 Credits**| Playstyle identification (Aggro / Passive) based on stats. |
+| :--- | :---: | :---: | :--- |
+| `/v1/replay/parse` | **POST** | 20cr | **Main Entry.** Full statistical extraction. |
+| `/v1/replay/stats` | **POST** | 5cr | Summary stats only (no events/scoreboard). |
+| `/v1/replay/scoreboard` | **POST** | 8cr | Full 100-player lobby scoreboard only. |
+| `/v1/replay/movement` | **POST** | 8cr | Locational data and distances (foot/vehicle/sky). |
+| `/v1/replay/weapons` | **POST** | 8cr | Deep dive into weapon handle performance. |
+| `/v1/replay/events` | **POST** | 10cr | Elimination feed and key match events. |
+| `/v1/replay/drop-analysis`| **POST** | 15cr | Land-site scoring and optimization metrics. |
+| `/v1/replay/rotation-score`| **POST** | 25cr | **High Precision.** Storm zone rotation grading. |
+| `/v1/replay/match-info` | **POST** | 5cr | Metadata lookup for a server-side match ID. |
+| `/v1/replay/download-and-parse`| **POST** | 25cr | Automated fetch from Epic servers + Parse. |
+
+---
+
+### ╼ AI COACHING & ANALYTICS ╾
+*Premium endpoints powered by Gemini 2.5 Flash.*
+
+| Endpoint | Method | Cost | Description |
+| :--- | :--- | :---: | :--- |
+| `/v1/ai/analyze` | **POST** | 15cr | Match summary, strengths/weaknesses. |
+| `/v1/ai/coach` | **POST** | 30cr | Deep tactical review (Early/Mid/Late game). |
+| `/v1/ai/session-coach` | **POST** | 50cr | Multi-match trend analysis (Up to 6 files). |
+| `/v1/ai/weapon-coach` | **POST** | 20cr | Aim & Loadout critique based on weapon data. |
+| `/v1/ai/drop-recommend` | **POST** | 20cr | Dynamic landing recommendation via AI. |
+| `/v1/ai/opponent-scout` | **POST** | 25cr | Playstyle & threat analysis on a specific player. |
+| `/v1/ai/rotation-review`| **POST** | 15cr | Narrative explanation of rotation performance. |
+
+---
+
+### ╼ ACCOUNT, AUTH & BILLING ╾
+*System-level management.*
+
+| Endpoint | Method | Cost | Description |
+| :--- | :--- | :---: | :--- |
+| `/v1/auth/login` | **POST** | 0cr | Secure token exchange. |
+| `/v1/auth/register` | **POST** | 0cr | New user onboarding. |
+| `/v1/account/me` | **GET** | 0cr | Current profile and credit balance. |
+| `/v1/billing/topup` | **POST** | 0cr | Credit purchase via Stripe. |
+| `/v1/epic/auth-url` | **GET** | 0cr | Get Epic Games OAuth login link. |
+| `/v1/epic/connect` | **POST** | 0cr | Finalize Epic account linking. |
+
+---
+
+### ╼ SYSTEM & INFRASTRUCTURE ╾
+*Health and diagnostics.*
+
+| Endpoint | Method | Description |
+| :--- | :--- | :--- |
+| `/health` | **GET** | Basic system uptime check. |
+| `/health/detailed` | **GET** | DB, R2, and Epic API heartbeat check. |
+| `/metrics` | **GET** | Prometheus metrics for monitoring. |
+| `/v1/spec` | **GET** | Full OpenAPI / Swagger documentation. |

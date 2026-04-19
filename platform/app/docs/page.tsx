@@ -13,11 +13,8 @@ import {
   ArrowRight,
   ChevronRight,
   Zap,
-  Globe,
-  User,
   Activity,
-  CreditCard,
-  FileText
+  CreditCard
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -26,13 +23,10 @@ import { useState } from "react";
 const sections = [
   { id: "intro", label: "Introduction", icon: BookOpen },
   { id: "auth", label: "Authentication", icon: ShieldCheck },
-  { id: "game", label: "Game World", icon: Globe },
-  { id: "stats", label: "Player Statistics", icon: User },
-  { id: "replays", label: "Replay Parsing", icon: Activity },
-  { id: "account", label: "Account & Keys", icon: ShieldCheck },
-  { id: "billing", label: "Billing", icon: CreditCard },
-  { id: "ai", label: "AI Analysis", icon: Activity },
-  { id: "admin", label: "Admin Logs", icon: FileText },
+  { id: "replays", label: "Core & Replay", icon: Activity },
+  { id: "ai", label: "AI & Coaching", icon: Zap },
+  { id: "account", label: "Account & Billing", icon: CreditCard },
+  { id: "system", label: "System & Infra", icon: Terminal },
 ];
 
 export default function DocumentationPage() {
@@ -94,14 +88,13 @@ export default function DocumentationPage() {
                   className="space-y-4"
                >
                   <div className="flex items-center gap-2">
-                     <Badge className="bg-primary/20 text-primary border-primary/20 uppercase text-[10px] font-bold">PathGen v1.0</Badge>
+                     <Badge className="bg-primary/20 text-primary border-primary/20 uppercase text-[10px] font-bold">PathGen API v1.2.6</Badge>
                      <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Enterprise API Documentation</span>
                   </div>
                   <h1 className="text-4xl font-bold tracking-tight glow-text">Introduction</h1>
                   <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl">
-                    Welcome to the comprehensive reference for the PathGen API. Our infrastructure is built to 
-                    support professional Fortnite applications with sub-second parsing and high-fidelity 
-                    telemetry.
+                    Welcome to the Pathgen v1.2.6 Service Map. Our infrastructure provides professional-grade Fortnite
+                    replay parsing, AI-powered tactical coaching, and scalable account management.
                   </p>
                </motion.header>
 
@@ -117,144 +110,20 @@ export default function DocumentationPage() {
 
             {/* Auth */}
             <section id="auth" className="space-y-6 scroll-mt-24">
-               <h2 className="text-2xl font-bold tracking-tight border-b border-white/5 pb-4">1. Auth & Global</h2>
-               <p className="text-sm text-muted-foreground">All `/v1` routes require your secret API Key passed in the `X-API-Key` or `Authorization: Bearer` header.</p>
+               <h2 className="text-2xl font-bold tracking-tight border-b border-white/5 pb-4">1. Authentication</h2>
+               <p className="text-sm text-muted-foreground">All `/v1` routes require your secret API Key passed in the `Authorization: Bearer` header.</p>
                
-               <Card className="glass-card bg-card/10 border-white/5 overflow-hidden">
-                  <Table>
-                     <TableHeader className="bg-white/[0.02]">
-                        <TableRow className="border-white/5 hover:bg-transparent">
-                           <TableHead className="w-[200px] text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Endpoint</TableHead>
-                           <TableHead className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Method</TableHead>
-                           <TableHead className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Cost</TableHead>
-                           <TableHead className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground text-right pr-6">Description</TableHead>
-                        </TableRow>
-                     </TableHeader>
-                     <TableBody>
-                        {[
-                           { route: "/health", method: "GET", cost: "Free", desc: "System health check" },
-                           { route: "/health/detailed", method: "GET", cost: "Free", desc: "Full infrastructure status" },
-                           { route: "/metrics", method: "GET", cost: "Free", desc: "System performance (supports ?format=json)" },
-                           { route: "/v1/game/ping", method: "GET", cost: "Free", desc: "Latency & timestamp test" },
-                        ].map((e, i) => (
-                           <TableRow key={i} className="border-white/5 hover:bg-white/[0.02]">
-                              <TableCell className="font-mono text-xs font-bold">{e.route}</TableCell>
-                              <TableCell><Badge variant="outline" className="text-[10px] border-white/10">{e.method}</Badge></TableCell>
-                              <TableCell className="text-xs text-primary font-bold">{e.cost}</TableCell>
-                              <TableCell className="text-xs text-muted-foreground text-right pr-6">{e.desc}</TableCell>
-                           </TableRow>
-                        ))}
-                     </TableBody>
-                  </Table>
-               </Card>
+               <div className="bg-black/20 font-mono text-xs p-4 rounded-lg border border-white/5">
+                 Authorization: Bearer pg_live_xxxxxxxxxxx
+               </div>
             </section>
 
-            {/* Game Data */}
-            <section id="game" className="space-y-6 scroll-mt-24">
-               <h2 className="text-2xl font-bold tracking-tight border-b border-white/5 pb-4">2. Game World Data</h2>
-               <p className="text-sm text-muted-foreground">Access static and real-time game world configurations, including island maps and loot pool updates.</p>
-               
-               <Card className="glass-card bg-card/10 border-white/5 overflow-hidden">
-                  <Table>
-                     <TableHeader className="bg-white/[0.02]">
-                        <TableRow className="border-white/5 hover:bg-transparent">
-                           <TableHead className="w-[200px] text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Endpoint</TableHead>
-                           <TableHead className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Cost</TableHead>
-                           <TableHead className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground text-right pr-6">Description</TableHead>
-                        </TableRow>
-                     </TableHeader>
-                     <TableBody>
-                        {[
-                           { route: "/v1/game/map", cost: "Free", desc: "High-res raw island map URLs" },
-                           { route: "/v1/game/map/config", cost: "Free", desc: "Leaflet.js coordinate & POI config" },
-                           { route: "/v1/game/map/tiles", cost: "60 Credits", desc: "Full tile URL list (36h pass)" },
-                           { route: "/v1/game/news", cost: "Free", desc: "Latest patch and game news" },
-                           { route: "/v1/game/playlists", cost: "Free", desc: "Active modes and LTMs" },
-                           { route: "/v1/game/weapons", cost: "Free", desc: "Current weapon loot pool stats" },
-                        ].map((e, i) => (
-                           <TableRow key={i} className="border-white/5 hover:bg-white/[0.02]">
-                              <TableCell className="font-mono text-xs font-bold">{e.route}</TableCell>
-                              <TableCell className="text-xs text-primary font-bold">{e.cost}</TableCell>
-                              <TableCell className="text-xs text-muted-foreground text-right pr-6">{e.desc}</TableCell>
-                           </TableRow>
-                        ))}
-                     </TableBody>
-                  </Table>
-               </Card>
-            </section>
-
-            {/* Player Stats */}
-            <section id="stats" className="space-y-6 scroll-mt-24">
-               <h2 className="text-2xl font-bold tracking-tight border-b border-white/5 pb-4">3. Player Statistics</h2>
-               <p className="text-sm text-muted-foreground">Fetch lifetime and seasonal statistics for any public Fortnite profile.</p>
-               
-               <Card className="glass-card bg-card/10 border-white/5 overflow-hidden">
-                  <Table>
-                     <TableHeader className="bg-white/[0.02]">
-                        <TableRow className="border-white/5 hover:bg-transparent">
-                           <TableHead className="w-[200px] text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Endpoint</TableHead>
-                           <TableHead className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Cost</TableHead>
-                           <TableHead className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground text-right pr-6">Description</TableHead>
-                        </TableRow>
-                     </TableHeader>
-                     <TableBody>
-                        {[
-                           { route: "/v1/game/lookup", cost: "Free", desc: "Map display names to account IDs" },
-                           { route: "/v1/game/ranked", cost: "Free", desc: "Current rank & division progress" },
-                           { route: "/v1/game/stats", cost: "Free", desc: "Lifetime K/D, Wins, and Matches" },
-                        ].map((e, i) => (
-                           <TableRow key={i} className="border-white/5 hover:bg-white/[0.02]">
-                              <TableCell className="font-mono text-xs font-bold">{e.route}</TableCell>
-                              <TableCell className="text-xs text-primary font-bold">{e.cost}</TableCell>
-                              <TableCell className="text-xs text-muted-foreground text-right pr-6">{e.desc}</TableCell>
-                           </TableRow>
-                        ))}
-                     </TableBody>
-                  </Table>
-               </Card>
-            </section>
-
-            {/* Parsing */}
+            {/* Core & Replay */}
             <section id="replays" className="space-y-6 scroll-mt-24">
                <div className="flex items-center justify-between border-b border-white/5 pb-4">
-                  <h2 className="text-2xl font-bold tracking-tight">4. Replay Parsing</h2>
-                  <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/20">Multipart Required</Badge>
+                  <h2 className="text-2xl font-bold tracking-tight">2. Core Parsing & Replay</h2>
                </div>
-               <p className="text-sm text-muted-foreground">The core PathGen payload. Upload .replay files to receive specialized telemetry analysis.</p>
-               
-               <Card className="glass-card bg-card/10 border-white/5 overflow-hidden">
-                  <Table>
-                     <TableHeader className="bg-white/[0.02]">
-                        <TableRow className="border-white/5 hover:bg-transparent">
-                           <TableHead className="w-[200px] text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Endpoint</TableHead>
-                           <TableHead className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Cost</TableHead>
-                           <TableHead className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground text-right pr-6">Returned Data</TableHead>
-                        </TableRow>
-                     </TableHeader>
-                     <TableBody>
-                        {[
-                           { route: "/v1/replay/parse", cost: "20 Credits", data: "Full recursive match telemetry" },
-                           { route: "/v1/replay/stats", cost: "5 Credits", data: "Combat & build summary" },
-                           { route: "/v1/replay/scoreboard", cost: "8 Credits", data: "Complete lobby rank & kills" },
-                           { route: "/v1/replay/movement", cost: "8 Credits", data: "Drop, death, and heatmap path" },
-                           { route: "/v1/replay/events", cost: "10 Credits", data: "Chronological kill/storm feed" },
-                           { route: "/v1/replay/drop-analysis", cost: "15 Credits", data: "Physics-based landing score" },
-                        ].map((e, i) => (
-                           <TableRow key={i} className="border-white/5 hover:bg-white/[0.02]">
-                              <TableCell className="font-mono text-xs font-bold">{e.route}</TableCell>
-                              <TableCell className="text-xs text-primary font-bold">{e.cost}</TableCell>
-                              <TableCell className="text-xs text-muted-foreground text-right pr-6 font-bold">{e.data}</TableCell>
-                           </TableRow>
-                        ))}
-                     </TableBody>
-                  </Table>
-               </Card>
-            </section>
-
-            {/* Account */}
-            <section id="account" className="space-y-6 scroll-mt-24">
-               <h2 className="text-2xl font-bold tracking-tight border-b border-white/5 pb-4">5. Account & Keys</h2>
-               <p className="text-sm text-muted-foreground">Manage your developer account, check credit balances, and generate API keys.</p>
+               <p className="text-sm text-muted-foreground">High-precision extraction from .replay files. Credits deducted automatically on success.</p>
                
                <Card className="glass-card bg-card/10 border-white/5 overflow-hidden">
                   <Table>
@@ -267,9 +136,16 @@ export default function DocumentationPage() {
                      </TableHeader>
                      <TableBody>
                         {[
-                           { route: "/v1/account/balance", cost: "Free", desc: "Check current remaining credits" },
-                           { route: "/v1/account/keys", cost: "Free", desc: "List or generate secret rs_ keys" },
-                           { route: "/v1/account/usage", cost: "Free", desc: "Lifetime request count history" },
+                           { route: "/v1/replay/parse", cost: "20cr", desc: "Main Entry. Full statistical extraction." },
+                           { route: "/v1/replay/stats", cost: "5cr", desc: "Summary stats only (no events/scoreboard)." },
+                           { route: "/v1/replay/scoreboard", cost: "8cr", desc: "Full 100-player lobby scoreboard only." },
+                           { route: "/v1/replay/movement", cost: "8cr", desc: "Locational data and distances." },
+                           { route: "/v1/replay/weapons", cost: "8cr", desc: "Deep dive weapon handle performance." },
+                           { route: "/v1/replay/events", cost: "10cr", desc: "Elimination feed and key match events." },
+                           { route: "/v1/replay/drop-analysis", cost: "15cr", desc: "Land-site scoring and optimization." },
+                           { route: "/v1/replay/rotation-score", cost: "25cr", desc: "High Precision storm rotation grading." },
+                           { route: "/v1/replay/match-info", cost: "5cr", desc: "Metadata lookup for server match IDs." },
+                           { route: "/v1/replay/download-and-parse", cost: "25cr", desc: "Auto-fetch from Epic & parse." },
                         ].map((e, i) => (
                            <TableRow key={i} className="border-white/5 hover:bg-white/[0.02]">
                               <TableCell className="font-mono text-xs font-bold">{e.route}</TableCell>
@@ -285,10 +161,10 @@ export default function DocumentationPage() {
              {/* AI Analysis */}
             <section id="ai" className="space-y-6 scroll-mt-24">
                <div className="flex items-center justify-between border-b border-white/5 pb-4">
-                  <h2 className="text-2xl font-bold tracking-tight">6. AI Analysis & Coaching</h2>
-                  <Badge className="bg-primary/20 text-primary border-primary/20">Gemini 2.0 Flash</Badge>
+                  <h2 className="text-2xl font-bold tracking-tight">3. AI Coaching & Analytics</h2>
+                  <Badge className="bg-primary/20 text-primary border-primary/20">Gemini 2.5 Flash</Badge>
                </div>
-               <p className="text-sm text-muted-foreground">Reasoning-based tactical insights powered by the latest Gemini 2.0 models.</p>
+               <p className="text-sm text-muted-foreground">Premium tactical reviews powered by deep reasoning models.</p>
                
                <Card className="glass-card bg-card/10 border-white/5 overflow-hidden">
                   <Table>
@@ -296,16 +172,18 @@ export default function DocumentationPage() {
                         <TableRow className="border-white/5 hover:bg-transparent">
                            <TableHead className="w-[200px] text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Endpoint</TableHead>
                            <TableHead className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Cost</TableHead>
-                           <TableHead className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground text-right pr-6">Analysis Type</TableHead>
+                           <TableHead className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground text-right pr-6">Description</TableHead>
                         </TableRow>
                      </TableHeader>
                      <TableBody>
                         {[
-                           { route: "/v1/ai/coach", cost: "30 Credits", desc: "Full tactical match breakdown" },
-                           { route: "/v1/ai/session-coach", cost: "50 Credits", desc: "Multi-match pattern recognition" },
-                           { route: "/v1/ai/weapon-coach", cost: "20 Credits", desc: "Weapon mastery & equip analysis" },
-                           { route: "/v1/ai/drop-recommend", cost: "20 Credits", desc: "Route-based landing advice" },
-                           { route: "/v1/ai/opponent-scout", cost: "25 Credits", desc: "Playstyle ID & pattern mapping" },
+                           { route: "/v1/ai/analyze", cost: "15cr", desc: "Match summary, strengths/weaknesses." },
+                           { route: "/v1/ai/coach", cost: "30cr", desc: "Deep tactical review (Early/Mid/Late game)." },
+                           { route: "/v1/ai/session-coach", cost: "50cr", desc: "Multi-match trend analysis." },
+                           { route: "/v1/ai/weapon-coach", cost: "20cr", desc: "Aim & Loadout critique." },
+                           { route: "/v1/ai/drop-recommend", cost: "20cr", desc: "Dynamic landing recommendation." },
+                           { route: "/v1/ai/opponent-scout", cost: "25cr", desc: "Threat analysis on specific players." },
+                           { route: "/v1/ai/rotation-review", cost: "15cr", desc: "Narrative explanation of rotations." },
                         ].map((e, i) => (
                            <TableRow key={i} className="border-white/5 hover:bg-white/[0.02]">
                               <TableCell className="font-mono text-xs font-bold">{e.route}</TableCell>
@@ -318,27 +196,61 @@ export default function DocumentationPage() {
                </Card>
             </section>
 
-             {/* Admin */}
-             <section id="admin" className="space-y-6 scroll-mt-24 opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
-               <div className="flex items-center gap-3 border-b border-white/5 pb-4">
-                  <h2 className="text-2xl font-bold tracking-tight">7. Admin Logs</h2>
-                  <Badge variant="outline" className="text-[10px] font-bold border-white/10">RESTRICTED</Badge>
-               </div>
-               <p className="text-sm text-muted-foreground italic">Requires System Admin privileges. Standard developer keys cannot access these routes.</p>
+            {/* Account */}
+            <section id="account" className="space-y-6 scroll-mt-24">
+               <h2 className="text-2xl font-bold tracking-tight border-b border-white/5 pb-4">4. Account, Auth & Billing</h2>
+               <p className="text-sm text-muted-foreground">Manage your identity, credits, and linked game accounts.</p>
                
-               <Card className="glass-card bg-black/40 border-white/5 overflow-hidden">
-                  <div className="p-4 bg-white/[0.01] border-b border-white/5 flex items-center justify-between">
-                     <div className="text-[10px] font-bold text-muted-foreground uppercase opacity-40">Administrative Monitoring</div>
-                  </div>
+               <Card className="glass-card bg-card/10 border-white/5 overflow-hidden">
                   <Table>
+                     <TableHeader className="bg-white/[0.02]">
+                        <TableRow className="border-white/5 hover:bg-transparent">
+                           <TableHead className="w-[200px] text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Endpoint</TableHead>
+                           <TableHead className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Cost</TableHead>
+                           <TableHead className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground text-right pr-6">Description</TableHead>
+                        </TableRow>
+                     </TableHeader>
                      <TableBody>
                         {[
-                           { route: "/logs/requests", desc: "Paginated history of all globally processed requests" },
-                           { route: "/logs/errors", desc: "Internal trace logs and parser stack traces" },
-                           { route: "/logs/live", desc: "SSE stream for real-time traffic monitoring" },
+                           { route: "/v1/auth/login", cost: "FREE", desc: "Secure token exchange." },
+                           { route: "/v1/auth/register", cost: "FREE", desc: "New user onboarding." },
+                           { route: "/v1/account/me", cost: "FREE", desc: "Profile and credit balance." },
+                           { route: "/v1/billing/topup", cost: "FREE", desc: "Credit purchase via Stripe." },
+                           { route: "/v1/epic/auth-url", cost: "FREE", desc: "Get Epic OAuth login link." },
+                           { route: "/v1/epic/connect", cost: "FREE", desc: "Finalize Epic account linking." },
                         ].map((e, i) => (
                            <TableRow key={i} className="border-white/5 hover:bg-white/[0.02]">
-                              <TableCell className="font-mono text-xs font-bold pl-6">{e.route}</TableCell>
+                              <TableCell className="font-mono text-xs font-bold">{e.route}</TableCell>
+                              <TableCell className={`text-xs font-bold ${e.cost === 'FREE' ? 'text-emerald-500' : 'text-primary'}`}>{e.cost}</TableCell>
+                              <TableCell className="text-xs text-muted-foreground text-right pr-6">{e.desc}</TableCell>
+                           </TableRow>
+                        ))}
+                     </TableBody>
+                  </Table>
+               </Card>
+            </section>
+
+             {/* System */}
+             <section id="system" className="space-y-6 scroll-mt-24">
+               <h2 className="text-2xl font-bold tracking-tight border-b border-white/5 pb-4">5. System & Infrastructure</h2>
+               
+               <Card className="glass-card bg-card/10 border-white/5 overflow-hidden">
+                  <Table>
+                     <TableHeader className="bg-white/[0.02]">
+                        <TableRow className="border-white/5 hover:bg-transparent">
+                           <TableHead className="w-[200px] text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Endpoint</TableHead>
+                           <TableHead className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground text-right pr-6">Description</TableHead>
+                        </TableRow>
+                     </TableHeader>
+                     <TableBody>
+                        {[
+                           { route: "/health", desc: "Basic system uptime check." },
+                           { route: "/health/detailed", desc: "Full heartbeat check (DB, R2)." },
+                           { route: "/metrics", desc: "Prometheus metrics for monitoring." },
+                           { route: "/v1/spec", desc: "Full OpenAPI / Swagger docs." },
+                        ].map((e, i) => (
+                           <TableRow key={i} className="border-white/5 hover:bg-white/[0.02]">
+                              <TableCell className="font-mono text-xs font-bold">{e.route}</TableCell>
                               <TableCell className="text-xs text-muted-foreground text-right pr-6">{e.desc}</TableCell>
                            </TableRow>
                         ))}
@@ -354,9 +266,9 @@ export default function DocumentationPage() {
                     <h3 className="text-xl font-bold mb-2">Ready to start building?</h3>
                     <p className="text-xs text-muted-foreground">Jump into the dashboard to generate your first API key.</p>
                   </div>
-                  <Link href="/dashboard/keys">
+                  <Link href="/dashboard">
                      <Button className="bg-primary hover:bg-primary/90 rounded-xl font-bold h-12 px-8">
-                        Generate API Key <ArrowRight className="ml-2 h-4 w-4" />
+                        Get Started <ArrowRight className="ml-2 h-4 w-4" />
                      </Button>
                   </Link>
                </div>

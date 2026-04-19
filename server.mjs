@@ -17,8 +17,6 @@ import authRoutes from './routes/auth.mjs';
 import accountRoutes from './routes/account.mjs';
 import billingRoutes from './routes/billing.mjs';
 import replayRoutes from './routes/replay.mjs';
-import sessionRoutes from './routes/session.mjs';
-import gameRoutes from './routes/game.mjs';
 import aiRoutes from './routes/ai.mjs';
 
 const app = express();
@@ -38,17 +36,16 @@ app.use('/metrics', metricsRoutes);
 app.use('/logs', logsRoutes);
 
 // 3. API Version 1
-// Paid endpoints (Replay & Session) require credit check and rate limiting
 app.use('/v1/replay', rateLimitMiddleware, replayRoutes);
-app.use('/v1/session', rateLimitMiddleware, sessionRoutes);
 app.use('/v1/ai', rateLimitMiddleware, aiRoutes);
-
-
-// Free / Low-tier endpoints
 app.use('/v1/auth', authRoutes);
 app.use('/v1/account', accountRoutes);
 app.use('/v1/billing', billingRoutes);
-app.use('/v1', gameRoutes);
+
+// Metadata & Spec
+app.get('/v1/spec', (req, res) => {
+    res.json({ openapi: "3.0.0", info: { title: "Pathgen API", version: "1.2.6" } });
+});
 
 // Assets (Redirect to Cloudflare R2 for performance)
 app.use('/tiles', (req, res) => {

@@ -29,11 +29,11 @@ export const FAQ_DATA = [
   {
     category: "Data and Stats",
     items: [
-      { q: 'Why are some fields null in my response?', a: 'null means the parser could not find or extract that specific value from the replay binary. This happens for several reasons — the data is not recorded in that chunk type, the chunk was corrupted, the field requires an Epic account connection that has not been made, or the event simply did not occur in that match (for example a player who was never revived will have revives_received: null not revives_received: 0).' },
-      { q: 'What is the difference between null and zero?', a: 'null means the data was not found or could not be extracted. 0 means the data was successfully found and the value was explicitly zero. Never treat null as zero. A player with kills: null means the kill count could not be extracted. A player with kills: 0 means we confirmed they got no kills. The distinction matters for any calculation you build on top of the data.' },
-      { q: 'Why can\'t I get edit accuracy or weakpoint accuracy?', a: 'These metrics are not stored anywhere in the Fortnite .replay binary format. They are not encrypted, not hidden, and not a parsing limitation — they simply are not recorded. No replay parser can extract them from any Fortnite replay file because Epic does not write this data to the replay stream. They are included in the response schema as null for future compatibility if Epic ever adds them.' },
-      { q: 'How do I get ranked division and crown win data?', a: 'Connect the user\'s Epic account via the OAuth flow. Get the auth URL from GET /v1/epic/auth-url, have the user open it in their browser while logged into Epic, copy the authorization code, and POST it to POST /v1/epic/connect. Once connected, ranked division, promotion progress, and crown wins are automatically included in all subsequent parse responses under epic_data.' },
-      { q: 'How do I get a match ID for a tournament game?', a: 'Match IDs appear in the match_overview.session_id field of any successful parse response. They are also available in the Fortnite in-game replay browser. For tournament matches specifically, the Events API endpoints return match IDs for a given event and account ID — which is how POST /v1/session/auto-analyze works automatically.' }
+      { q: 'Why are some fields null in my response?', a: 'null means the parser could not find or extract that specific value from the replay binary. This happens for several reasons — the data is not recorded in that chunk type, the chunk was corrupted, the field requires an Epic account connection that has not been made, or the event simply did not occur in that match.' },
+      { q: 'What is the difference between null and zero?', a: 'null means the data was not found or could not be extracted. 0 means the data was successfully found and the value was explicitly zero. Never treat null as zero.' },
+      { q: 'Why can\'t I get edit accuracy or weakpoint accuracy?', a: 'These metrics are not stored in the Fortnite .replay binary format. Epic does not write this data to the replay stream.' },
+      { q: 'How do I get ranked division and crown win data?', a: 'Connect the user\'s Epic account via the OAuth flow. Get the auth URL from GET /v1/epic/auth-url, have the user open it in their browser while logged into Epic, copy the authorization code, and POST it to POST /v1/epic/connect.' },
+      { q: 'How do I get a match ID for a tournament game?', a: 'Match IDs appear in the match_info field of any successful parse response. You can also use /v1/replay/match-info to lookup metadata for a specific server-side match ID.' }
     ]
   },
   {
@@ -99,8 +99,8 @@ export const CREDIT_PACKS = [
 ];
 
 export const RATE_LIMITS = [
-  { tier: 'No API Key', limit: '60 per min', scope: 'Global / IP' },
-  { tier: 'Free (with Key)', limit: '120 per min', scope: 'API Key' },
-  { tier: 'Paid Replay Endpoints', limit: '30 per min', scope: 'API Key' },
-  { tier: 'Session Analyze / AI', limit: '5 per hr', scope: 'API Key' }
+  { tier: 'No API Key', limit: '30 per min', scope: 'Global / IP' },
+  { tier: 'Free (with Key)', limit: '60 per min', scope: 'API Key' },
+  { tier: 'Replay Endpoints', limit: '20 per min', scope: 'API Key' },
+  { tier: 'AI Coaching', limit: '5 per hr', scope: 'API Key' }
 ];

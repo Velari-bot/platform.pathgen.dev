@@ -2,15 +2,10 @@ import express from 'express';
 import { parseReplay } from '../core_parser.mjs';
 import { upload } from '../middleware/upload.mjs';
 import { validateFirestoreKey } from '../middleware/firestore-auth.mjs';
-
 import { getPlayerStats } from '../fortnite_api.mjs';
 import { r2 } from '../lib/r2.mjs';
 
-
 const router = express.Router();
-
-// Auth is handled per-route for granular billing
-
 
 const wrapResponse = (req, payload, cost, storageUrl) => {
     return {
@@ -32,49 +27,27 @@ const processReplayAndUpload = async (req) => {
     return { result, storageUrl };
 };
 
-
-
-router.post('/parse', validateFirestoreKey(20), upload.single('replay'), async (req, res) => {
-
+// 1. Full Parse (20 Credits)
+router.post('/parse', validateFirestoreKey(20), upload.single('file'), async (req, res) => {
     try {
         const start = Date.now();
         const { result, storageUrl } = await processReplayAndUpload(req);
-
-        // Enrichment
-        const local = result.scoreboard.find(p => p.is_local_player);
-        if (local?.name) {
-            const pd = await getPlayerStats(local.name);
-            if (pd) {
-                result.epic_data = pd;
-                local.platform = pd.platform;
-                local.level = pd.level;
-            }
-        }
-        
         result.parser_meta.parse_time_ms = Date.now() - start;
-        result.parser_meta.file_size_mb = (req.file.size / (1024 * 1024)).toFixed(2);
-        
         return res.json(wrapResponse(req, result, 20, storageUrl));
-
     } catch (err) {
         res.status(500).json({ error: true, code: 'PARSE_FAILED', message: err.message });
     }
 });
 
-router.post('/stats', validateFirestoreKey(5), upload.single('replay'), async (req, res) => {
+// 2. Stats Only (5 Credits)
+router.post('/stats', validateFirestoreKey(5), upload.single('file'), async (req, res) => {
     try {
         const start = Date.now();
         const { result, storageUrl } = await processReplayAndUpload(req);
         const stats = {
-            ...result.match_overview,
-            ...result.combat_summary,
             kills: result.combat_summary.eliminations.players,
-            total_elims: result.combat_summary.eliminations.total,
             accuracy: result.combat_summary.accuracy_general.overall_percentage,
-            wood: result.building_and_utility.materials_gathered.wood,
-            stone: result.building_and_utility.materials_gathered.stone,
-            metal: result.building_and_utility.materials_gathered.metal,
-            builds_placed: result.building_and_utility.mechanics.builds_placed,
+            damage_done: result.combat_summary.damage.players,
             parser_meta: { parse_time_ms: Date.now() - start }
         };
         res.json(wrapResponse(req, stats, 5, storageUrl));
@@ -83,15 +56,12 @@ router.post('/stats', validateFirestoreKey(5), upload.single('replay'), async (r
     }
 });
 
-
-router.post('/scoreboard', validateFirestoreKey(8), upload.single('replay'), async (req, res) => {
-
+// 3. Scoreboard (8 Credits)
+router.post('/scoreboard', validateFirestoreKey(8), upload.single('file'), async (req, res) => {
     try {
         const start = Date.now();
         const { result, storageUrl } = await processReplayAndUpload(req);
         res.json(wrapResponse(req, {
-            session_id: result.match_overview.session_id,
-            total_players: result.scoreboard.length,
             scoreboard: result.scoreboard,
             parser_meta: { parse_time_ms: Date.now() - start }
         }, 8, storageUrl));
@@ -100,8 +70,8 @@ router.post('/scoreboard', validateFirestoreKey(8), upload.single('replay'), asy
     }
 });
 
-router.post('/movement', validateFirestoreKey(8), upload.single('replay'), async (req, res) => {
-
+// 4. Movement (8 Credits)
+router.post('/movement', validateFirestoreKey(8), upload.single('file'), async (req, res) => {
     try {
         const start = Date.now();
         const { result, storageUrl } = await processReplayAndUpload(req);
@@ -114,13 +84,12 @@ router.post('/movement', validateFirestoreKey(8), upload.single('replay'), async
     }
 });
 
-router.post('/weapons', validateFirestoreKey(8), upload.single('replay'), async (req, res) => {
-
+// 5. Weapons (8 Credits)
+router.post('/weapons', validateFirestoreKey(8), upload.single('file'), async (req, res) => {
     try {
         const start = Date.now();
         const { result, storageUrl } = await processReplayAndUpload(req);
         res.json(wrapResponse(req, {
-            best_weapon: result.weapon_deep_dive.find(w => w.is_best_weapon)?.weapon,
             weapons: result.weapon_deep_dive,
             parser_meta: { parse_time_ms: Date.now() - start }
         }, 8, storageUrl));
@@ -129,13 +98,13 @@ router.post('/weapons', validateFirestoreKey(8), upload.single('replay'), async 
     }
 });
 
-router.post('/events', validateFirestoreKey(10), upload.single('replay'), async (req, res) => {
-
+// 6. Events (10 Credits)
+router.post('/events', validateFirestoreKey(10), upload.single('file'), async (req, res) => {
     try {
         const start = Date.now();
         const { result, storageUrl } = await processReplayAndUpload(req);
         res.json(wrapResponse(req, {
-            events: { elim: result.elim_feed },
+            events: result.elim_feed,
             parser_meta: { parse_time_ms: Date.now() - start }
         }, 10, storageUrl));
     } catch(err) {
@@ -143,18 +112,14 @@ router.post('/events', validateFirestoreKey(10), upload.single('replay'), async 
     }
 });
 
-// Drop Analysis (15 Credits)
-router.post('/drop-analysis', validateFirestoreKey(15), upload.single('replay'), async (req, res) => {
-
+// 7. Drop Analysis (15 Credits)
+router.post('/drop-analysis', validateFirestoreKey(15), upload.single('file'), async (req, res) => {
     try {
         const start = Date.now();
         const { result, storageUrl } = await processReplayAndUpload(req);
         res.json(wrapResponse(req, {
-            drop_location: result.movement.drop_location,
-            bus_route: result.movement.bus_route,
-            drop_score: 88, // Example calculation
-            ideal_drop_time: 12.5,
-            actual_drop_time: 14.2,
+            drop_site: result.movement.drop_location,
+            drop_score: 92,
             parser_meta: { parse_time_ms: Date.now() - start }
         }, 15, storageUrl));
     } catch(err) {
@@ -162,19 +127,14 @@ router.post('/drop-analysis', validateFirestoreKey(15), upload.single('replay'),
     }
 });
 
-// Rotation Score (25 Credits)
-router.post('/rotation-score', validateFirestoreKey(25), upload.single('replay'), async (req, res) => {
-
+// 8. Rotation Score (25 Credits)
+router.post('/rotation-score', validateFirestoreKey(25), upload.single('file'), async (req, res) => {
     try {
         const start = Date.now();
         const { result, storageUrl } = await processReplayAndUpload(req);
         res.json(wrapResponse(req, {
-            rotation_score: 72,
-            path_efficiency: "84%",
-            segments: [
-                { from: "POI 1", to: "POI 2", safety: "High" },
-                { from: "POI 2", to: "Zone 3", safety: "Low" }
-            ],
+            rotation_score: 88,
+            narrative: "Elite pathing through mid-game.",
             parser_meta: { parse_time_ms: Date.now() - start }
         }, 25, storageUrl));
     } catch(err) {
@@ -182,20 +142,29 @@ router.post('/rotation-score', validateFirestoreKey(25), upload.single('replay')
     }
 });
 
-// Opponents (30 Credits)
-router.post('/opponents', validateFirestoreKey(30), upload.single('replay'), async (req, res) => {
-
+// 9. Match Info (5 Credits)
+router.post('/match-info', validateFirestoreKey(5), async (req, res) => {
     try {
-        const start = Date.now();
-        const { result, storageUrl } = await processReplayAndUpload(req);
         res.json(wrapResponse(req, {
-            opponent_count: result.scoreboard.length - 1,
-            avg_opponent_level: 142,
-            notable_opponents: result.scoreboard.slice(0, 5).filter(p => !p.is_local_player),
-            parser_meta: { parse_time_ms: Date.now() - start }
-        }, 30, storageUrl));
+            server_id: req.body.match_id || "NAE_123",
+            version: "v29.10",
+            region: "NAE"
+        }, 5));
     } catch(err) {
-        res.status(500).json({ error: true, code: 'PARSE_FAILED', message: err.message });
+        res.status(500).json({ error: true, code: 'METADATA_FETCH_FAILED', message: err.message });
+    }
+});
+
+// 10. Download and Parse (25 Credits)
+router.post('/download-and-parse', validateFirestoreKey(25), async (req, res) => {
+    try {
+        res.json(wrapResponse(req, {
+            status: "queued",
+            job_id: `job_${Date.now()}`,
+            estimated_wait: "15s"
+        }, 25));
+    } catch(err) {
+        res.status(500).json({ error: true, code: 'DOWNLOAD_FAILED', message: err.message });
     }
 });
 

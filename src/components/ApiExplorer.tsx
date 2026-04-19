@@ -150,17 +150,18 @@ export default function ApiExplorer() {
                       <span style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, fontWeight: selectedEndpoint.path === ep.path ? 600 : 400}}>{ep.path}</span>
                       
                       <div style={{display: 'flex', gap: '4px'}}>
-                        {ep.tier === 'free' && (
-                            <span style={{fontSize: '0.6rem', fontWeight: 900, color: '#16A34A', background: '#F0FDF4', padding: '2px 6px', borderRadius: '4px', border: '1px solid #DCFCE7'}}>FREE</span>
-                        )}
                         {ep.tier === 'pro' && (
                             <span style={{fontSize: '0.6rem', fontWeight: 900, color: '#8B5CF6', background: '#F5F3FF', padding: '2px 6px', borderRadius: '4px', border: '1px solid #DDD6FE'}}>PRO</span>
                         )}
-                        {ep.credits && (
+                        {(typeof ep.credits === 'number' && ep.credits > 0) ? (
                             <span style={{fontSize: '0.6rem', fontWeight: 600, color: '#6366F1', background: '#EEF2FF', padding: '2px 6px', borderRadius: '4px', border: '1px solid #E0E7FF', display: 'flex', alignItems: 'center', gap: '3px'}}>
                               <Coins size={10} strokeWidth={3} />
                               {ep.credits}
                             </span>
+                        ) : (
+                          ep.tier === 'free' && (
+                            <span style={{fontSize: '0.6rem', fontWeight: 900, color: '#16A34A', background: '#F0FDF4', padding: '2px 6px', borderRadius: '4px', border: '1px solid #DCFCE7'}}>FREE</span>
+                          )
                         )}
                       </div>
                    </div>

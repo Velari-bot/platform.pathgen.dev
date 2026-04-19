@@ -28,7 +28,6 @@ export default function DocsClient() {
     { id: 'endpoints', name: 'API Reference', icon: <Terminal size={16} /> },
     { id: 'schema', name: 'Response Schema', icon: <Database size={16} /> },
     { id: 'faq', name: 'FAQ & Help', icon: <HelpCircle size={16} /> },
-    { id: 'advanced', name: 'Advanced', icon: <Layers size={16} /> },
   ];
 
   const tocItems = useMemo(() => {
@@ -48,9 +47,6 @@ export default function DocsClient() {
     }
     if (activeCategory === 'faq') {
        return [{ id: 'faq-section', title: 'Frequently Asked Questions' }, { id: 'changelog', title: 'Changelog' }];
-    }
-    if (activeCategory === 'advanced') {
-       return [{ id: 'map-tiles', title: 'Map and Tiles' }, { id: 'sdks', title: 'SDKs & Libraries' }];
     }
     return [];
   }, [activeCategory]);
@@ -134,7 +130,13 @@ export default function DocsClient() {
         </div>
       </div>
 
-      <div style={{display: 'grid', gridTemplateColumns: 'minmax(240px, 280px) 1fr minmax(200px, 260px)', maxWidth: '1600px', margin: '0 auto'}}>
+      <div style={{
+        display: 'grid', 
+        gridTemplateColumns: 'minmax(240px, 280px) 1fr minmax(200px, 260px)', 
+        maxWidth: '1600px', 
+        margin: '0 auto',
+        width: '100%'
+      }}>
         
         {/* Navigation Sidebar */}
         <aside style={{ position: 'sticky', top: '64px', height: 'calc(100vh - 64px)', padding: '32px 16px', borderRight: '1px solid #EEECE7', overflowY: 'auto' }}>
@@ -158,7 +160,7 @@ export default function DocsClient() {
         </aside>
 
         {/* Content Area */}
-        <main style={{padding: '48px 64px 120px'}}>
+        <main style={{padding: '48px 40px 120px', minWidth: 0}}>
            
            <div className="fade-in">
               {searchQuery ? (
@@ -175,8 +177,6 @@ export default function DocsClient() {
                           { title: 'Getting Started', desc: 'Base URL, Authentication, and Credits.', cat: 'getting-started', id: 'getting-started-core' },
                           { title: 'Error Codes', desc: 'Directory of platform errors and handling.', cat: 'getting-started', id: 'error-codes' },
                           { title: 'Rate Limits', desc: 'Request thresholds and tier limits.', cat: 'getting-started', id: 'rate-limits' },
-                          { title: 'Map and Tiles', desc: 'Coordinate systems and Leaflet integration.', cat: 'advanced', id: 'map-tiles' },
-                          { title: 'SDKs & Libraries', desc: 'Code examples for JavaScript and Python.', cat: 'advanced', id: 'sdks' }
                         ];
                         staticSections.forEach(s => {
                           if (s.title.toLowerCase().includes(lowQuery) || s.desc.toLowerCase().includes(lowQuery)) {
@@ -383,9 +383,9 @@ export default function DocsClient() {
                                   <span style={{fontSize: '10px', fontWeight: 900, padding: '4px 8px', borderRadius: '6px', background: ep.method === 'GET' ? '#ecfdf5' : '#eff6ff', color: ep.method === 'GET' ? '#059669' : '#2563eb'}}>{ep.method}</span>
                                   <code style={{fontSize: '1rem', fontWeight: 800, color: '#000', background: 'transparent'}}>{ep.path}</code>
                                </div>
-                               <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
-                                  {ep.credits && <span style={{fontSize: '13px', fontWeight: 700, color: '#D97757', border: '1px solid rgba(217,119,87,0.2)', padding: '4px 10px', borderRadius: '8px', background: 'rgba(217,119,87,0.05)'}}>{ep.credits} Credits</span>}
-                               </div>
+                                <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+                                   {typeof ep.credits === 'number' && ep.credits > 0 && <span style={{fontSize: '13px', fontWeight: 700, color: '#D97757', border: '1px solid rgba(217,119,87,0.2)', padding: '4px 10px', borderRadius: '8px', background: 'rgba(217,119,87,0.05)'}}>{ep.credits} Credits</span>}
+                                </div>
                             </div>
                             <div style={{padding: '32px', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '48px'}}>
                                <div>
@@ -405,8 +405,16 @@ export default function DocsClient() {
                                </div>
                                <div>
                                   <h6 style={{fontSize: '11px', fontWeight: 900, color: '#9CA3AF', marginBottom: '12px', letterSpacing: '0.05em'}}>RESPONSE PREVIEW</h6>
-                                  <div style={{background: '#111827', padding: '24px', borderRadius: '16px', position: 'relative'}}>
-                                     <pre style={{margin: 0, padding: 0, fontSize: '13px', color: '#fff', fontFamily: 'JetBrains Mono', lineHeight: 1.5}}>
+                                  <div style={{background: '#111827', padding: '24px', borderRadius: '16px', position: 'relative', overflowX: 'auto'}}>
+                                     <pre style={{
+                                       margin: 0, 
+                                       padding: 0, 
+                                       fontSize: '13px', 
+                                       color: '#fff', 
+                                       fontFamily: 'JetBrains Mono', 
+                                       lineHeight: 1.5,
+                                       whiteSpace: 'pre',
+                                     }}>
                                         {(() => { try { return JSON.stringify(JSON.parse(ep.response || '{}'), null, 2); } catch { return ep.response; }})()}
                                      </pre>
                                   </div>
@@ -481,74 +489,10 @@ export default function DocsClient() {
                   </section>
                 </>
               )}
-
-              {activeCategory === 'advanced' && (
-                <div style={{display: 'flex', flexDirection: 'column', gap: '100px'}}>
-                  <section id="map-tiles" style={{scrollMarginTop: '100px'}}>
-                    <h2 style={{fontSize: '2.5rem', fontWeight: 800, marginBottom: '24px'}}>Map and Tiles</h2>
-                    <p style={{fontSize: '1.1rem', color: '#6B6A68', lineHeight: 1.7, marginBottom: '40px'}}>
-                       Pathgen provides current-season map tiles for high-fidelity visualization using Leaflet.js. Use the following coordinate system to map replay data (X, Y) to pixel space.
-                    </p>
-                    <div style={{background: '#fff', border: '1px solid #EEECE7', borderRadius: '24px', padding: '40px', marginBottom: '40px'}}>
-                       <h4 style={{fontWeight: 800, marginBottom: '16px'}}>Leaflet Implementation</h4>
-                       <pre style={{background: '#111827', color: '#fff', padding: '24px', borderRadius: '16px', fontSize: '0.85rem', lineHeight: 1.6, overflowX: 'auto'}}>
-                          {`<!-- Include Leaflet CSS/JS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<div id="map" style="height: 600px; background: #000;"></div>
-
-<script>
-  const map = L.map('map', {
-    crs: L.CRS.Simple, // Use Simple CRS for game coordinates
-    minZoom: -3
-  });
-
-  const bounds = [[0, 0], [2048, 2048]]; // 2K tile-space
-  const image = L.imageOverlay('https://tiles.pathgen.dev/current/map.jpg', bounds).addTo(map);
-  
-  // Coordinate conversion helper
-  function toLatLng(worldX, worldY) {
-    const scale = 2048 / 250000; // Map world-units to pixels
-    const px = (worldX + 125000) * scale;
-    const py = (worldY + 125000) * scale;
-    return [2048 - py, px]; // Invert Y for Leaflet
-  }
-
-  const pos = toLatLng(15420, -42500);
-  L.marker(pos).addTo(map).bindPopup("Match Location");
-  map.setView([1024, 1024], -1);
-</script>`}
-                       </pre>
-                    </div>
-                  </section>
-
-                  <section id="sdks" style={{scrollMarginTop: '100px'}}>
-                    <h2 style={{fontSize: '2.5rem', fontWeight: 800, marginBottom: '24px'}}>SDKs & Libraries</h2>
-                    <p style={{fontSize: '1.1rem', color: '#6B6A68', lineHeight: 1.7, marginBottom: '40px'}}>
-                       While official packages for Node.js and Python are in development, you can call the API using standard HTTP libraries.
-                    </p>
-                    <div style={{display: 'flex', flexDirection: 'column', gap: '32px'}}>
-                       {[
-                         { lang: 'JavaScript (Fetch)', code: `const response = await fetch('https://api.pathgen.dev/v1/replay/stats', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer YOUR_KEY' },\n  body: formData\n});` },
-                         { lang: 'Python (Requests)', code: `import requests\nresp = requests.post('https://api.pathgen.dev/v1/replay/stats', \n  headers={'Authorization': 'Bearer YOUR_KEY'}, \n  files={'replay': open('match.replay', 'rb')})` },
-                         { lang: 'cURL', code: `curl -X POST https://api.pathgen.dev/v1/replay/stats \\\n  -H "Authorization: Bearer YOUR_KEY" \\\n  -F "replay=@match.replay"` }
-                       ].map(sdk => (
-                         <div key={sdk.lang} style={{background: '#fff', border: '1px solid #EEECE7', borderRadius: '20px', padding: '24px'}}>
-                            <div style={{fontSize: '0.9rem', fontWeight: 800, marginBottom: '12px'}}>{sdk.lang}</div>
-                            <pre style={{background: '#F9FAFB', padding: '16px', borderRadius: '12px', fontSize: '0.85rem', fontFamily: 'JetBrains Mono', color: '#D97757'}}>
-                               {sdk.code}
-                            </pre>
-                         </div>
-                       ))}
-                    </div>
-                  </section>
-                </div>
-              )}
                 </>
               )}
-           </div>
-        </main>
+            </div>
+         </main>
 
         {/* TOC Sidebar */}
         <aside style={{ position: 'sticky', top: '64px', height: 'calc(100vh - 64px)', padding: '32px 24px', borderLeft: '1px solid #EEECE7' }}>
@@ -557,13 +501,14 @@ export default function DocsClient() {
               {tocItems.map(item => (
                 <button key={item.id} onClick={() => scrollToSection(item.id)}
                   style={{
-                    border: 'none', background: 'transparent', padding: 0, textAlign: 'left', fontSize: '0.8rem', cursor: 'pointer', outline: 'none',
+                    border: 'none', background: 'transparent', padding: '4px 0', textAlign: 'left', fontSize: '0.8rem', cursor: 'pointer', outline: 'none',
                     color: activeSection === item.id ? '#000' : '#9CA3AF', fontWeight: activeSection === item.id ? 700 : 500,
-                    display: 'flex', alignItems: 'center', gap: '8px'
+                    display: 'flex', alignItems: 'flex-start', gap: '8px',
+                    width: '100%', lineHeight: 1.4
                   }}
                 >
-                  <div style={{width: '2px', height: '14px', background: activeSection === item.id ? '#D97757' : 'transparent'}} />
-                  {item.title}
+                  <div style={{width: '2px', height: '14px', background: activeSection === item.id ? '#D97757' : 'transparent', marginTop: '4px', flexShrink: 0}} />
+                  <span style={{ flex: 1 }}>{item.title}</span>
                 </button>
               ))}
            </div>

@@ -42,7 +42,7 @@ const recentRequests = [
     method: "POST",
     region: "IAD (Virginia)",
     duration: "1,248ms",
-    body: { file_hash: "0x4b3h...9h4j" },
+    body: { file: "match_82.replay" },
     response: { match_id: "match_9431", status: "success" }
   },
   { 
@@ -55,31 +55,31 @@ const recentRequests = [
     region: "FRA (Frankfurt)",
     duration: "42ms",
     body: { match_id: "match_9431" },
-    response: { error: "BETA_ACCESS_REQUIRED", message: "Key '..." }
+    response: { error: "INSUFFICIENT_CREDITS", message: "Check balance." }
   },
   { 
     id: "req_88hjz2p", 
-    endpoint: "/v1/game/stats", 
+    endpoint: "/v1/replay/stats", 
     status: 200, 
     credits: 5, 
     date: "1 hr ago",
-    method: "GET",
+    method: "POST",
     region: "CDG (Paris)",
     duration: "185ms",
-    body: { name: "Ninja" },
-    response: { account: { name: "Ninja" }, stats: { wins: 420 } }
+    body: { file: "match_81.replay" },
+    response: { kills: 8, accuracy: 0.34 }
   },
   { 
     id: "req_4k2lhz", 
-    endpoint: "/v1/game/ranked", 
+    endpoint: "/v1/replay/match-info", 
     status: 200, 
-    credits: 1, 
+    credits: 5, 
     date: "3 hrs ago",
-    method: "GET",
+    method: "POST",
     region: "IAD (Virginia)",
     duration: "95ms",
-    body: { accountId: "4b3h..." },
-    response: { ranked: { division_name: "Elite" } }
+    body: { server_id: "NAE_123" },
+    response: { version: "v29.10" }
   },
 ];
 

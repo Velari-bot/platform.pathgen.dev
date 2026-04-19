@@ -186,22 +186,24 @@ export default function LandingClient({ defaultIsRegistering = false }: { defaul
              />
              <span style={{fontSize: '1.25rem', fontWeight: 600, color: '#111111'}}>Pathgen Console</span>
           </div>
-          <button style={{
-            padding: '8px 14px', 
-            borderRadius: '8px', 
-            border: '1px solid #E5E5E5', 
-            background: 'transparent', 
-            fontSize: '0.9rem', 
-            fontWeight: 500, 
-            color: '#111111',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            cursor: 'pointer'
-          }}>
-             Documentation
-             <ArrowUpRight size={14} />
-          </button>
+          <Link href="/docs" style={{ textDecoration: 'none' }}>
+            <button style={{
+              padding: '8px 14px', 
+              borderRadius: '8px', 
+              border: '1px solid #E5E5E5', 
+              background: 'transparent', 
+              fontSize: '0.9rem', 
+              fontWeight: 500, 
+              color: '#111111',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer'
+            }}>
+               Documentation
+               <ArrowUpRight size={14} />
+            </button>
+          </Link>
        </header>
 
        {/* Main Landing/Auth Section */}
